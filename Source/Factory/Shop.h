@@ -27,7 +27,7 @@ private:
 	UStaticMeshComponent *Mesh;
 
 	// Resources available to shop
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	FShopResources Resources;
 
 	// TODO keep history of resources for graphing? Maybe capture every phase change?
@@ -36,6 +36,9 @@ private:
 protected:
 
 	AShop() : AShop(FName(TEXT("Unnamed Shop"))) {};
+
+	// Create the platform for the provided platform type.
+	virtual UPlatform *MakePlatform(EGamePlatform PlatformType);
 
 	// Platforms that make up the shop
 	UPROPERTY(VisibleAnywhere)

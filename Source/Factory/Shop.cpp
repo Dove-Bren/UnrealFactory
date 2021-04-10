@@ -2,6 +2,10 @@
 
 #include "Misc/EnumRange.h"
 
+#include "PlatformShop.h"
+#include "PlatformFactory.h"
+#include "PlatformMine.h"
+
 AShop::AShop(FName Name)
 {
 	this->Name = Name;
@@ -11,11 +15,27 @@ AShop::AShop(FName Name)
 	// Construct platform map
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
 	{
-		UPlatform *Platform = CreateDefaultSubobject<UPlatform>(GetPlatformName(PlatformType));
+		UPlatform *Platform = MakePlatform(PlatformType);
 		Platform->AttachToShop(PlatformType, this);
 		this->Platforms.Add(PlatformType, Platform);
 	}
 
+}
+
+UPlatform *AShop::MakePlatform(EGamePlatform PlatformType)
+{
+	FName PlatformName = GetPlatformName(PlatformType);
+	switch (PlatformType)
+	{
+	case EGamePlatform::SHOP:
+		return CreateDefaultSubobject<UPlatformShop>(PlatformName);
+	case EGamePlatform::FACTORY:
+		return CreateDefaultSubobject<UPlatformFactory>(PlatformName);
+	case EGamePlatform::MINE:
+		return CreateDefaultSubobject<UPlatformMine>(PlatformName);
+	}
+
+	return CreateDefaultSubobject<UPlatform>(PlatformName);
 }
 
 void AShop::StartPhase(EGamePhase Phase)

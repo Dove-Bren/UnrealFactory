@@ -38,7 +38,7 @@ public:
 
 	// Init the component as part of the provided platform
 	UFUNCTION(BlueprintCallable)
-	void RegisterPlatform(UPlatform *Platform);
+	virtual void RegisterPlatform(UPlatform *Platform);
 
 	// Transition this component to the provided daily phase
 	UFUNCTION(BlueprintCallable)

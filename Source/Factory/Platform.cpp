@@ -13,7 +13,7 @@ void UPlatform::AttachToShop(EGamePlatform Type, AShop *Shop)
 	this->PlatformType = Type;
 	this->ShopParent = Shop;
 
-	this->AttachToComponent(Shop->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, GetPlatformName(Type));
+	this->AttachToComponent(Shop->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 void UPlatform::AddComponent(APlatformComponent *Component)
