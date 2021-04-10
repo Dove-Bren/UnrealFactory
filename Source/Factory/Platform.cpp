@@ -1,10 +1,19 @@
 #include "Platform.h"
 
+#include "Shop.h"
 
-void UPlatform::AttachToShop(EGamePlatform Type, UShop *Shop)
+UPlatform::UPlatform()
+{
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Floor"));
+	Mesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+}
+
+void UPlatform::AttachToShop(EGamePlatform Type, AShop *Shop)
 {
 	this->PlatformType = Type;
 	this->ShopParent = Shop;
+
+	this->AttachToComponent(Shop->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform, GetPlatformName(Type));
 }
 
 void UPlatform::AddComponent(APlatformComponent *Component)

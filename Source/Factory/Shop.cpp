@@ -2,9 +2,11 @@
 
 #include "Misc/EnumRange.h"
 
-UShop::UShop(FName Name)
+AShop::AShop(FName Name)
 {
 	this->Name = Name;
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	this->RootComponent = Mesh;
 
 	// Construct platform map
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
@@ -16,7 +18,7 @@ UShop::UShop(FName Name)
 
 }
 
-void UShop::StartPhase(EGamePhase Phase)
+void AShop::StartPhase(EGamePhase Phase)
 {
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
 	{
@@ -28,7 +30,7 @@ void UShop::StartPhase(EGamePhase Phase)
 	}
 }
 
-void UShop::ShopTick(EGamePhase Phase)
+void AShop::ShopTick(EGamePhase Phase)
 {
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
 	{
@@ -56,17 +58,17 @@ void UShop::ShopTick(EGamePhase Phase)
 		Amt = Raw;\
 	}
 
-void UShop::AddGold(int32 Count)
+void AShop::AddGold(int32 Count)
 {
 	CLAMP_UNSIGNED(Resources.Gold, Count);
 }
 
-void UShop::AddWood(int32 Count)
+void AShop::AddWood(int32 Count)
 {
 	CLAMP_UNSIGNED(Resources.Wood, Count);
 }
 
-void UShop::AddOre(int32 Count)
+void AShop::AddOre(int32 Count)
 {
 	CLAMP_UNSIGNED(Resources.Ore, Count);
 }

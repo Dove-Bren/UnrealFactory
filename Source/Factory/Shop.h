@@ -3,6 +3,8 @@
 // 
 
 #include "CoreMinimal.h"
+#include "Components/StaticMeshComponent.h"
+#include "GameFramework/Actor.h"
 
 #include "GameEnums.h"
 #include "Platform.h"
@@ -11,7 +13,7 @@
 #include "Shop.generated.h"
 
 UCLASS(Blueprintable)
-class UShop: public UObject
+class AShop: public AActor
 {
 	GENERATED_BODY()
 private:
@@ -19,6 +21,10 @@ private:
 	// Name of the shop
 	UPROPERTY(VisibleAnywhere)
 	FName Name;
+
+	// Main mesh component
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent *Mesh;
 
 	// Resources available to shop
 	UPROPERTY(EditAnywhere)
@@ -29,7 +35,7 @@ private:
 
 protected:
 
-	UShop() : UShop(FName(TEXT("Unnamed Shop"))) {};
+	AShop() : AShop(FName(TEXT("Unnamed Shop"))) {};
 
 	// Platforms that make up the shop
 	UPROPERTY(VisibleAnywhere)
@@ -37,7 +43,7 @@ protected:
 
 public:
 
-	UShop(FName Name);
+	AShop(FName Name);
 
 	const TMap<EGamePlatform, UPlatform*> GetPlatforms() { return this->Platforms; }
 	const FName GetName() { return this->Name; }

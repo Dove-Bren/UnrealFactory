@@ -5,26 +5,33 @@
 // Note that, for the Mine, this includes all of the machines belonging to one shop.
 
 #include "CoreMinimal.h"
+#include "Components/SceneComponent.h"
+#include "Components/StaticMeshComponent.h"
 
 #include "GameEnums.h"
 #include "PlatformComponent.h"
 
 #include "Platform.generated.h"
 
-typedef class UShop UShop;
+typedef class AShop AShop;
 
 UCLASS()
-class UPlatform : public UObject
+class UPlatform : public USceneComponent
 {
 	GENERATED_BODY()
 private:
+
+	// Main floor mesh of the platform
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent *Mesh;
+
 	// Type of platform
 	UPROPERTY(VisibleAnywhere)
 	EGamePlatform PlatformType;
 
 	// Link to parent shop object
 	UPROPERTY(VisibleAnywhere)
-	UShop *ShopParent;
+	AShop *ShopParent;
 
 	// Collection of all components that are on this layer
 	UPROPERTY(VisibleAnywhere)
@@ -35,12 +42,13 @@ protected:
 	//std::vector
 
 public:
-	UPlatform() {};
+	UPlatform();
 
 	UFUNCTION(BlueprintCallable)
-	void AttachToShop(EGamePlatform Type, UShop *Shop);
+	void AttachToShop(EGamePlatform Type, AShop *Shop);
 
 	// Add a component to this layer
+	UFUNCTION(BlueprintCallable)
 	void AddComponent(APlatformComponent *Component);
 
 	// Transition to the provided state, including stopping any activities from the previous one
