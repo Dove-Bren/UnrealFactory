@@ -11,6 +11,11 @@ void APlatformComponent::RegisterPlatform(UPlatform * Platform)
 	this->ParentPlatform = Platform;
 }
 
+void APlatformComponent::RemoveFromPlatform(UPlatform *Platform)
+{
+	this->ParentPlatform = nullptr;
+}
+
 void APlatformComponent::StartPhase(EGamePhase Phase)
 {
 	;

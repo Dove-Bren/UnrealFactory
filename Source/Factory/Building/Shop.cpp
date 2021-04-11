@@ -16,6 +16,7 @@ AShop::AShop(FName Name)
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
 	{
 		UPlatform *Platform = MakePlatform(PlatformType);
+		Platform->SetRelativeLocation(FVector(0, 0, GetPlatformOffset(PlatformType)), false);
 		Platform->AttachToShop(PlatformType, this);
 		this->Platforms.Add(PlatformType, Platform);
 	}

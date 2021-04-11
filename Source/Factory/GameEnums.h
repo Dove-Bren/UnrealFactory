@@ -20,6 +20,8 @@ enum class EGamePlatform : uint8
 ENUM_RANGE_BY_COUNT(EGamePlatform, EGamePlatform::MAX)
 ENUM_HAS_NAMES(EGamePlatform, Platform);
 
+int32 GetPlatformOffset(EGamePlatform PlatformType);
+
 UENUM()
 enum class EGamePhase : uint8
 {
@@ -33,3 +35,16 @@ enum class EGamePhase : uint8
 };
 ENUM_RANGE_BY_COUNT(EGamePhase, EGamePhase::MAX)
 ENUM_HAS_NAMES(EGamePhase, Phase);
+
+UENUM()
+enum class EDirection : uint8
+{
+	NORTH,
+	EAST,
+	SOUTH,
+	WEST,
+
+	MAX
+};
+ENUM_RANGE_BY_COUNT(EDirection, EDirection::MAX)
+ENUM_HAS_NAMES(EDirection, Direction);

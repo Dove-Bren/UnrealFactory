@@ -40,6 +40,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void RegisterPlatform(UPlatform *Platform);
 
+	// Detatch the component from the platform
+	UFUNCTION(BlueprintCallable)
+	virtual void RemoveFromPlatform(UPlatform *Platform);
+
 	// Transition this component to the provided daily phase
 	UFUNCTION(BlueprintCallable)
 	virtual void StartPhase(EGamePhase Phase);

@@ -2,12 +2,12 @@
 
 #include "FactoryGameMode.h"
 #include "FactoryPlayerController.h"
-#include "FactoryPawn.h"
+#include "PlayerCharacter.h"
 
 AFactoryGameMode::AFactoryGameMode()
 {
 	// no pawn by default
-	DefaultPawnClass = AFactoryPawn::StaticClass();
+	DefaultPawnClass = APlayerCharacter::StaticClass();
 	// use our own player controller class
 	PlayerControllerClass = AFactoryPlayerController::StaticClass();
 }

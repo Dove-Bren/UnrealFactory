@@ -10,6 +10,7 @@
 
 #include "GameEnums.h"
 #include "PlatformComponent.h"
+#include "ComponentLayout.h"
 
 #include "Platform.generated.h"
 
@@ -33,9 +34,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	AShop *ShopParent;
 
-	// Collection of all components that are on this layer
+	// Grid
 	UPROPERTY(VisibleAnywhere)
-	TArray<APlatformComponent*> Components;
+	UComponentLayout *Grid;
 
 protected:
 

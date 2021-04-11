@@ -1,18 +1,18 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
-#include "FactoryPawn.generated.h"
 
-UCLASS(config=Game)
-class AFactoryPawn : public APawn
+#include "PlayerCharacter.generated.h"
+
+UCLASS()
+class APlayerCharacter : public ACharacter
 {
-	GENERATED_UCLASS_BODY()
+	GENERATED_BODY()
 
 public:
+	APlayerCharacter();
 
 	virtual void Tick(float DeltaSeconds) override;
 
@@ -21,14 +21,15 @@ public:
 	virtual void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
 
 protected:
-	void OnResetVR();
-	void TriggerClick();
-	void TraceForBlock(const FVector& Start, const FVector& End, bool bDrawDebugHelpers);
 
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-	class AFactoryBlock* CurrentBlockFocus;
-
+		class AFactoryBlock* CurrentBlockFocus;
 
 	UPROPERTY(EditAnywhere)
-	UCameraComponent *Camera;
+		UCameraComponent *Camera;
+
+private:
+
+
+
 };
