@@ -22,13 +22,17 @@ class UPlatform : public USceneComponent
 	GENERATED_BODY()
 private:
 
-	// Main floor mesh of the platform
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent *Mesh;
-
 	// Type of platform
 	UPROPERTY(VisibleAnywhere)
 	EGamePlatform PlatformType;
+
+protected:
+
+	//std::vector
+
+	// Main floor mesh of the platform
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent *Mesh;
 
 	// Link to parent shop object
 	UPROPERTY(VisibleAnywhere)
@@ -37,10 +41,6 @@ private:
 	// Grid
 	UPROPERTY(VisibleAnywhere)
 	UComponentLayout *Grid;
-
-protected:
-
-	//std::vector
 
 public:
 	UPlatform();

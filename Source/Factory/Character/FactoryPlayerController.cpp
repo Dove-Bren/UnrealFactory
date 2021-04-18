@@ -6,6 +6,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
+#include "Framework/Application/SlateApplication.h"
+//#include "SlateApplication.h"
 
 #include "PlayerCharacter.h"
 
@@ -29,6 +31,9 @@ void AFactoryPlayerController::SetupInputComponent()
 	InputComponent->BindAxis("MoveRight", this, &AFactoryPlayerController::MoveRight);
 	InputComponent->BindAction("Jump", IE_Pressed, this, &AFactoryPlayerController::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &AFactoryPlayerController::StopJumping);
+	InputComponent->BindAction("Sprint", IE_Pressed, this, &AFactoryPlayerController::StartSprinting);
+	InputComponent->BindAction("Sprint", IE_Released, this, &AFactoryPlayerController::StopSprinting);
+	InputComponent->BindAction("AlwaysSprint", IE_Pressed, this, &AFactoryPlayerController::StopSprinting);
 }
 
 void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
@@ -76,13 +81,31 @@ void AFactoryPlayerController::MouseYaw(float Value)
 	this->AddYawInput(Value);
 }
 
+bool AFactoryPlayerController::IsSprinting()
+{
+	// Caps lock/sprint lock is base state. Shift flips it.
+	bool bRunning = this->bSprintLock;
+	if (this->bSprintMod)
+	{
+		bRunning = !bRunning;
+	}
+
+	return bRunning;
+}
+
 void AFactoryPlayerController::MoveForward(float Value)
 {
 	APlayerCharacter *ControlledCharacter = dynamic_cast<APlayerCharacter *>(this->GetCharacter());
-	if (ControlledCharacter && ControlledCharacter->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling)
+	if (ControlledCharacter /*&& ControlledCharacter->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling*/)
 	{
 		if (Value != 0.0f)
 		{
+			// Modify value based on sprint
+			if (!IsSprinting())
+			{
+				Value *= .5f;
+			}
+
 			// find out which way is forward
 			const FRotator Rotation = GetControlRotation();
 			const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -97,10 +120,16 @@ void AFactoryPlayerController::MoveForward(float Value)
 void AFactoryPlayerController::MoveRight(float Value)
 {
 	APlayerCharacter *ControlledCharacter = dynamic_cast<APlayerCharacter *>(this->GetCharacter());
-	if (ControlledCharacter && ControlledCharacter->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling)
+	if (ControlledCharacter /* && ControlledCharacter->GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Falling*/)
 	{
 		if (Value != 0.0f)
 		{
+			// Modify value based on sprint
+			if (!IsSprinting())
+			{
+				Value *= .5f;
+			}
+
 			// find out which way is right
 			const FRotator Rotation = GetControlRotation();
 			const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -129,6 +158,27 @@ void AFactoryPlayerController::StopJumping()
 	{
 		ControlledCharacter->StopJumping();
 	}
+}
+
+void AFactoryPlayerController::ToggleAlwaysSprint()
+{
+	// Actually just detect capslock status and then set our state based on that
+	SetSprintLock(FSlateApplication::Get().GetModifierKeys().AreCapsLocked());
+}
+
+void AFactoryPlayerController::StartSprinting()
+{
+	this->bSprintMod = true;
+}
+
+void AFactoryPlayerController::StopSprinting()
+{
+	this->bSprintMod = false;
+}
+
+void AFactoryPlayerController::SetSprintLock(bool bOn)
+{
+	this->bSprintLock = bOn;
 }
 
 void AFactoryPlayerController::Trace(const FVector& Start, const FVector& End, bool bDrawDebugHelpers)

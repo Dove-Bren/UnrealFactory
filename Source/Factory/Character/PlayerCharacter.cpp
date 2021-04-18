@@ -21,6 +21,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraBoom->bInheritPitch = false;
 	CameraBoom->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->bDoCollisionTest = false;
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->AttachToComponent(CameraBoom, FAttachmentTransformRules::KeepRelativeTransform, USpringArmComponent::SocketName);
@@ -33,7 +34,8 @@ APlayerCharacter::APlayerCharacter()
 	// Configure character movement
 	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 300.0f, 0.0f); // ...at this rotation rate
-	GetCharacterMovement()->JumpZVelocity = 750.f;
+	GetCharacterMovement()->MaxWalkSpeed = 800.f;
+	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.8f;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;

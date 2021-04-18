@@ -28,7 +28,17 @@ protected:
 	void MoveRight(float Value);
 	void Jump();
 	void StopJumping();
+	void StartSprinting();
+	void StopSprinting();
+	void ToggleAlwaysSprint();
 	void Trace(const FVector& Start, const FVector& End, bool bDrawDebugHelpers);
+
+	void SetSprintLock(bool bOn);
+	bool IsSprinting();
+
+private:
+	bool bSprintLock;
+	bool bSprintMod;
 
 };
 
