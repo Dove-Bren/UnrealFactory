@@ -11,10 +11,10 @@ ALadder::ALadder() : AClickableActor()
 	struct FConstructorStatics
 	{
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> LadderMesh;
-		//ConstructorHelpers::FObjectFinderOptional<UStaticMesh> HoleMesh;
+		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> HoleMesh;
 		FConstructorStatics()
 			: LadderMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/ladder.ladder"))
-			//, WallMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/Dungeon/wall_03.wall_03"))
+			, HoleMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/ladder_hole.ladder_hole"))
 		{
 		}
 	};
@@ -28,8 +28,19 @@ ALadder::ALadder() : AClickableActor()
 	Mesh->SetRelativeRotation(FRotator(0.f, 0.f, 15.f));
 	this->RootComponent = Mesh;
 
+	UStaticMeshComponent *HoleMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hole"));
+	HoleMesh->SetStaticMesh(ConstructorStatics.HoleMesh.Get());
+	HoleMesh->SetGenerateOverlapEvents(false);
+	HoleMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	HoleMesh->SetRelativeLocation(FVector(0.f, 0.f, 1.f));
+	HoleMesh->SetWorldRotation(FRotator(0.f, 0.f, 0.f));
+	HoleMesh->SetUsingAbsoluteRotation(true);
+	//HoleMesh->SetRelativeScale3D(FVector(1.5f, 1.5f, 2.f));
+	//HoleMesh->SetRelativeRotation(FRotator(0.f, 0.f, 15.f));
+	HoleMesh->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
+
 	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
-	Capsule->SetRelativeLocation(FVector(25.f, 0.f, 0.f));
+	Capsule->SetRelativeLocation(FVector(25.f, 0.f, 90.f));
 	Capsule->AttachToComponent(Mesh, FAttachmentTransformRules::KeepRelativeTransform);
 	Capsule->SetCapsuleSize(30.f, 120.f);
 	Capsule->SetGenerateOverlapEvents(true);

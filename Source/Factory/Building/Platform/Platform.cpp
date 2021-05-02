@@ -26,7 +26,7 @@ void UPlatform::BeginPlay()
 	Super::BeginPlay();
 
 	Ladder = GetWorld()->SpawnActor<ALadder>(ALadder::StaticClass(), this->GetComponentTransform());
-	Ladder->SetActorRelativeLocation(FVector(-25.f, 0.f, 50.f));
+	Ladder->SetActorRelativeLocation(FVector(-25.f, 0.f, 0.f));
 	Ladder->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 	Ladder->SetPlatform(this);
 }
