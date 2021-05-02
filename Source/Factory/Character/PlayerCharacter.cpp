@@ -10,6 +10,12 @@
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 
+#include "Shop.h"
+#include "Platform.h"
+
+#define SPEED_WALK 400
+#define SPEED_RUN 800
+
 APlayerCharacter::APlayerCharacter()
 {
 	/*UCapsuleComponent *Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
@@ -56,4 +62,48 @@ void APlayerCharacter::CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutR
 	Super::CalcCamera(DeltaTime, OutResult);
 
 	//OutResult.Rotation = FRotator(0.0f, -90.0f, 0.0f);
+}
+
+void APlayerCharacter::SetShop(const AShop *Shop, EGamePlatform Platform, bool bTeleport)
+{
+	this->CurrentShop = Shop;
+	this->CurrentPlatform = Platform;
+
+	// Do the actual move if requested
+	if (bTeleport)
+	{
+		FVector Loc = Shop->GetActorLocation() + FVector(100, 0, GetPlatformOffset(Platform) + 5);
+		SetActorLocation(Loc, false);
+	}
+
+	ResetAbilities();
+}
+
+void APlayerCharacter::ResetAbilities()
+{
+	if (!CurrentShop)
+	{
+		// Outside
+		bCanSprint = true;
+		bCanJump = false;
+	}
+	else
+	{
+		switch (CurrentPlatform)
+		{
+		case EGamePlatform::SHOP:
+			bCanSprint = false;
+			bCanJump = false;
+			break;
+		case EGamePlatform::FACTORY:
+			bCanSprint = true;
+			bCanJump = false;
+			break;
+		case EGamePlatform::MINE:
+		default:
+			bCanSprint = true;
+			bCanJump = true;
+			break;
+		}
+	}
 }

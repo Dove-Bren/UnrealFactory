@@ -81,7 +81,6 @@ void ALadder::OnClick(FKey ButtonPressed)
 			break;
 		}
 
-		FVector Loc = Platform->GetShop()->GetActorLocation() + FVector(100, 0, GetPlatformOffset(DestPlatform) + 5);
-		ControlledCharacter->SetActorLocation(Loc, false);
+		ControlledCharacter->SetShop(Platform->GetShop(), DestPlatform, true);
 	}
 }

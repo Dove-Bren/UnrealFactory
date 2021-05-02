@@ -19,7 +19,9 @@ class UPlatformFactory : public UPlatform
 private:
 	// Wall parent component
 	UPROPERTY(EditAnywhere)
-	USceneComponent *Walls;
+	USceneComponent *WallsParent;
+
+	TArray<UStaticMeshComponent*> WallComponents;
 
 	UStaticMesh *FloorMesh;
 	UStaticMesh *WallMesh;

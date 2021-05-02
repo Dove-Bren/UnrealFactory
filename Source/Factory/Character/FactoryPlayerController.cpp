@@ -103,7 +103,7 @@ void AFactoryPlayerController::MoveForward(float Value)
 		if (Value != 0.0f)
 		{
 			// Modify value based on sprint
-			if (!IsSprinting())
+			if (!ControlledCharacter->CanSprint() || !IsSprinting())
 			{
 				Value *= .5f;
 			}
@@ -127,7 +127,7 @@ void AFactoryPlayerController::MoveRight(float Value)
 		if (Value != 0.0f)
 		{
 			// Modify value based on sprint
-			if (!IsSprinting())
+			if (!ControlledCharacter->CanSprint() || !IsSprinting())
 			{
 				Value *= .5f;
 			}
@@ -147,7 +147,7 @@ void AFactoryPlayerController::MoveRight(float Value)
 void AFactoryPlayerController::Jump()
 {
 	APlayerCharacter *ControlledCharacter = dynamic_cast<APlayerCharacter *>(this->GetCharacter());
-	if (ControlledCharacter)
+	if (ControlledCharacter && ControlledCharacter->CanJump())
 	{
 		ControlledCharacter->Jump();
 	}
