@@ -29,8 +29,8 @@ UPlatformFactory::UPlatformFactory()
 	};
 	static FMeshStatics MeshStatics;
 
-	this->FloorWidth = MIN_FACTORY_WIDTH;
-	this->FloorHeight = MIN_FACTORY_HEIGHT;
+	this->FloorWidth = MIN_FACTORY_WIDTH * 2;
+	this->FloorHeight = MIN_FACTORY_HEIGHT * 2;
 
 	Mesh->SetStaticMesh(MeshStatics.FloorMesh.Get());
 	Mesh->SetMaterial(0, MeshStatics.FloorMat.Get());

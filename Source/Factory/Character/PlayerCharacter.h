@@ -3,6 +3,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
+#include "Components/SkyAtmosphereComponent.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/PointLightComponent.h"
+#include "Components/RectLightComponent.h"
+#include "Components/SkyLightComponent.h"
 
 #include "GameEnums.h"
 
@@ -31,14 +36,36 @@ public:
 
 protected:
 
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
-		class AFactoryBlock* CurrentBlockFocus;
-
 	UPROPERTY(EditAnywhere)
 	UCameraComponent *Camera;
 
+	// Shop and overworld light
+	UPROPERTY(EditAnywhere)
+	UDirectionalLightComponent *LightShopDirectional;
+	UPROPERTY(EditAnywhere)
+	USkyAtmosphereComponent *LightShopFog;
+	UPROPERTY(EditAnywhere)
+	USkyLightComponent *LightShopSky;
+
+	// Shop and overworld light
+	UPROPERTY(EditAnywhere)
+	UDirectionalLightComponent *LightFactoryDirectional;
+	UPROPERTY(EditAnywhere)
+	UPointLightComponent *LightFactoryPoint;
+
+
+	// Mine-level lights
+	UPROPERTY(EditAnywhere)
+	UPointLightComponent *LightMine1;
+	UPROPERTY(EditAnywhere)
+	URectLightComponent *LightMine2;
+
+
 	// Sets abilities as appropriate for current shop and platform
 	void ResetAbilities();
+
+	// Sets up lighting based on the approrpriate shop and platform
+	void ResetLighting();
 
 	bool bCanSprint;
 	bool bCanJump;

@@ -1,13 +1,15 @@
 #include "PlayerCharacter.h"
 
-#include "HeadMountedDisplayFunctionLibrary.h"
+#include "Animation/AnimBlueprint.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "Engine/World.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Engine/World.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "DrawDebugHelpers.h"
 
 #include "Shop.h"
@@ -20,6 +22,28 @@ APlayerCharacter::APlayerCharacter()
 {
 	/*UCapsuleComponent *Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
 	RootComponent = Capsule;*/
+
+	// Structure to hold one-time initialization
+	struct FConstructorStatics
+	{
+		ConstructorHelpers::FObjectFinderOptional<USkeletalMesh> SkeletalMesh;
+		ConstructorHelpers::FObjectFinderOptional<UAnimBlueprint> AnimBlueprint;
+		FConstructorStatics()
+			: SkeletalMesh(TEXT("/Game/Puzzle/Meshes/Characters/ElfArchers/ElfMan.ElfMan"))
+			, AnimBlueprint(TEXT("/Game/Puzzle/Meshes/Characters/ElfArchers/Animations/ElfManAnim.ElfManAnim"))
+		{
+		}
+	};
+	static FConstructorStatics ConstructorStatics;
+
+	// Adjust size of capsule
+	GetCapsuleComponent()->SetCapsuleHalfHeight(97.f);
+
+	// Set mesh
+	GetMesh()->SetSkeletalMesh(ConstructorStatics.SkeletalMesh.Get());
+	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+	GetMesh()->SetAnimClass(ConstructorStatics.AnimBlueprint.Get()->GeneratedClass);
+	GetMesh()->SetRelativeTransform(FTransform(FRotator(0.f, -90.f, 0.f), FVector(0.f, 0.f, -95.f)));
 
 	USpringArmComponent *CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->TargetArmLength = 1000.0;
@@ -43,6 +67,53 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 800.f;
 	GetCharacterMovement()->JumpZVelocity = 600.f;
 	GetCharacterMovement()->AirControl = 0.8f;
+
+	// Lighting for the various platforms
+	// Shop/Overworld
+	LightShopDirectional = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("ShopLightDirectional"));
+	//LightShopDirectional->SetIntensity(10.f); // Default is good
+	LightShopDirectional->SetCastShadows(true);
+	LightShopDirectional->SetWorldRotation(FRotator(-60.f, 0.f, 0.f));
+	LightShopDirectional->SetUsingAbsoluteRotation(true);
+	LightShopDirectional->SetVisibility(true);
+	LightShopDirectional->SetAtmosphereSunLight(true);
+	LightShopFog = CreateDefaultSubobject<USkyAtmosphereComponent>(TEXT("ShopFog"));
+	LightShopFog->SetVisibility(true);
+	LightShopSky = CreateDefaultSubobject<USkyLightComponent>(TEXT("ShopSkyLight"));
+	LightShopSky->SetVisibility(true);
+
+	// Shop and overworld light
+	LightFactoryDirectional = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("FactoryLightDirectional"));
+	LightFactoryDirectional->SetIntensity(4.f);
+	LightFactoryDirectional->SetCastShadows(false);
+	LightFactoryDirectional->SetWorldRotation(FRotator(-85.f, 0.f, 0.f));
+	LightFactoryDirectional->SetUsingAbsoluteRotation(true);
+	LightFactoryDirectional->SetAtmosphereSunLight(false);
+	LightFactoryDirectional->SetVisibility(false);
+	LightFactoryPoint = CreateDefaultSubobject<UPointLightComponent>(TEXT("FactoryLightRect"));
+	LightFactoryPoint->SetIntensity(60000.f);
+	LightFactoryPoint->SetAttenuationRadius(60000.f);
+	LightFactoryPoint->SetCastShadows(false);
+	LightFactoryPoint->SetRelativeTransform(FTransform(FRotator(0.f, 0.f, 0.f), FVector(0.f, 0.f, 500.f)));
+	LightFactoryPoint->SetVisibility(false);
+	LightFactoryPoint->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+	// Mine-level lights
+	LightMine1 = CreateDefaultSubobject<UPointLightComponent>(TEXT("MineLight1"));
+	LightMine1->SetIntensity(60000.f);
+	LightMine1->SetAttenuationRadius(1900.f);
+	LightMine1->SetCastShadows(false);
+	LightMine1->SetRelativeTransform(FTransform(FRotator(0.f, 0.f, 0.f), FVector(300.f, 0.f, 566.f)));
+	LightMine1->SetVisibility(false);
+	LightMine1->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+	LightMine2 = CreateDefaultSubobject<URectLightComponent>(TEXT("MineLight2"));
+	LightMine2->SetIntensity(60000.f);
+	LightMine2->SetAttenuationRadius(60000.f);
+	LightMine2->SetCastShadows(false);
+	LightMine2->SetRelativeTransform(FTransform(FRotator(-60.f, 0.f, 0.f), FVector(-300.f, 0.f, 566.f)));
+	LightMine2->SetVisibility(false);
+	LightMine2->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
@@ -77,6 +148,7 @@ void APlayerCharacter::SetShop(const AShop *Shop, EGamePlatform Platform, bool b
 	}
 
 	ResetAbilities();
+	ResetLighting();
 }
 
 void APlayerCharacter::ResetAbilities()
@@ -105,5 +177,46 @@ void APlayerCharacter::ResetAbilities()
 			bCanJump = true;
 			break;
 		}
+	}
+}
+
+void APlayerCharacter::ResetLighting()
+{
+	EGamePlatform LightPlatform = CurrentPlatform;
+	if (!CurrentShop)
+	{
+		LightPlatform = EGamePlatform::SHOP;
+	}
+
+	switch (LightPlatform)
+	{
+	case EGamePlatform::SHOP:
+	default:
+		LightShopDirectional->SetVisibility(true);
+		LightShopFog->SetVisibility(true);
+		LightShopSky->SetVisibility(true);
+		LightFactoryDirectional->SetVisibility(false);
+		LightFactoryPoint->SetVisibility(false);
+		LightMine1->SetVisibility(false);
+		LightMine2->SetVisibility(false);
+		break;
+	case EGamePlatform::FACTORY:
+		LightShopDirectional->SetVisibility(false);
+		LightShopFog->SetVisibility(false);
+		LightShopSky->SetVisibility(false);
+		LightFactoryDirectional->SetVisibility(true);
+		LightFactoryPoint->SetVisibility(true);
+		LightMine1->SetVisibility(false);
+		LightMine2->SetVisibility(false);
+		break;
+	case EGamePlatform::MINE:
+		LightShopDirectional->SetVisibility(false);
+		LightShopFog->SetVisibility(false);
+		LightShopSky->SetVisibility(false);
+		LightFactoryDirectional->SetVisibility(false);
+		LightFactoryPoint->SetVisibility(false);
+		LightMine1->SetVisibility(true);
+		LightMine2->SetVisibility(true);
+		break;
 	}
 }
