@@ -15,7 +15,9 @@ AFactoryPlayerController::AFactoryPlayerController()
 {
 	bShowMouseCursor = true;
 	bEnableClickEvents = true;
+	bEnableMouseOverEvents = true;
 	bEnableTouchEvents = true;
+	DefaultClickTraceChannel = ECC_Pawn;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 }
 

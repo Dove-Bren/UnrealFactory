@@ -8,11 +8,14 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 
-#include "GameEnums.h"
-#include "PlatformComponent.h"
 #include "ComponentLayout.h"
+#include "GameEnums.h"
+#include "Ladder.h"
+#include "PlatformComponent.h"
 
 #include "Platform.generated.h"
+
+#define CELL_SIZE 100
 
 typedef class AShop AShop;
 
@@ -42,6 +45,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UComponentLayout *Grid;
 
+	// Ladder
+	UPROPERTY(VisibleAnywhere)
+	ALadder *Ladder;
+
 public:
 	UPlatform();
 
@@ -59,5 +66,11 @@ public:
 	// Perform regular shop tick functions for the platform and all contained components
 	UFUNCTION(BlueprintCallable)
 	virtual void ShopTick(EGamePhase Phase);
+
+	virtual void BeginPlay() override;
+
+	const AShop *GetShop() { return ShopParent; }
+
+	EGamePlatform GetType() { return PlatformType; }
 
 };

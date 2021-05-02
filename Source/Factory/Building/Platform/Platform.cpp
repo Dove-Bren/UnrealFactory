@@ -2,8 +2,6 @@
 
 #include "Shop.h"
 
-#define CELL_SIZE 100
-
 #define WORLD_TO_CELL(X) ((int32) X / CELL_SIZE)
 
 UPlatform::UPlatform()
@@ -12,6 +10,7 @@ UPlatform::UPlatform()
 	Mesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
 	Grid = CreateDefaultSubobject<UComponentLayout>(TEXT("Grid"));
+
 }
 
 void UPlatform::AttachToShop(EGamePlatform Type, AShop *Shop)
@@ -20,6 +19,16 @@ void UPlatform::AttachToShop(EGamePlatform Type, AShop *Shop)
 	this->ShopParent = Shop;
 
 	this->AttachToComponent(Shop->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+}
+
+void UPlatform::BeginPlay()
+{
+	Super::BeginPlay();
+
+	Ladder = GetWorld()->SpawnActor<ALadder>(ALadder::StaticClass(), this->GetComponentTransform());
+	Ladder->SetActorRelativeLocation(FVector(-25.f, 0.f, 50.f));
+	Ladder->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+	Ladder->SetPlatform(this);
 }
 
 void UPlatform::AddComponent(APlatformComponent *Component)

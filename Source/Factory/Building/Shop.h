@@ -48,9 +48,9 @@ public:
 
 	AShop(FName Name);
 
-	const TMap<EGamePlatform, UPlatform*> GetPlatforms() { return this->Platforms; }
-	const FName GetName() { return this->Name; }
-	const FShopResources &GetResources() { return this->Resources; }
+	const TMap<EGamePlatform, UPlatform*> & GetPlatforms() const { return Platforms; }
+	const FName & GetName() const { return this->Name; }
+	const FShopResources &GetResources() const { return this->Resources; }
 
 	// Add some gold to the shop
 	UFUNCTION(BlueprintCallable)
