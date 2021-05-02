@@ -18,13 +18,13 @@ class UPlatformMine : public UPlatform
 	GENERATED_BODY()
 private:
 
-	// Wall parent component
-	UPROPERTY(EditAnywhere)
-	USceneComponent *Walls;
+	//// Wall parent component
+	//UPROPERTY(EditAnywhere)
+	//USceneComponent *Walls;
 
-	// Exposed first instance of the south wall for troubleshooting in the debugger
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent *WallInst;
+	//// Exposed first instance of the south wall for troubleshooting in the debugger
+	//UPROPERTY(EditAnywhere)
+	//UStaticMeshComponent *WallInst;
 
 protected:
 

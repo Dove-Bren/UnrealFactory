@@ -16,6 +16,8 @@
 #include "Platform.generated.h"
 
 #define CELL_SIZE 100
+#define MIN_PLATFORM_WIDTH 10
+#define MIN_PLATFORM_HEIGHT 10
 
 typedef class AShop AShop;
 
@@ -37,6 +39,16 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent *Mesh;
 
+	// Wall parent component
+	UPROPERTY(EditAnywhere)
+	USceneComponent *WallsParent;
+
+	TArray<UStaticMeshComponent*> WallComponents;
+
+	UStaticMesh *FloorMesh;
+	UStaticMesh *WallMesh;
+	UMaterial *FloorMat;
+
 	// Link to parent shop object
 	UPROPERTY(VisibleAnywhere)
 	AShop *ShopParent;
@@ -49,8 +61,23 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	ALadder *Ladder;
 
+	// If true, prevents floor resizing and dynamic walls
+	bool bStaticFloor = false;
+
+	// Current Width
+	UPROPERTY(EditAnywhere)
+	float FloorWidth;
+
+	// Current Height
+	UPROPERTY(EditAnywhere)
+	float FloorHeight;
+
+	void SpawnWalls(float Width, float Height);
+
 public:
 	UPlatform();
+
+	virtual ~UPlatform() = default;
 
 	UFUNCTION(BlueprintCallable)
 	void AttachToShop(EGamePlatform Type, AShop *Shop);
@@ -72,5 +99,7 @@ public:
 	const AShop *GetShop() { return ShopParent; }
 
 	EGamePlatform GetType() { return PlatformType; }
+
+	void Resize(float Width, float Height);
 
 };

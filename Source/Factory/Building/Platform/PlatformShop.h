@@ -21,7 +21,8 @@ protected:
 
 
 public:
-
+	UPlatformShop();
+	~UPlatformShop() = default;
 
 
 };

@@ -24,8 +24,10 @@ UPlatformMine::UPlatformMine() : UPlatform()
 	Mesh->SetStaticMesh(ConstructorStatics.FloorMesh.Get());
 	Mesh->SetRelativeScale3D(FVector(MINE_FLOOR_WIDTH, MINE_FLOOR_HEIGHT, 1.f));
 
-	Walls = CreateDefaultSubobject<USceneComponent>(TEXT("Walls"));
-	Walls->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+	this->FloorWidth = MINE_FLOOR_WIDTH;
+	this->FloorHeight = MINE_FLOOR_HEIGHT;
+
+	bStaticFloor = true; // Static size floor
 
 	// Build walls around floor
 	float ActLen = (float) (MINE_FLOOR_WIDTH * FLOOR_LENGTH) / (float) WALL3_LENGTH;
@@ -35,19 +37,8 @@ UPlatformMine::UPlatformMine() : UPlatform()
 	float HalfOffsetV = ((float)(MINE_FLOOR_HEIGHT * FLOOR_LENGTH) / 2.f);
 	int Num = 0;
 
-	// Unroll first south wall for troubleshooting
-	{
-		FName Name = *FString::Printf(TEXT("Wall_%d"), Num++);
-		WallInst = CreateDefaultSubobject<UStaticMeshComponent>(Name);
-		WallInst->SetStaticMesh(ConstructorStatics.WallMesh.Get());
-		WallInst->SetRelativeLocation(FVector(-HalfOffsetH + (0 * WALL3_LENGTH), -HalfOffsetV, 0));
-		WallInst->SetRelativeScale3D(FVector(1.f, 1.f, 1.f));
-		WallInst->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-		WallInst->AttachToComponent(Walls, FAttachmentTransformRules::KeepRelativeTransform);
-	}
-
 	// X top (0 offset or rotation)
-	for (int i = 1; i < Len; i++) // Note starts at 1 cause of unroll
+	for (int i = 0; i < Len; i++) // Note starts at 1 cause of unroll
 	{
 		float Partial = 1.f;
 		if (i + 1 > ActLen)
@@ -61,7 +52,7 @@ UPlatformMine::UPlatformMine() : UPlatform()
 		Wall->SetRelativeLocation(FVector(-HalfOffsetH + (i * WALL3_LENGTH), -HalfOffsetV, 0));
 		Wall->SetRelativeScale3D(FVector(Partial, 1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-		Wall->AttachToComponent(Walls, FAttachmentTransformRules::KeepRelativeTransform);
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 
 	// X bottom (-y scale)
@@ -79,7 +70,7 @@ UPlatformMine::UPlatformMine() : UPlatform()
 		Wall->SetRelativeLocation(FVector(-HalfOffsetH + (i * WALL3_LENGTH), +HalfOffsetV, 0));
 		Wall->SetRelativeScale3D(FVector(Partial, -1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
-		Wall->AttachToComponent(Walls, FAttachmentTransformRules::KeepRelativeTransform);
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 
 	// Y left (90 yaw, mirror y (so origin is still top))
@@ -97,7 +88,7 @@ UPlatformMine::UPlatformMine() : UPlatform()
 		Wall->SetRelativeLocation(FVector(-HalfOffsetH, -HalfOffsetV + (i * WALL3_LENGTH), 0));
 		Wall->SetRelativeScale3D(FVector(Partial, -1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
-		Wall->AttachToComponent(Walls, FAttachmentTransformRules::KeepRelativeTransform);
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 
 	// Y left (90 yaw)
@@ -115,6 +106,6 @@ UPlatformMine::UPlatformMine() : UPlatform()
 		Wall->SetRelativeLocation(FVector(+HalfOffsetH, -HalfOffsetV + (i * WALL3_LENGTH), 0));
 		Wall->SetRelativeScale3D(FVector(Partial, 1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
-		Wall->AttachToComponent(Walls, FAttachmentTransformRules::KeepRelativeTransform);
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }

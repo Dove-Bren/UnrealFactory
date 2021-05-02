@@ -85,6 +85,7 @@ APlayerCharacter::APlayerCharacter()
 	// Shop and overworld light
 	LightFactoryDirectional = CreateDefaultSubobject<UDirectionalLightComponent>(TEXT("FactoryLightDirectional"));
 	LightFactoryDirectional->SetIntensity(4.f);
+	LightFactoryDirectional->LightColor = FColor(214, 214, 255, 255);
 	LightFactoryDirectional->SetCastShadows(false);
 	LightFactoryDirectional->SetWorldRotation(FRotator(-85.f, 0.f, 0.f));
 	LightFactoryDirectional->SetUsingAbsoluteRotation(true);
