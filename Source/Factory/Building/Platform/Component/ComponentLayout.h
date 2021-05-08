@@ -5,7 +5,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Layout2D.h"
+#include "Factory/Layout2D.h"
 #include "PlatformComponent.h"
 
 #include "ComponentLayout.generated.h"

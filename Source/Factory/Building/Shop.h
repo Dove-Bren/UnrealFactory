@@ -6,8 +6,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Actor.h"
 
-#include "GameEnums.h"
-#include "Platform.h"
+#include "Factory/GameEnums.h"
+#include "Platform/Platform.h"
 #include "ShopResources.h"
 
 #include "Shop.generated.h"

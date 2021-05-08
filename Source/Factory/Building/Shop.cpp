@@ -2,9 +2,9 @@
 
 #include "Misc/EnumRange.h"
 
-#include "PlatformShop.h"
-#include "PlatformFactory.h"
-#include "PlatformMine.h"
+#include "Platform/PlatformStore.h"
+#include "Platform/PlatformFactory.h"
+#include "Platform/PlatformMine.h"
 
 AShop::AShop(FName Name)
 {
@@ -28,8 +28,8 @@ UPlatform *AShop::MakePlatform(EGamePlatform PlatformType)
 	FName PlatformName = GetPlatformName(PlatformType);
 	switch (PlatformType)
 	{
-	case EGamePlatform::SHOP:
-		return CreateDefaultSubobject<UPlatformShop>(PlatformName);
+	case EGamePlatform::STORE:
+		return CreateDefaultSubobject<UPlatformStore>(PlatformName);
 	case EGamePlatform::FACTORY:
 		return CreateDefaultSubobject<UPlatformFactory>(PlatformName);
 	case EGamePlatform::MINE:
@@ -81,7 +81,7 @@ void AShop::ShopTick(EGamePhase Phase)
 
 void AShop::AddGold(int32 Count)
 {
-	CLAMP_UNSIGNED(Resources.Gold, Count);
+	CLAMP_UNSIGNED(Resources.Gold, Count); 
 }
 
 void AShop::AddWood(int32 Count)

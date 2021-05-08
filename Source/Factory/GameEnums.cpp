@@ -3,7 +3,7 @@
 #define SPACE_BETWEEN_PLATFORMS 100 * 20
 
 FName EGamePlatformNames[] = {
-	FName(TEXT("Shop")), // SHOP
+	FName(TEXT("Store")), // STORE
 	FName(TEXT("Factory")), // FACTORY
 	FName(TEXT("Mine")), // MINE
 };
@@ -13,7 +13,7 @@ int32 GetPlatformOffset(EGamePlatform PlatformType)
 {
 	switch (PlatformType)
 	{
-	case EGamePlatform::SHOP:
+	case EGamePlatform::STORE:
 		return SPACE_BETWEEN_PLATFORMS * 2;
 	case EGamePlatform::FACTORY:
 		return SPACE_BETWEEN_PLATFORMS;

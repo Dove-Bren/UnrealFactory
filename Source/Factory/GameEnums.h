@@ -11,7 +11,7 @@
 UENUM()
 enum class EGamePlatform : uint8
 {
-	SHOP,
+	STORE,
 	FACTORY,
 	MINE,
 

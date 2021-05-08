@@ -1,6 +1,6 @@
-#include "PlatformShop.h"
+#include "PlatformStore.h"
 
-UPlatformShop::UPlatformShop()
+UPlatformStore::UPlatformStore()
 {
 	// Structure to hold one-time initialization
 	struct FMeshStatics

@@ -6,11 +6,11 @@
 
 #include "Platform.h"
 
-#include "PlatformShop.generated.h"
+#include "PlatformStore.generated.h"
 
 
 UCLASS()
-class UPlatformShop : public UPlatform
+class UPlatformStore : public UPlatform
 {
 	GENERATED_BODY()
 private:
@@ -21,8 +21,8 @@ protected:
 
 
 public:
-	UPlatformShop();
-	~UPlatformShop() = default;
+	UPlatformStore();
+	~UPlatformStore() = default;
 
 
 };

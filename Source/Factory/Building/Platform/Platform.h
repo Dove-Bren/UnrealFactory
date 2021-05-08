@@ -8,10 +8,10 @@
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 
-#include "ComponentLayout.h"
-#include "GameEnums.h"
-#include "Ladder.h"
-#include "PlatformComponent.h"
+#include "Factory/GameEnums.h"
+#include "Component/ComponentLayout.h"
+#include "Component/PlatformComponent.h"
+#include "NonComponents/Ladder.h"
 
 #include "Platform.generated.h"
 

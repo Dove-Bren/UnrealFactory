@@ -1,9 +1,9 @@
 #include "Ladder.h"
 
-#include "FactoryPlayerController.h"
-#include "PlayerCharacter.h"
-#include "Platform.h"
-#include "Shop.h"
+#include "Factory/Character/FactoryPlayerController.h"
+#include "Factory/Character/PlayerCharacter.h"
+#include "Factory/Building/Platform/Platform.h"
+#include "Factory/Building/Shop.h"
 
 ALadder::ALadder() : AClickableActor()
 {
@@ -69,7 +69,7 @@ void ALadder::OnClick(FKey ButtonPressed)
 		const TMap<EGamePlatform, UPlatform*> & Platforms = Platform->GetShop()->GetPlatforms();
 		switch (Platform->GetType())
 		{
-		case EGamePlatform::SHOP:
+		case EGamePlatform::STORE:
 			DestPlatform = EGamePlatform::FACTORY;
 			break;
 		case EGamePlatform::FACTORY:
@@ -77,7 +77,7 @@ void ALadder::OnClick(FKey ButtonPressed)
 			break;
 		case EGamePlatform::MINE:
 		default:
-			DestPlatform = EGamePlatform::SHOP;
+			DestPlatform = EGamePlatform::STORE;
 			break;
 		}
 

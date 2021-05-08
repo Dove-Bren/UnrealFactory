@@ -8,7 +8,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/StaticMeshComponent.h"
 
-#include "GameEnums.h"
+#include "Factory/GameEnums.h"
 
 #include "PlatformComponent.generated.h"
 

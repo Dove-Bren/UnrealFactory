@@ -1,8 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FactoryGameMode.h"
-#include "FactoryPlayerController.h"
-#include "PlayerCharacter.h"
+#include "Factory/Character/FactoryPlayerController.h"
+#include "Factory/Character/PlayerCharacter.h"
 
 AFactoryGameMode::AFactoryGameMode()
 {

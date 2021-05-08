@@ -1,6 +1,6 @@
 #include "Platform.h"
 
-#include "Shop.h"
+#include "Factory/Building/Shop.h"
 
 #define WALL3_LENGTH 500
 #define FLOOR_LENGTH 100

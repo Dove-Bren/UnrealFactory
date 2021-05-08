@@ -7,9 +7,9 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
 
-#include "Clickable.h"
-#include "GameEnums.h"
-#include "ShopResources.h"
+#include "Factory/Clickable.h"
+#include "Factory/GameEnums.h"
+#include "Factory/Building/ShopResources.h"
 
 #include "Ladder.generated.h"
 

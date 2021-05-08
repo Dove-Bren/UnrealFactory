@@ -9,7 +9,7 @@
 #include "Components/RectLightComponent.h"
 #include "Components/SkyLightComponent.h"
 
-#include "GameEnums.h"
+#include "Factory/GameEnums.h"
 
 #include "PlayerCharacter.generated.h"
 
@@ -29,7 +29,7 @@ public:
 
 	virtual void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
 
-	void SetShop(const AShop *Shop, EGamePlatform Platform = EGamePlatform::SHOP, bool bTeleport = true);
+	void SetShop(const AShop *Shop, EGamePlatform Platform = EGamePlatform::STORE, bool bTeleport = true);
 
 	bool CanSprint() { return bCanSprint; }
 	bool CanJump() { return bCanJump; }
@@ -78,6 +78,6 @@ private:
 
 	// Which platform we're on. Meaningless if CurrentShop is null.
 	UPROPERTY(VisibleAnywhere)
-	EGamePlatform CurrentPlatform = EGamePlatform::SHOP;
+	EGamePlatform CurrentPlatform = EGamePlatform::STORE;
 
 };

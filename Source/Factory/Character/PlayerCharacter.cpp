@@ -12,8 +12,8 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "DrawDebugHelpers.h"
 
-#include "Shop.h"
-#include "Platform.h"
+#include "Factory/Building/Shop.h"
+#include "Factory/Building/Platform/Platform.h"
 
 #define SPEED_WALK 400
 #define SPEED_RUN 800
@@ -164,7 +164,7 @@ void APlayerCharacter::ResetAbilities()
 	{
 		switch (CurrentPlatform)
 		{
-		case EGamePlatform::SHOP:
+		case EGamePlatform::STORE:
 			bCanSprint = false;
 			bCanJump = false;
 			break;
@@ -186,12 +186,12 @@ void APlayerCharacter::ResetLighting()
 	EGamePlatform LightPlatform = CurrentPlatform;
 	if (!CurrentShop)
 	{
-		LightPlatform = EGamePlatform::SHOP;
+		LightPlatform = EGamePlatform::STORE;
 	}
 
 	switch (LightPlatform)
 	{
-	case EGamePlatform::SHOP:
+	case EGamePlatform::STORE:
 	default:
 		LightShopDirectional->SetVisibility(true);
 		LightShopFog->SetVisibility(true);
