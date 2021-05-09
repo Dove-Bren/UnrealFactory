@@ -6,21 +6,44 @@
 #include "Platform/PlatformFactory.h"
 #include "Platform/PlatformMine.h"
 
-AShop::AShop(FName Name)
+AShop::AShop()
 {
-	this->Name = Name;
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	this->RootComponent = Mesh;
+}
 
-	// Construct platform map
-	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
+void AShop::SetupLogicalShop(ULogicalShop *LogicalShopIn)
+{
+	LogicalShop = LogicalShopIn;
+
+	if (LogicalShop)
 	{
-		UPlatform *Platform = MakePlatform(PlatformType);
-		Platform->SetRelativeLocation(FVector(0, 0, GetPlatformOffset(PlatformType)), false);
-		Platform->AttachToShop(PlatformType, this);
-		this->Platforms.Add(PlatformType, Platform);
-	}
+		// Take position from parent shop
+		this->SetActorLocation(FVector(LogicalShopIn->GetX(), LogicalShopIn->GetY(), LogicalShopIn->GetZ()));
 
+		const TMap<EGamePlatform, ULogicalPlatform*> &LogicalPlatforms = LogicalShop->GetPlatforms();
+
+		// Construct platform map
+		for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
+		{
+			UPlatform *Platform = MakePlatform(PlatformType);
+			Platform->SetRelativeLocation(FVector(0, 0, GetPlatformOffset(PlatformType)), false);
+			Platform->AttachToShop(PlatformType, this);
+			Platform->SetLogicalPlatform(LogicalPlatforms[PlatformType]);
+			this->Platforms.Add(PlatformType, Platform);
+		}
+	}
+}
+
+/*static*/ AShop *AShop::MakeShop(UWorld *World, ULogicalShop *LogicalShop)
+{
+	//AShop *Shop = NewObject<AShop>(LogicalShop, AShop::StaticClass());
+	FActorSpawnParameters Parameters{};
+	Parameters.Name = FName(FString::Printf(TEXT("%s_Actor"), *LogicalShop->GetName().ToString()));
+	Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	AShop *Shop = World->SpawnActor<AShop>(Parameters);
+	Shop->SetupLogicalShop(LogicalShop);
+	return Shop;
 }
 
 UPlatform *AShop::MakePlatform(EGamePlatform PlatformType)
@@ -29,67 +52,12 @@ UPlatform *AShop::MakePlatform(EGamePlatform PlatformType)
 	switch (PlatformType)
 	{
 	case EGamePlatform::STORE:
-		return CreateDefaultSubobject<UPlatformStore>(PlatformName);
+		return NewObject<UPlatformStore>(this, UPlatformStore::StaticClass(), PlatformName);
 	case EGamePlatform::FACTORY:
-		return CreateDefaultSubobject<UPlatformFactory>(PlatformName);
+		return NewObject<UPlatformFactory>(this, UPlatformFactory::StaticClass(), PlatformName);
 	case EGamePlatform::MINE:
-		return CreateDefaultSubobject<UPlatformMine>(PlatformName);
+		return NewObject<UPlatformMine>(this, UPlatformMine::StaticClass(), PlatformName);
 	}
 
-	return CreateDefaultSubobject<UPlatform>(PlatformName);
-}
-
-void AShop::StartPhase(EGamePhase Phase)
-{
-	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
-	{
-		UPlatform *Platform = (UPlatform*)(this->Platforms.Find(PlatformType));
-		if (Platform)
-		{
-			Platform->StartPhase(Phase);
-		}
-	}
-}
-
-void AShop::ShopTick(EGamePhase Phase)
-{
-	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
-	{
-		UPlatform *Platform = (UPlatform*)(this->Platforms.Find(PlatformType));
-		if (Platform)
-		{
-			Platform->ShopTick(Phase);
-		}
-	}
-}
-
-#define CLAMP_UNSIGNED(Amt, Count) uint32 Raw = Amt + Count;\
-	if (Count < 0 && Raw > Resources.Gold)\
-	{\
-		/* Underflow */\
-		Amt = 0;\
-	}\
-	else if (Count > 0 && Raw < Resources.Gold)\
-	{\
-		/* Overflow */\
-		Amt = (uint32)(-1);\
-	}\
-	else\
-	{\
-		Amt = Raw;\
-	}
-
-void AShop::AddGold(int32 Count)
-{
-	CLAMP_UNSIGNED(Resources.Gold, Count); 
-}
-
-void AShop::AddWood(int32 Count)
-{
-	CLAMP_UNSIGNED(Resources.Wood, Count);
-}
-
-void AShop::AddOre(int32 Count)
-{
-	CLAMP_UNSIGNED(Resources.Ore, Count);
+	return NewObject<UPlatform>(this, UPlatformMine::StaticClass(), PlatformName);
 }

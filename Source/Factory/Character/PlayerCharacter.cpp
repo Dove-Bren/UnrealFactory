@@ -221,3 +221,18 @@ void APlayerCharacter::ResetLighting()
 		break;
 	}
 }
+
+#include "Factory/Logical/LogicalShop.h"
+
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// testing code
+	float X = GetActorLocation().X;
+	float Y = GetActorLocation().Y;
+	float Z = GetActorLocation().Z;
+
+	ULogicalShop *Shop = ULogicalShop::MakeShop(FName(TEXT("Player Shop")), X, Y, Z);
+	AShop *WorldShop = AShop::MakeShop(GetWorld(), Shop);
+}

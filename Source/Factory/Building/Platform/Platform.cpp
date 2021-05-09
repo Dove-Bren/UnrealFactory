@@ -1,24 +1,24 @@
 #include "Platform.h"
 
 #include "Factory/Building/Shop.h"
+#include "Factory/Logical/LogicalPlatform.h"
 
 #define WALL3_LENGTH 500
 #define FLOOR_LENGTH 100
-
-#define WORLD_TO_CELL(X) ((int32) X / CELL_SIZE)
 
 UPlatform::UPlatform()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Floor"));
 	Mesh->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
 
-	Grid = CreateDefaultSubobject<UComponentLayout>(TEXT("Grid"));
-
 	WallsParent = CreateDefaultSubobject<USceneComponent>(TEXT("WallsParent"));
 	WallsParent->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+}
 
-	this->FloorWidth = MIN_PLATFORM_WIDTH * 2;
-	this->FloorHeight = MIN_PLATFORM_HEIGHT * 2;
+void UPlatform::SetLogicalPlatform(ULogicalPlatform *Platform)
+{
+	this->LogicalPlatform = Platform;
+	this->RefreshFloor();
 }
 
 void UPlatform::AttachToShop(EGamePlatform Type, AShop *Shop)
@@ -26,12 +26,18 @@ void UPlatform::AttachToShop(EGamePlatform Type, AShop *Shop)
 	this->PlatformType = Type;
 	this->ShopParent = Shop;
 
+	this->RegisterComponent();
 	this->AttachToComponent(Shop->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
+
+	this->GetComponentTransform().DebugPrint();
 }
 
 void UPlatform::BeginPlay()
 {
 	Super::BeginPlay();
+
+	this->Mesh->RegisterComponent();
+	this->WallsParent->RegisterComponent();
 
 	Ladder = GetWorld()->SpawnActor<ALadder>(ALadder::StaticClass(), this->GetComponentTransform());
 	Ladder->SetActorRelativeLocation(FVector(-25.f, 0.f, 0.f));
@@ -39,54 +45,15 @@ void UPlatform::BeginPlay()
 	Ladder->SetPlatform(this);
 
 	// Idk how loading and multiplayer works...
-	if (!bStaticFloor)
+	if (LogicalPlatform && !LogicalPlatform->IsFloorStatic())
 	{
-		if (this->FloorWidth < MIN_PLATFORM_WIDTH)
-		{
-			this->FloorWidth = MIN_PLATFORM_WIDTH;
-		}
-		if (this->FloorHeight < MIN_PLATFORM_HEIGHT)
-		{
-			this->FloorHeight = MIN_PLATFORM_HEIGHT;
-		}
-
-		SpawnWalls(this->FloorWidth, this->FloorHeight);
-	}
-}
-
-void UPlatform::AddComponent(APlatformComponent *Component)
-{
-	// Calculate where on the grid the component should go
-	int32 CellX = WORLD_TO_CELL(Component->GetActorLocation().X);
-	int32 CellY = WORLD_TO_CELL(Component->GetActorLocation().Y);
-
-	APlatformComponent *Existing = this->Grid->Insert(CellX, CellY, Component, true);
-	if (Existing)
-	{
-		Existing->RemoveFromPlatform(this);
-	}
-	Component->RegisterPlatform(this);
-}
-
-void UPlatform::StartPhase(EGamePhase Phase)
-{
-	for (APlatformComponent *comp : Grid->GetComponents())
-	{
-		comp->StartPhase(Phase);
-	}
-}
-
-void UPlatform::ShopTick(EGamePhase Phase)
-{
-	for (APlatformComponent *comp : Grid->GetComponents())
-	{
-		comp->ShopTick(Phase);
+		RefreshFloor();
 	}
 }
 
 void UPlatform::SpawnWalls(float Width, float Height)
 {
-	if (bStaticFloor)
+	if (LogicalPlatform && LogicalPlatform->IsFloorStatic())
 	{
 		return;
 	}
@@ -195,24 +162,21 @@ void UPlatform::SpawnWalls(float Width, float Height)
 	}
 }
 
-void UPlatform::Resize(float Width, float Height)
+void UPlatform::RefreshFloor()
 {
-	if (bStaticFloor)
+	if (LogicalPlatform && LogicalPlatform->IsFloorStatic())
 	{
 		return;
 	}
 
-	this->FloorWidth = Width;
-	this->FloorHeight = Height;
+	int FloorWidth = 2;
+	int FloorHeight = 2;
 
-	if (this->FloorWidth < MIN_PLATFORM_WIDTH)
+	if (this->LogicalPlatform)
 	{
-		this->FloorWidth = MIN_PLATFORM_WIDTH;
-	}
-	if (this->FloorHeight < MIN_PLATFORM_HEIGHT)
-	{
-		this->FloorHeight = MIN_PLATFORM_HEIGHT;
+		FloorWidth = LogicalPlatform->GetFloorWidth();
+		FloorHeight = LogicalPlatform->GetFloorHeight();
 	}
 
-	SpawnWalls(this->FloorWidth, this->FloorHeight);
+	SpawnWalls(FloorWidth, FloorHeight);
 }

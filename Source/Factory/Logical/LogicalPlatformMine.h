@@ -4,12 +4,15 @@
 
 #include "CoreMinimal.h"
 
-#include "Platform.h"
+#include "LogicalPlatform.h"
 
-#include "PlatformMine.generated.h"
+#include "LogicalPlatformMine.generated.h"
+
+#define MINE_FLOOR_WIDTH 256
+#define MINE_FLOOR_HEIGHT 256
 
 UCLASS()
-class UPlatformMine : public UPlatform
+class ULogicalPlatformMine : public ULogicalPlatform
 {
 	GENERATED_BODY()
 private:
@@ -26,7 +29,7 @@ protected:
 
 
 public:
-	UPlatformMine();
+	ULogicalPlatformMine();
 
 
 };

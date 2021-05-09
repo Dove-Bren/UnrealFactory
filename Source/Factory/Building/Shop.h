@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
 #include "GameFramework/Actor.h"
 
 #include "Factory/GameEnums.h"
+#include "Factory/Logical/LogicalShop.h"
+#include "Factory/Logical/LogicalPlatform.h"
 #include "Platform/Platform.h"
-#include "ShopResources.h"
 
 #include "Shop.generated.h"
 
@@ -18,58 +20,31 @@ class AShop: public AActor
 	GENERATED_BODY()
 private:
 
-	// Name of the shop
+	// Link to logical shop object
 	UPROPERTY(VisibleAnywhere)
-	FName Name;
+	ULogicalShop *LogicalShop;
 
 	// Main mesh component
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent *Mesh;
 
-	// Resources available to shop
-	UPROPERTY(VisibleAnywhere)
-	FShopResources Resources;
-
-	// TODO keep history of resources for graphing? Maybe capture every phase change?
-
-
 protected:
 
-	AShop() : AShop(FName(TEXT("Unnamed Shop"))) {};
+	AShop();
 
 	// Create the platform for the provided platform type.
 	virtual UPlatform *MakePlatform(EGamePlatform PlatformType);
 
-	// Platforms that make up the shop
+	// Physical platforms that make up the shop
 	UPROPERTY(VisibleAnywhere)
 	TMap<EGamePlatform, UPlatform*> Platforms;
 
+	void SetupLogicalShop(ULogicalShop *LogicalShop);
+
 public:
 
-	AShop(FName Name);
+	static AShop *MakeShop(UWorld *World, ULogicalShop *LogicalShop);
 
 	const TMap<EGamePlatform, UPlatform*> & GetPlatforms() const { return Platforms; }
-	const FName & GetName() const { return this->Name; }
-	const FShopResources &GetResources() const { return this->Resources; }
-
-	// Add some gold to the shop
-	UFUNCTION(BlueprintCallable)
-	void AddGold(int32 Count);
-
-	// Add some available wood to the shop
-	UFUNCTION(BlueprintCallable)
-	void AddWood(int32 Count);
-
-	// Add some avaialble ore to the shop
-	UFUNCTION(BlueprintCallable)
-	void AddOre(int32 Count);
-
-	// Transition to the provided state, including stopping any activities from the previous one.
-	// This is echoed down to all platforms in the shop.
-	UFUNCTION(BlueprintCallable)
-	void StartPhase(EGamePhase Phase);
-
-	// Tick this shop and all platforms and components
-	UFUNCTION(BlueprintCallable)
-	void ShopTick(EGamePhase Phase);
+	const ULogicalShop *GetLogicalShop() const { return LogicalShop; }
 };

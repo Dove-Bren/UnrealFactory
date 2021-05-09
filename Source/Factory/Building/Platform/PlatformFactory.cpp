@@ -1,5 +1,7 @@
 #include "PlatformFactory.h"
 
+#include "Factory/Logical/LogicalPlatformFactory.h"
+
 UPlatformFactory::UPlatformFactory()
 {
 	// Structure to hold one-time initialization
@@ -19,7 +21,7 @@ UPlatformFactory::UPlatformFactory()
 
 	Mesh->SetStaticMesh(MeshStatics.FloorMesh.Get());
 	Mesh->SetMaterial(0, MeshStatics.FloorMat.Get());
-	Mesh->SetRelativeScale3D(FVector(FloorWidth, FloorHeight, 1.f));
+	Mesh->SetRelativeScale3D(FVector(DEFAULT_WIDTH, DEFAULT_HEIGHT, 1.f));
 
 	this->WallMesh = MeshStatics.WallMesh.Get();
 	this->FloorMesh = MeshStatics.FloorMesh.Get();

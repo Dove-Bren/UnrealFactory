@@ -9,7 +9,6 @@
 
 #include "Factory/Clickable.h"
 #include "Factory/GameEnums.h"
-#include "Factory/Building/ShopResources.h"
 
 #include "Ladder.generated.h"
 

@@ -1,10 +1,13 @@
 #include "PlatformMine.h"
+
 #include "Engine/StaticMesh.h"
 
-#include <stdio.h>
+#include "Factory/Logical/LogicalPlatformMine.h"
 
 #define WALL3_LENGTH 500
 #define FLOOR_LENGTH 100
+
+// TODO cana this stuff in constructor be put into base class? And these display platforms can just set up meshes and materials?
 
 UPlatformMine::UPlatformMine() : UPlatform()
 {
@@ -23,11 +26,6 @@ UPlatformMine::UPlatformMine() : UPlatform()
 
 	Mesh->SetStaticMesh(ConstructorStatics.FloorMesh.Get());
 	Mesh->SetRelativeScale3D(FVector(MINE_FLOOR_WIDTH, MINE_FLOOR_HEIGHT, 1.f));
-
-	this->FloorWidth = MINE_FLOOR_WIDTH;
-	this->FloorHeight = MINE_FLOOR_HEIGHT;
-
-	bStaticFloor = true; // Static size floor
 
 	// Build walls around floor
 	float ActLen = (float) (MINE_FLOOR_WIDTH * FLOOR_LENGTH) / (float) WALL3_LENGTH;
