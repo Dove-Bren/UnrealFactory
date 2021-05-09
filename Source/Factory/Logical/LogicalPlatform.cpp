@@ -7,6 +7,24 @@
 
 #define WORLD_TO_CELL(X) ((int32) X / CELL_SIZE)
 
+static inline FGridPosition MakeLocalInternal(ULogicalShop *ShopParent, float WorldX, float WorldY)
+{
+	FGridPosition Position = {};
+
+	// Convert from the world position given to the grid position using our shop's XY as origin
+	float OriginX = 0;
+	float OriginY = 0;
+	if (ShopParent)
+	{
+		OriginX = ShopParent->GetX();
+		OriginY = ShopParent->GetY();
+	}
+
+	return Position;
+}
+
+#define MakeLocal(WorldX, WorldY) MakeLocalInternal(this->ShopParent, WorldX, WorldY)
+
 ULogicalPlatform::ULogicalPlatform()
 {
 	Grid = CreateDefaultSubobject<UComponentLayout>(TEXT("Grid"));
@@ -23,21 +41,7 @@ void ULogicalPlatform::AttachToShop(EGamePlatform Type, ULogicalShop *Shop)
 
 void ULogicalPlatform::AddComponentAt(float WorldX, float WorldY, ULogicalPlatformComponent *Component)
 {
-	FGridPosition Position = {};
-
-	// Convert from the world position given to the grid position using our shop's XY as origin
-	float OriginX = 0;
-	float OriginY = 0;
-	if (this->ShopParent)
-	{
-		OriginX = ShopParent->GetX();
-		OriginY = ShopParent->GetY();
-	}
-
-	Position.X = WORLD_TO_CELL(WorldX - OriginX);
-	Position.Y = WORLD_TO_CELL(WorldY - OriginY);
-
-	AddComponent(Position, Component);
+	AddComponent(MakeLocal(WorldX, WorldY), Component);
 }
 
 void ULogicalPlatform::AddComponent(FGridPosition Position, ULogicalPlatformComponent *Component)
@@ -47,7 +51,31 @@ void ULogicalPlatform::AddComponent(FGridPosition Position, ULogicalPlatformComp
 	{
 		Existing->RemoveFromPlatform(this);
 	}
-	Component->RegisterPlatform(this);
+	Component->RegisterPlatform(this, Position);
+}
+
+FLocalLayout ULogicalPlatform::GetComponent(FGridPosition Position)
+{
+	FLocalLayout Layout = {};
+	FGridPosition Orig = Position;
+
+	Layout.Center = this->Grid->Get(Position.X, Position.Y);
+	Position.Move(EDirection::NORTH);
+	Layout.North = this->Grid->Get(Position.X, Position.Y);
+	Position = Orig.Offset(EDirection::SOUTH);
+	Layout.South = this->Grid->Get(Position.X, Position.Y);
+	Position = Orig.Offset(EDirection::EAST);
+	Layout.East = this->Grid->Get(Position.X, Position.Y);
+	Position = Orig.Offset(EDirection::WEST);
+	Layout.West = this->Grid->Get(Position.X, Position.Y);
+
+	return Layout;
+}
+
+FLocalLayout ULogicalPlatform::GetComponentAt(float WorldX, float WorldY)
+{
+	return GetComponent(MakeLocal(WorldX, WorldY));
+
 }
 
 void ULogicalPlatform::StartPhase(EGamePhase Phase)

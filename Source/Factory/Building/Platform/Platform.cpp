@@ -28,8 +28,6 @@ void UPlatform::AttachToShop(EGamePlatform Type, AShop *Shop)
 
 	this->RegisterComponent();
 	this->AttachToComponent(Shop->GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
-
-	this->GetComponentTransform().DebugPrint();
 }
 
 void UPlatform::BeginPlay()
@@ -107,6 +105,7 @@ void UPlatform::SpawnWalls(float Width, float Height)
 		Wall->SetRelativeScale3D(FVector(Partial, 1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		Wall->RegisterComponent();
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepWorldTransform);
 	}
 
 	// X bottom (-y scale)
@@ -124,6 +123,7 @@ void UPlatform::SpawnWalls(float Width, float Height)
 		Wall->SetRelativeScale3D(FVector(Partial, -1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 0.0f, 0.0f));
 		Wall->RegisterComponent();
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepWorldTransform);
 	}
 
 	// Y left (90 yaw, mirror y (so origin is still top))
@@ -141,6 +141,7 @@ void UPlatform::SpawnWalls(float Width, float Height)
 		Wall->SetRelativeScale3D(FVector(Partial, -1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
 		Wall->RegisterComponent();
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepWorldTransform);
 	}
 
 	// Y left (90 yaw)
@@ -158,6 +159,7 @@ void UPlatform::SpawnWalls(float Width, float Height)
 		Wall->SetRelativeScale3D(FVector(Partial, 1.f, 1.f));
 		Wall->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
 		Wall->RegisterComponent();
+		Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepWorldTransform);
 		//Wall->AttachToComponent(WallsParent, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 }

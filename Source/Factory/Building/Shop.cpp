@@ -59,5 +59,15 @@ UPlatform *AShop::MakePlatform(EGamePlatform PlatformType)
 		return NewObject<UPlatformMine>(this, UPlatformMine::StaticClass(), PlatformName);
 	}
 
-	return NewObject<UPlatform>(this, UPlatformMine::StaticClass(), PlatformName);
+	return NewObject<UPlatform>(this, UPlatform::StaticClass(), PlatformName);
+}
+
+void AShop::SetPlatformVisibility(EGamePlatform VisiblePlatform)
+{
+	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Yellow, TEXT("Setting visibility"));
+		UPlatform *Platform = Platforms[PlatformType];
+		Platform->SetVisibility(PlatformType == VisiblePlatform, true);
+	}
 }

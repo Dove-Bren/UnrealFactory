@@ -20,21 +20,21 @@ class APlatformComponent : public AActor
 	GENERATED_BODY()
 private:
 
-	// Base mesh component
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent *Mesh;
-
-	
-
 	// Owning Platform
 	UPROPERTY(EditAnywhere)
 	UPlatform *ParentPlatform;
 
 protected:
 
+	// Base mesh component
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent *Mesh;
+
 public:
 
 	APlatformComponent();
+
+	// TODO remove these as they are part of logical
 
 	// Init the component as part of the provided platform
 	UFUNCTION(BlueprintCallable)

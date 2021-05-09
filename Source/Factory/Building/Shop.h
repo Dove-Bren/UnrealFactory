@@ -47,4 +47,7 @@ public:
 
 	const TMap<EGamePlatform, UPlatform*> & GetPlatforms() const { return Platforms; }
 	const ULogicalShop *GetLogicalShop() const { return LogicalShop; }
+
+	// Sets only the provided platform type to be visible
+	void SetPlatformVisibility(EGamePlatform VisiblePlatform);
 };

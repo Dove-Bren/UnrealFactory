@@ -8,6 +8,7 @@
 
 #include "Factory/GameEnums.h"
 #include "Factory/GridPosition.h"
+#include "Component/LocalLayout.h"
 #include "Component/ComponentLayout.h"
 #include "Component/LogicalPlatformComponent.h"
 
@@ -65,6 +66,14 @@ public:
 	// Add a component to this layer
 	UFUNCTION(BlueprintCallable)
 	void AddComponentAt(float WorldX, float WorldY, ULogicalPlatformComponent *Component);
+
+	// Get a component on this layer from its position
+	UFUNCTION(BlueprintCallable)
+	FLocalLayout GetComponent(FGridPosition Position);
+
+	// Get a component on this layer from its WORLD position
+	UFUNCTION(BlueprintCallable)
+	FLocalLayout GetComponentAt(float WorldX, float WorldY);
 
 	// Transition to the provided state, including stopping any activities from the previous one
 	UFUNCTION(BlueprintCallable)

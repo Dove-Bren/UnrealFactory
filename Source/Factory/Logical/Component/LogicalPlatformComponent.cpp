@@ -1,13 +1,16 @@
 #include "LogicalPlatformComponent.h"
 
+#include "Factory/Logical/LogicalPlatform.h"
+
 ULogicalPlatformComponent::ULogicalPlatformComponent()
 {
 	;
 }
 
-void ULogicalPlatformComponent::RegisterPlatform(ULogicalPlatform * Platform)
+void ULogicalPlatformComponent::RegisterPlatform(ULogicalPlatform * Platform, FGridPosition GridPosition)
 {
 	this->ParentPlatform = Platform;
+	this->Position = GridPosition;
 }
 
 void ULogicalPlatformComponent::RemoveFromPlatform(ULogicalPlatform *Platform)
@@ -26,6 +29,24 @@ bool ULogicalPlatformComponent::IsActiveDuring(EGamePhase Phase)
 }
 
 void ULogicalPlatformComponent::ShopTick(EGamePhase Phase)
+{
+	;
+}
+
+void ULogicalPlatformComponent::RefreshConnections()
+{
+	// TODO gather nearby layout
+	FLocalLayout Layout{};
+
+	if (ParentPlatform)
+	{
+		Layout = ParentPlatform->GetComponent(Position);
+	}
+
+	RefreshNearby(Layout);
+}
+
+void ULogicalPlatformComponent::RefreshNearby(FLocalLayout NearbyLayout)
 {
 	;
 }

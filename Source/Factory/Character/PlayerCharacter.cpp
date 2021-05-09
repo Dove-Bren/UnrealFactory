@@ -136,7 +136,7 @@ void APlayerCharacter::CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutR
 	//OutResult.Rotation = FRotator(0.0f, -90.0f, 0.0f);
 }
 
-void APlayerCharacter::SetShop(const AShop *Shop, EGamePlatform Platform, bool bTeleport)
+void APlayerCharacter::SetShop(AShop *Shop, EGamePlatform Platform, bool bTeleport)
 {
 	this->CurrentShop = Shop;
 	this->CurrentPlatform = Platform;
@@ -150,6 +150,10 @@ void APlayerCharacter::SetShop(const AShop *Shop, EGamePlatform Platform, bool b
 
 	ResetAbilities();
 	ResetLighting();
+	if (Shop)
+	{
+		Shop->SetPlatformVisibility(Platform);
+	}
 }
 
 void APlayerCharacter::ResetAbilities()

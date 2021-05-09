@@ -41,7 +41,6 @@ ULogicalPlatform *ULogicalShop::MakePlatform(EGamePlatform PlatformType)
 	switch (PlatformType)
 	{
 	case EGamePlatform::STORE:
-	default:
 		return NewObject<ULogicalPlatformStore>(this, ULogicalPlatformStore::StaticClass(), PlatformName);
 	case EGamePlatform::FACTORY:
 		return NewObject<ULogicalPlatformFactory>(this, ULogicalPlatformFactory::StaticClass(), PlatformName);

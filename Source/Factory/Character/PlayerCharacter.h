@@ -31,7 +31,7 @@ public:
 
 	virtual void CalcCamera(float DeltaTime, struct FMinimalViewInfo& OutResult) override;
 
-	void SetShop(const AShop *Shop, EGamePlatform Platform = EGamePlatform::STORE, bool bTeleport = true);
+	void SetShop(AShop *Shop, EGamePlatform Platform = EGamePlatform::STORE, bool bTeleport = true);
 
 	bool CanSprint() { return bCanSprint; }
 	bool CanJump() { return bCanJump; }

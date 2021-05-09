@@ -7,6 +7,8 @@
 #include "CoreMinimal.h"
 
 #include "Factory/GameEnums.h"
+#include "Factory/GridPosition.h"
+#include "LocalLayout.h"
 
 #include "LogicalPlatformComponent.generated.h"
 
@@ -24,13 +26,15 @@ private:
 
 protected:
 
+	FGridPosition Position;
+
 public:
 
 	ULogicalPlatformComponent();
 
 	// Init the component as part of the provided platform
 	UFUNCTION(BlueprintCallable)
-	virtual void RegisterPlatform(ULogicalPlatform *Platform);
+	virtual void RegisterPlatform(ULogicalPlatform *Platform, FGridPosition GridPosition);
 
 	// Detatch the component from the platform
 	UFUNCTION(BlueprintCallable)
@@ -47,5 +51,13 @@ public:
 	// Perform regular shop tick functions for the provided phase
 	UFUNCTION(BlueprintCallable)
 	virtual void ShopTick(EGamePhase Phase);
+
+	// Refresh information about what this component is next to and connected to
+	UFUNCTION(BlueprintCallable)
+	void RefreshConnections();
+
+	virtual void RefreshNearby(FLocalLayout NearbyLayout = { });
+
+	FGridPosition GetPosition() const { return Position; }
 
 };
