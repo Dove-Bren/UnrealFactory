@@ -72,12 +72,24 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UItem *Split(int32 SplitCount = 1);
 
+	// Check whether the provided item could merge _with no leftovers_ into
+	// this item stack.
+	// False indicates either the types don't match or adding the extra count
+	// would overflow the max stack size.
+	// In other words, a call to Merge would produce leftovers.
+	UFUNCTION(BlueprintCallable)
+	bool CanMerge(const UItem *OtherItem);
+
 	// Attempt to add another Item into this one respecting stack sizes.
 	// If item types do not match, this will do nothing.
 	// Anything left over is returned. If nothing is left, nullptr is returned.
 	// Note passed in item is not changed nor will it be returned.
 	UFUNCTION(BlueprintCallable)
 	UItem *Merge(const UItem *OtherItem);
+
+	// Create a duplicate item with the same count
+	UFUNCTION(BlueprintCallable)
+	UItem *Clone() const { if (IsEmpty()) return nullptr; UItem *Item = MakeItem(ItemType); Item->SetCount(Count); return Item; }
 
 	// Check if another item has the same item type as this one.
 	UFUNCTION(BlueprintCallable)

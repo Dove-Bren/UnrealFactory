@@ -17,8 +17,8 @@ UPlatformMine::UPlatformMine() : UPlatform()
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> FloorMesh;
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> WallMesh;
 		FConstructorStatics()
-			: FloorMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/Dungeon/floor_01.floor_01"))
-			, WallMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/Dungeon/wall_03.wall_03"))
+			: FloorMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/Dungeon/floor_01.floor_01"))
+			, WallMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/Dungeon/wall_03.wall_03"))
 		{
 		}
 	};

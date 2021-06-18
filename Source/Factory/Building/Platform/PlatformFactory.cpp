@@ -11,9 +11,9 @@ UPlatformFactory::UPlatformFactory()
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> WallMesh;
 		ConstructorHelpers::FObjectFinderOptional<UMaterial> FloorMat;
 		FMeshStatics()
-			: FloorMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/Dungeon/floor_01.floor_01"))
-			, WallMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/Dungeon/wall_03.wall_03"))
-			, FloorMat(TEXT("/Game/Puzzle/Meshes/Environment/Interior/Dungeon/MatFactFloor.MatFactFloor"))
+			: FloorMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/Dungeon/floor_01.floor_01"))
+			, WallMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/Dungeon/wall_03.wall_03"))
+			, FloorMat(TEXT("/Game/Factory/Meshes/Environment/Interior/Dungeon/MatFactFloor.MatFactFloor"))
 		{
 		}
 	};

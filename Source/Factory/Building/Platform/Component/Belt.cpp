@@ -21,13 +21,13 @@ ABelt::ABelt()
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> MiddleMesh;
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> MiddleExtendedMesh;
 		FMeshStatics()
-			: Belt1Mat(TEXT("/Game/Puzzle/Meshes/Machines/Belt1.Belt1"))
-			, UnconnectedMesh(TEXT("/Game/Puzzle/Meshes/Machines/conveyor_standalone.conveyor_standalone"))
-			, BeginMesh(TEXT("/Game/Puzzle/Meshes/Machines/conveyor_begin.conveyor_begin"))
-			, BeginExtendedMesh(TEXT("/Game/Puzzle/Meshes/Machines/conveyor_begin_ext.conveyor_begin_ext"))
-			, EndMesh(TEXT("/Game/Puzzle/Meshes/Machines/conveyor_end.conveyor_end"))
-			, MiddleMesh(TEXT("/Game/Puzzle/Meshes/Machines/conveyor_middle.conveyor_middle"))
-			, MiddleExtendedMesh(TEXT("/Game/Puzzle/Meshes/Machines/conveyor_middle_ext.conveyor_middle_ext"))
+			: Belt1Mat(TEXT("/Game/Factory/Meshes/Machines/Belt1.Belt1"))
+			, UnconnectedMesh(TEXT("/Game/Factory/Meshes/Machines/conveyor_standalone.conveyor_standalone"))
+			, BeginMesh(TEXT("/Game/Factory/Meshes/Machines/conveyor_begin.conveyor_begin"))
+			, BeginExtendedMesh(TEXT("/Game/Factory/Meshes/Machines/conveyor_begin_ext.conveyor_begin_ext"))
+			, EndMesh(TEXT("/Game/Factory/Meshes/Machines/conveyor_end.conveyor_end"))
+			, MiddleMesh(TEXT("/Game/Factory/Meshes/Machines/conveyor_middle.conveyor_middle"))
+			, MiddleExtendedMesh(TEXT("/Game/Factory/Meshes/Machines/conveyor_middle_ext.conveyor_middle_ext"))
 		{
 		}
 	};

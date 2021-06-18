@@ -13,8 +13,8 @@ ALadder::ALadder() : AClickableActor()
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> LadderMesh;
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> HoleMesh;
 		FConstructorStatics()
-			: LadderMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/ladder.ladder"))
-			, HoleMesh(TEXT("/Game/Puzzle/Meshes/Environment/Interior/ladder_hole.ladder_hole"))
+			: LadderMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/ladder.ladder"))
+			, HoleMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/ladder_hole.ladder_hole"))
 		{
 		}
 	};

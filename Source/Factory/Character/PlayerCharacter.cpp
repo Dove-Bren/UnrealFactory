@@ -29,8 +29,8 @@ APlayerCharacter::APlayerCharacter()
 		ConstructorHelpers::FObjectFinderOptional<USkeletalMesh> SkeletalMesh;
 		ConstructorHelpers::FObjectFinderOptional<UAnimBlueprint> AnimBlueprint;
 		FConstructorStatics()
-			: SkeletalMesh(TEXT("/Game/Puzzle/Meshes/Characters/ElfArchers/ElfMan.ElfMan"))
-			, AnimBlueprint(TEXT("/Game/Puzzle/Meshes/Characters/ElfArchers/Animations/ElfManAnim.ElfManAnim"))
+			: SkeletalMesh(TEXT("/Game/Factory/Meshes/Characters/ElfArchers/ElfMan.ElfMan"))
+			, AnimBlueprint(TEXT("/Game/Factory/Meshes/Characters/ElfArchers/Animations/ElfManAnim.ElfManAnim"))
 		{
 		}
 	};

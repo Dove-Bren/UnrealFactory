@@ -57,6 +57,25 @@ UItem *UItem::Split(int32 SplitCount)
 	return NewItem;
 }
 
+bool UItem::CanMerge(const UItem *OtherItem)
+{
+	bool Valid = true;
+
+	if (OtherItem && !OtherItem->IsEmpty())
+	{
+		if (!MatchesType(OtherItem))
+		{
+			Valid = false;
+		}
+		else if (Count + OtherItem->GetCount() > GetMaxCount())
+		{
+			Valid = false;
+		}
+	}
+
+	return Valid;
+}
+
 UItem *UItem::Merge(const UItem *OtherItem)
 {
 	UItem *NewItem = nullptr;
