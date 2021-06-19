@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Factory/GameEnums.h"
+#include "Factory/Building/Shop.h"
+#include "Factory/UI/HudManager.h"
 #include "GameFramework/PlayerController.h"
 #include "FactoryPlayerController.generated.h"
 
@@ -17,6 +20,14 @@ public:
 
 	virtual void SetupInputComponent() override;
 	virtual void PlayerTick(float DeltaSeconds) override;
+	virtual void BeginPlay() override;
+
+	// Move to a shop platform
+	void GoToShop(AShop *Shop, EGamePlatform Platform = EGamePlatform::STORE, bool bTeleport = true);
+
+	// Get the Hud Manager
+	UFUNCTION(BlueprintCallable)
+	UHUDManager *GetHudManager() { return HUDManager; }
 
 protected:
 
@@ -36,9 +47,14 @@ protected:
 	void SetSprintLock(bool bOn);
 	bool IsSprinting();
 
+	virtual void OnPossess(APawn* aPawn) override;
+
 private:
 	bool bSprintLock;
 	bool bSprintMod;
+
+	UPROPERTY(VisibleAnywhere)
+	UHUDManager *HUDManager;
 
 };
 

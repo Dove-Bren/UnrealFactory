@@ -16,14 +16,6 @@ class ULogicalShop: public UObject
 	GENERATED_BODY()
 private:
 
-	// Name of the shop
-	UPROPERTY(VisibleAnywhere)
-	FName Name;
-
-	// Resources available to shop
-	UPROPERTY(VisibleAnywhere)
-	FShopResources Resources;
-
 	// TODO keep history of resources for graphing? Maybe capture every phase change?
 
 	// Center X world position of the shop
@@ -48,8 +40,16 @@ protected:
 	virtual ULogicalPlatform *MakePlatform(EGamePlatform PlatformType);
 
 	// Platforms that make up the shop
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TMap<EGamePlatform, ULogicalPlatform*> Platforms;
+
+	// Name of the shop
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FName Name;
+
+	// Resources available to shop
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FShopResources Resources {};
 
 public:
 
@@ -77,9 +77,9 @@ public:
 	// Transition to the provided state, including stopping any activities from the previous one.
 	// This is echoed down to all platforms in the shop.
 	UFUNCTION(BlueprintCallable)
-	void StartPhase(EGamePhase Phase);
+	virtual void StartPhase(EGamePhase Phase);
 
 	// Tick this shop and all platforms and components
 	UFUNCTION(BlueprintCallable)
-	void ShopTick(EGamePhase Phase);
+	virtual void ShopTick(EGamePhase Phase);
 };

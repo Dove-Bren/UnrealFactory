@@ -26,5 +26,6 @@ public:
 	ULogicalPlatformStore();
 	~ULogicalPlatformStore() = default;
 
+	virtual void ShopTick(EGamePhase Phase) override;
 
 };

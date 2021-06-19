@@ -9,7 +9,15 @@ struct FShopResources
 {
 	GENERATED_BODY()
 
-	uint32 Gold;
-	uint32 Wood;
-	uint32 Ore;
+	// Gold. Fluid currency.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32 Gold;
+
+	// Wood. Building resource and material resource.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32 Wood;
+
+	// Raw ore. Base material resource.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int32 Ore;
 };

@@ -66,7 +66,6 @@ void AShop::SetPlatformVisibility(EGamePlatform VisiblePlatform)
 {
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Yellow, TEXT("Setting visibility"));
 		UPlatform *Platform = Platforms[PlatformType];
 		Platform->SetVisibility(PlatformType == VisiblePlatform, true);
 	}

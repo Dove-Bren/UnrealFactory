@@ -60,8 +60,8 @@ void ALadder::OnClick(FKey ButtonPressed)
 		return;
 	}
 
-	APlayerCharacter *ControlledCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	if (ControlledCharacter)
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (Controller)
 	{
 		// TODO show some UI and let them select up or down depending on what platform we're on
 		// For now, cycle
@@ -81,6 +81,6 @@ void ALadder::OnClick(FKey ButtonPressed)
 			break;
 		}
 
-		ControlledCharacter->SetShop(Platform->GetShop(), DestPlatform, true);
+		Controller->GoToShop(Platform->GetShop(), DestPlatform, true);
 	}
 }

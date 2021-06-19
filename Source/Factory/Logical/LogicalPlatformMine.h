@@ -31,5 +31,6 @@ protected:
 public:
 	ULogicalPlatformMine();
 
+	virtual void ShopTick(EGamePhase Phase) override;
 
 };

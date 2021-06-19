@@ -55,10 +55,10 @@ void ULogicalShop::StartPhase(EGamePhase Phase)
 {
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
 	{
-		ULogicalPlatform *Platform = (ULogicalPlatform*)(this->Platforms.Find(PlatformType));
-		if (Platform)
+		ULogicalPlatform **Platform = this->Platforms.Find(PlatformType);
+		if (Platform && *Platform)
 		{
-			Platform->StartPhase(Phase);
+			(*Platform)->StartPhase(Phase);
 		}
 	}
 }
@@ -67,24 +67,25 @@ void ULogicalShop::ShopTick(EGamePhase Phase)
 {
 	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
 	{
-		ULogicalPlatform *Platform = (ULogicalPlatform*)(this->Platforms.Find(PlatformType));
-		if (Platform)
+		ULogicalPlatform **Platform = this->Platforms.Find(PlatformType);
+		if (Platform && *Platform)
 		{
-			Platform->ShopTick(Phase);
+			(*Platform)->ShopTick(Phase);
 		}
 	}
 }
 
-#define CLAMP_UNSIGNED(Amt, Count) uint32 Raw = Amt + Count;\
-	if (Count < 0 && Raw > Resources.Gold)\
+// Add Count to Amt, clamping to 0 and MAX_INT instead of wrapping
+#define CLAMP_SIGNED(Amt, Count) int32 Raw = Amt + Count;\
+	if (Count < 0 && Raw < 0)\
 	{\
 		/* Underflow */\
 		Amt = 0;\
 	}\
-	else if (Count > 0 && Raw < Resources.Gold)\
+	else if (Count > 0 && Raw < 0)\
 	{\
 		/* Overflow */\
-		Amt = (uint32)(-1);\
+		Amt = MAX_int32;\
 	}\
 	else\
 	{\
@@ -93,15 +94,15 @@ void ULogicalShop::ShopTick(EGamePhase Phase)
 
 void ULogicalShop::AddGold(int32 Count)
 {
-	CLAMP_UNSIGNED(Resources.Gold, Count); 
+	CLAMP_SIGNED(Resources.Gold, Count); 
 }
 
 void ULogicalShop::AddWood(int32 Count)
 {
-	CLAMP_UNSIGNED(Resources.Wood, Count);
+	CLAMP_SIGNED(Resources.Wood, Count);
 }
 
 void ULogicalShop::AddOre(int32 Count)
 {
-	CLAMP_UNSIGNED(Resources.Ore, Count);
+	CLAMP_SIGNED(Resources.Ore, Count);
 }

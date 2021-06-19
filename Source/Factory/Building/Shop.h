@@ -46,8 +46,12 @@ public:
 	static AShop *MakeShop(UWorld *World, ULogicalShop *LogicalShop);
 
 	const TMap<EGamePlatform, UPlatform*> & GetPlatforms() const { return Platforms; }
-	const ULogicalShop *GetLogicalShop() const { return LogicalShop; }
+
+	// Get the logical shop object associated with this world shop, if any.
+	UFUNCTION(BlueprintCallable)
+	ULogicalShop *GetLogicalShop() const { return LogicalShop; }
 
 	// Sets only the provided platform type to be visible
+	UFUNCTION(BlueprintCallable)
 	void SetPlatformVisibility(EGamePlatform VisiblePlatform);
 };

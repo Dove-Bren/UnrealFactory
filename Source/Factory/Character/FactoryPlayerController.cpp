@@ -19,6 +19,8 @@ AFactoryPlayerController::AFactoryPlayerController()
 	bEnableTouchEvents = true;
 	DefaultClickTraceChannel = ECC_Pawn;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+
+	HUDManager = CreateDefaultSubobject<UHUDManager>(TEXT("HUDManager"));
 }
 
 void AFactoryPlayerController::SetupInputComponent()
@@ -229,4 +231,31 @@ void AFactoryPlayerController::Trace(const FVector& Start, const FVector& End, b
 			g_Grid->Score += 2;
 		}
 	}*/
+}
+
+void AFactoryPlayerController::GoToShop(AShop *Shop, EGamePlatform Platform, bool bTeleport)
+{
+	APlayerCharacter *ControlledCharacter = dynamic_cast<APlayerCharacter *>(this->GetCharacter());
+	if (ControlledCharacter)
+	{
+		ControlledCharacter->SetShop(Shop, Platform, bTeleport);
+	}
+
+	HUDManager->SetGamePlatform(Platform);
+}
+
+void AFactoryPlayerController::BeginPlay(void)
+{
+	Super::BeginPlay();
+}
+
+void AFactoryPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+
+	APlayerCharacter *ControlledCharacter = dynamic_cast<APlayerCharacter *>(this->GetCharacter());
+	if (ControlledCharacter)
+	{
+		HUDManager->SetCharacter(ControlledCharacter);
+	}
 }

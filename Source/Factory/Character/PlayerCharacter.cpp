@@ -117,11 +117,32 @@ APlayerCharacter::APlayerCharacter()
 	LightMine2->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+
+	// RPG element defaults
+	Health = MaxHealth = 100;
+	Mana = MaxMana = 20;
+	Level = 1;
+	XP = 0;
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+
+	// Shouldn't be here. Shop registry?
+#define TICKS_PER_SECOND 20.0
+#define SECONDS_PER_TICK (1.0 / TICKS_PER_SECOND)
+	if (this->CurrentShop && CurrentShop->GetLogicalShop())
+	{
+		static float SecondBuildup = 0;
+		SecondBuildup += DeltaSeconds;
+		while (SecondBuildup > SECONDS_PER_TICK)
+		{
+			SecondBuildup -= SECONDS_PER_TICK;
+			CurrentShop->GetLogicalShop()->ShopTick(EGamePhase::MORNING);
+		}
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -227,6 +248,7 @@ void APlayerCharacter::ResetLighting()
 }
 
 #include "Factory/Logical/LogicalShop.h"
+#include "FactoryPlayerController.h"
 
 void APlayerCharacter::BeginPlay()
 {
@@ -239,4 +261,10 @@ void APlayerCharacter::BeginPlay()
 
 	ULogicalShop *Shop = ULogicalShop::MakeShop(FName(TEXT("Player Shop")), X, Y, Z);
 	AShop *WorldShop = AShop::MakeShop(GetWorld(), Shop);
+
+	AFactoryPlayerController *FactoryController = Cast<AFactoryPlayerController>(this->Controller);
+	if (FactoryController)
+	{
+		FactoryController->GoToShop(WorldShop);
+	}
 }
