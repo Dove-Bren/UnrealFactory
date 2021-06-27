@@ -1,16 +1,26 @@
 #include "Item.h"
 
+#include "Kismet/GameplayStatics.h"
+
+#include "ItemType.h"
+
 UItem::UItem()
 {
 
 }
 
-/*static*/ UItem *UItem::MakeItem(UItemType *Type)
+/*static*/ UItem *UItem::MakeItemEx(UObject *Outer, UItemType *Type)
 {
-	UItem *Item = NewObject<UItem>();
+	UItem *Item = NewObject<UItem>(Outer);
 	Item->SetType(Type);
 	Item->SetCount(1); // Default to 1
 	return Item;
+}
+
+/*static*/ UItem *UItem::MakeItem(UObject *Outer, TSubclassOf<UItemType> Type)
+{
+	UItemTypeRegistry *Registry = UItemTypeRegistry::GetInstance(Outer);
+	return MakeItemEx(Outer, Registry->GetDefaultInstance(Type));
 }
 
 int32 UItem::SetCount(int32 NewCount)
@@ -49,7 +59,7 @@ UItem *UItem::Split(int32 SplitCount)
 	if (!IsEmpty())
 	{
 		int32 Avail = (Count > SplitCount ? SplitCount : Count);
-		NewItem = MakeItem(ItemType);
+		NewItem = MakeItemEx(this->GetOuter(), ItemType);
 		NewItem->SetCount(Avail);
 		this->SetCount(Count - Avail); // May be 0
 	}
@@ -85,9 +95,13 @@ UItem *UItem::Merge(const UItem *OtherItem)
 		int32 Leftover = this->AddCount(OtherItem->GetCount());
 		if (Leftover)
 		{
-			NewItem = MakeItem(ItemType);
+			NewItem = MakeItemEx(GetOuter(), ItemType);
 			NewItem->SetCount(Leftover);
 		}
+	}
+	else
+	{
+		NewItem = OtherItem->Clone();
 	}
 
 	return NewItem;

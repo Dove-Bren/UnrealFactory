@@ -7,14 +7,21 @@
 #include "Factory/GameEnums.h"
 
 #include "Engine/StaticMesh.h"
+#include "Engine/Texture2D.h"
 
 #include "ItemType.generated.h"
 
-UCLASS(Abstract, Blueprintable)
+typedef class APlayerCharacter;
+typedef class UItem;
+typedef class UItemAction;
+
+UCLASS(Abstract)
 class UItemType : public UObject
 {
 	GENERATED_BODY()
 protected:
+
+	friend class UItemTypeRegistry;
 
 	// Display name of the item type
 	UPROPERTY(EditAnywhere)
@@ -24,6 +31,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	FName Description;
 
+	// Internal ID of the item
+	UPROPERTY(EditAnywhere)
+	FName ID;
+
 	// Max number of these items that can stack in one slot/Item object
 	UPROPERTY(EditAnywhere)
 	int32 MaxStackSize;
@@ -32,21 +43,179 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UStaticMesh *DisplayMesh;
 
+	// Visual mesh for the item
+	UPROPERTY(EditAnywhere)
+	UTexture2D *DisplaySprite;
+
 public:
 
 	UItemType() {};
 	virtual ~UItemType() = default;
 
+	// Get the maximum count of this item type allowed in a single Item instance
 	UFUNCTION(BlueprintCallable)
-	int32 GetMaxStackSize() const { return MaxStackSize; }
+	virtual int32 GetMaxStackSize() const { return MaxStackSize; }
 
+	// Get the display name of this item type
 	UFUNCTION(BlueprintCallable)
-	FName GetName() const { return Name; }
+	virtual FName GetName() const { return Name; }
 
+	// Get the description of this item type
 	UFUNCTION(BlueprintCallable)
-	FName GetDescription() const { return Description; }
+	virtual FName GetDescription() const { return Description; }
 
+	// Get the internal registry name for this item type
 	UFUNCTION(BlueprintCallable)
-	UStaticMesh *GetMesh() const { return DisplayMesh; }
+	virtual FName GetRegistryName() const { return ID; }
 
+	// Get the display mesh for this item type
+	UFUNCTION(BlueprintCallable)
+	virtual UStaticMesh *GetMesh() const { return DisplayMesh; }
+
+	// Get the 2D sprite for displaying this item type in the inventory
+	UFUNCTION(BlueprintCallable)
+	virtual UTexture2D *GetSprite() const { return DisplaySprite; }
+
+	// Get what action should be taken when an item is selected for use in an inventory
+	UFUNCTION(BlueprintCallable)
+	virtual UItemAction *GetUseAction(EGamePlatform Platform, APlayerCharacter *Character, UItem *Item) PURE_VIRTUAL(UItemType::GetUseAction, return nullptr;);
+};
+
+UCLASS(Blueprintable, Abstract)
+class UItemTypeBP : public UItemType
+{
+	GENERATED_BODY()
+
+protected:
+
+	// Which ItemAction type to use on STORE layers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UItemAction> StoreActionClass;
+
+	// Which ItemAction type to use on FACTORY layers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UItemAction> FactoryActionClass;
+
+	// Which ItemAction type to use on MINE layers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UItemAction> MineActionClass;
+
+public:
+
+	UItemTypeBP() {};
+	virtual ~UItemTypeBP() = default;
+
+	virtual UItemAction *GetUseAction(EGamePlatform Platform, APlayerCharacter *Character, UItem *Item) override;
+
+	virtual EDataValidationResult IsDataValid(TArray<FText> & ValidationErrors) override;
+};
+
+UCLASS(BlueprintType, NotBlueprintable)
+class UItemTypeRegistry : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	
+	static UItemTypeRegistry *GetInstance(const UObject *WorldContextObject);
+
+	UItemType *GetDefaultInstance(TSubclassOf<UItemType> ItemTypeClass);
+	UItemType *GetType(FName Name);
+
+	void Register(UItemType *Type);
+
+protected:
+
+	UItemTypeRegistry();
+	~UItemTypeRegistry();
+
+	TMap<FName, UItemType*> Registry;
+	TMap<UClass*, UItemType*> ClassRegistry;
+};
+
+UCLASS(Abstract)
+class UItemAction : public UObject
+{
+	GENERATED_BODY()
+protected:
+	EItemActionType ActionType;
+
+	UItemAction();
+public:
+
+	UItemAction(EItemActionType Type);
+	virtual ~UItemAction();
+
+	// Return what type of action this is
+	UFUNCTION(BlueprintCallable)
+	virtual EItemActionType GetType() { return ActionType; }
+
+	// Perform the action
+	UFUNCTION(BlueprintCallable)
+	virtual void Perform(APlayerCharacter *Character, UItem *Item) PURE_VIRTUAL(UItemAction::Perform, );
+};
+
+UCLASS(Blueprintable, Abstract)
+class UItemActionBP : public UItemAction
+{
+	GENERATED_BODY()
+protected:
+
+	UItemActionBP();
+public:
+
+	virtual ~UItemActionBP() = default;
+
+	virtual void Perform(APlayerCharacter *Character, UItem *Item) override;
+
+	// ^ set up above to be implementable via blueprint. Idk if I can do any
+	// sort of validation that it is but I guess that's okay for blueprints.
+
+	// Blueprint-overrideable version of the Perform function
+	UFUNCTION(BlueprintImplementableEvent)
+	void PerformBP(APlayerCharacter *Character, UItem *Item);
+
+	// Then make the four basic classes?
+};
+
+UCLASS(Blueprintable)
+class UItemActionNoAction : public UItemAction
+{
+	GENERATED_BODY()
+protected:
+
+	UItemActionNoAction() : UItemAction(EItemActionType::NO_ACTION) {}
+public:
+
+	virtual ~UItemActionNoAction() = default;
+
+	virtual void Perform(APlayerCharacter *Character, UItem *Item) override {};
+};
+
+UCLASS(Blueprintable)
+class UItemActionPlace : public UItemAction
+{
+	GENERATED_BODY()
+protected:
+
+	UItemActionPlace() : UItemAction(EItemActionType::PLACE) {}
+public:
+
+	virtual ~UItemActionPlace() = default;
+
+	virtual void Perform(APlayerCharacter *Character, UItem *Item) override;
+};
+
+UCLASS(Blueprintable)
+class UItemActionEquip : public UItemAction
+{
+	GENERATED_BODY()
+protected:
+
+	UItemActionEquip() : UItemAction(EItemActionType::EQUIP) {}
+public:
+
+	virtual ~UItemActionEquip() = default;
+
+	virtual void Perform(APlayerCharacter *Character, UItem *Item) override;
 };

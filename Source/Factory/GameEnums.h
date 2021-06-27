@@ -48,3 +48,16 @@ enum class EDirection : uint8
 };
 ENUM_RANGE_BY_COUNT(EDirection, EDirection::MAX)
 ENUM_HAS_NAMES(EDirection, Direction);
+
+UENUM()
+enum class EItemActionType : uint8
+{
+	NO_ACTION,
+	USE,
+	PLACE,
+	EQUIP,
+
+	MAX
+};
+ENUM_RANGE_BY_COUNT(EItemActionType, EItemActionType::MAX)
+ENUM_HAS_NAMES(EItemActionType, ItemActionType);

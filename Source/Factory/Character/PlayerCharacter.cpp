@@ -124,6 +124,8 @@ APlayerCharacter::APlayerCharacter()
 	Mana = MaxMana = 20;
 	Level = 1;
 	XP = 0;
+
+	this->Inventory = CreateDefaultSubobject<UInventory>(TEXT("PlayerInventory"));
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)

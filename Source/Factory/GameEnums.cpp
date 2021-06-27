@@ -42,3 +42,12 @@ FName EDirectionNames[] = {
 	FName(TEXT("West")), // WEST
 };
 static_assert(sizeof(EDirectionNames) / sizeof(EDirectionNames[0]) == (uint8)EDirection::MAX, "Phase name list not kept in sync");
+
+
+FName EItemActionTypeNames[] = {
+	FName(TEXT("No Action")), // NO_ACTION
+	FName(TEXT("Use")), // USE
+	FName(TEXT("Place")), // PLACE
+	FName(TEXT("Equip")), // EQUIP
+};
+static_assert(sizeof(EItemActionTypeNames) / sizeof(EItemActionTypeNames[0]) == (uint8)EItemActionType::MAX, "Item Action Type name list not kept in sync");

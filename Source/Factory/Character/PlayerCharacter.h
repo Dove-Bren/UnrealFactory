@@ -10,6 +10,7 @@
 #include "Components/SkyLightComponent.h"
 
 #include "Factory/GameEnums.h"
+#include "Factory/Logical/Inventory.h"
 
 #include "PlayerCharacter.generated.h"
 
@@ -71,6 +72,10 @@ public:
 	// Get the current level of the character
 	UFUNCTION(BlueprintCallable)
 	int32 GetLevel() { return Level; }
+
+	// Get the current level of the character
+	UFUNCTION(BlueprintCallable)
+	UInventory *GetInventory() { return Inventory; }
 
 protected:
 
@@ -134,6 +139,10 @@ protected:
 	// Current level of the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
 	int32 Level;
+
+	// The player's inventory TODO subclass/specialize
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
+	UInventory *Inventory;
 
 private:
 

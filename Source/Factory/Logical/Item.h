@@ -39,7 +39,10 @@ protected:
 public:
 
 	UFUNCTION(BlueprintCallable)
-	static UItem *MakeItem(UItemType *Type);
+	static UItem *MakeItemEx(UObject *Outer, UItemType *Type);
+
+	UFUNCTION(BlueprintCallable)
+	static UItem *MakeItem(UObject *Outer, TSubclassOf<UItemType> Type);
 
 	UFUNCTION(BlueprintCallable)
 	UItemType *GetType() const { return this->ItemType; }
@@ -89,7 +92,7 @@ public:
 
 	// Create a duplicate item with the same count
 	UFUNCTION(BlueprintCallable)
-	UItem *Clone() const { if (IsEmpty()) return nullptr; UItem *Item = MakeItem(ItemType); Item->SetCount(Count); return Item; }
+	UItem *Clone() const { if (IsEmpty()) return nullptr; UItem *Item = MakeItemEx(this->GetOuter(), ItemType); Item->SetCount(Count); return Item; }
 
 	// Check if another item has the same item type as this one.
 	UFUNCTION(BlueprintCallable)

@@ -1,5 +1,7 @@
 #include "HudManager.h"
 
+#include "Factory/Character/FactoryPlayerController.h"
+
 #include "Blueprint/UserWidget.h"
 
 UHUDManager::UHUDManager()
@@ -51,6 +53,7 @@ void UHUDManager::SetGamePlatform(EGamePlatform Platform)
 	}
 
 	TSubclassOf<class UFactoryHUDWidget> WidgetClass;
+	//bool bShowCursor = false;
 	switch (Platform)
 	{
 	case EGamePlatform::STORE:
@@ -76,6 +79,18 @@ void UHUDManager::SetGamePlatform(EGamePlatform Platform)
 
 		CurrentWidget->AddToViewport(0);
 	}
+
+	/*if (CurrentCharacter)
+	{
+		AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(CurrentCharacter->GetController());
+		if (Controller)
+		{
+			Controller->bShowMouseCursor = bShowCursor;
+			Controller->bEnableClickEvents = bShowCursor;
+			Controller->bEnableMouseOverEvents = bShowCursor;
+			Controller->bEnableTouchEvents = bShowCursor;
+		}
+	}*/
 }
 
 bool UHUDManager::IsGamePaused()
