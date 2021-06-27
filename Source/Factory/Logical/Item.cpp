@@ -71,7 +71,7 @@ bool UItem::CanMerge(const UItem *OtherItem)
 {
 	bool Valid = true;
 
-	if (OtherItem && !OtherItem->IsEmpty())
+	if (ITEM_EXISTS(OtherItem))
 	{
 		if (!MatchesType(OtherItem))
 		{
@@ -90,7 +90,7 @@ UItem *UItem::Merge(const UItem *OtherItem)
 {
 	UItem *NewItem = nullptr;
 
-	if (OtherItem && MatchesType(OtherItem) && !OtherItem->IsEmpty())
+	if (ITEM_EXISTS(OtherItem) && MatchesType(OtherItem))
 	{
 		int32 Leftover = this->AddCount(OtherItem->GetCount());
 		if (Leftover)

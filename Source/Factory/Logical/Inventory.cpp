@@ -42,14 +42,14 @@ UItem *UInventory::AddItem(UItem *ItemIn)
 	{
 		ItemIn = InSlot->Merge(ItemIn);
 
-		if (ItemIn == nullptr || ItemIn->IsEmpty())
+		if (!ITEM_EXISTS(ItemIn))
 		{
 			break;
 		}
 	}
 
 	// Then handle any leftover amount
-	if (ItemIn && !ItemIn->IsEmpty())
+	if (ITEM_EXISTS(ItemIn))
 	{
 		// Add into new slot if a slot is available
 		if (HeldItems.Num() < this->GetMaxSlots())
@@ -107,4 +107,67 @@ UItem *UInventory::TakeItem(UItem *Item)
 	}
 
 	return Out->IsEmpty() ? nullptr : Out;
+}
+
+UItem *UInventory::GetItemSlot(int32 SlotIdx)
+{
+	UItem *Item = nullptr;
+	if (SlotIdx < this->HeldItems.Num())
+	{
+		Item = HeldItems[SlotIdx];
+	}
+	return Item;
+}
+
+UItem *UInventory::TakeItemSlot(int32 SlotIdx, int32 Count)
+{
+	UItem *Item = nullptr;
+	if (SlotIdx < this->HeldItems.Num())
+	{
+		Item = this->HeldItems[SlotIdx]->Split(Count);
+
+		if (this->HeldItems[SlotIdx]->IsEmpty())
+		{
+			HeldItems.RemoveAtSwap(SlotIdx);
+		}
+	}
+	return Item;
+}
+
+int32 UInventory::AddItemCountSlot(int32 SlotIdx, int32 Count)
+{
+	int32 Leftover = Count;
+	if (SlotIdx < this->HeldItems.Num())
+	{
+		Leftover = HeldItems[SlotIdx]->AddCount(Count);
+	}
+	return Leftover;
+}
+
+UItem *UInventory::AddItemSlot(int32 SlotIdx, UItem *OtherItem)
+{
+	UItem *Leftover = OtherItem;
+	if (SlotIdx < this->HeldItems.Num())
+	{
+		Leftover = HeldItems[SlotIdx]->Merge(OtherItem);
+	}
+	return Leftover;
+}
+
+UItem *UInventorySlotRef::RemoveItems(int32 Count)
+{
+	UItem *Taken = nullptr;
+	if (this->IsValid())
+	{
+		const UItem *Ref = GetItem(); // For checking if stack was exhausted
+
+		Taken = Inventory->TakeItemSlot(SlotIdx, Count);
+
+		if (GetItem() != Ref) // Slot Item changed!
+		{
+			// Assume we're invalid
+			this->SlotIdx = -1;
+		}
+	}
+	return Taken;
 }

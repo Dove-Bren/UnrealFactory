@@ -44,7 +44,7 @@ IItemHandler *ULogicalBelt::GetReceivingHandler()
 bool ULogicalBelt::CanAccept_Implementation(EDirection DirectionIn, const UItem *ItemIn)
 {
 	return DirectionIn != this->Direction
-		&& (!this->Item || this->Item->CanMerge(ItemIn));
+		&& (!ITEM_EXISTS(this->Item) || this->Item->CanMerge(ItemIn));
 	// TODO rate limitting?
 }
 
@@ -53,7 +53,7 @@ UItem *ULogicalBelt::InsertItem_Implementation(EDirection DirectionIn, UItem *It
 	UItem *Leftover = nullptr;
 	if (CanAccept_Implementation(DirectionIn, ItemIn))
 	{
-		if (!Item)
+		if (!ITEM_EXISTS(Item))
 		{
 			Item = ItemIn;
 		}
@@ -67,7 +67,7 @@ UItem *ULogicalBelt::InsertItem_Implementation(EDirection DirectionIn, UItem *It
 
 void ULogicalBelt::PeekItems_Implementation(TArray<UItem*> &ItemArray)
 {
-	if (Item)
+	if (ITEM_EXISTS(Item))
 	{
 		ItemArray.Add(Item->Clone());
 	}
@@ -81,7 +81,7 @@ bool ULogicalBelt::CanTake_Implementation(EDirection DirectionIn, const UItem *I
 	{
 		Success = false;
 	}
-	else if (!Item)
+	else if (!ITEM_EXISTS(Item))
 	{
 		Success = false;
 	}

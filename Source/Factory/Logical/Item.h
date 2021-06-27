@@ -12,6 +12,8 @@
 
 #include "Item.generated.h"
 
+#define ITEM_EXISTS(Item) (Item && !Item->IsEmpty())
+
 UCLASS(Blueprintable)
 class UItem : public UObject
 {
@@ -101,5 +103,7 @@ public:
 	// Check if this item is the same type and holds at least as much count as OtherItem.
 	UFUNCTION(BlueprintCallable)
 	bool StackContains(const UItem *OtherItem) const { return MatchesType(OtherItem) && OtherItem->GetCount() < this->GetCount(); }
+
+	static bool ItemExists(const UItem *Item) { return ITEM_EXISTS(Item); }
 
 };
