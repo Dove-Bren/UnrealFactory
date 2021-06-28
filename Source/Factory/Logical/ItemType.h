@@ -152,7 +152,7 @@ public:
 
 	// Perform the action
 	UFUNCTION(BlueprintCallable)
-	virtual void Perform(APlayerCharacter *Character, UItem *Item) PURE_VIRTUAL(UItemAction::Perform, );
+	virtual void Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item) PURE_VIRTUAL(UItemAction::Perform, );
 };
 
 UCLASS(Blueprintable, Abstract)
@@ -166,14 +166,14 @@ public:
 
 	virtual ~UItemActionBP() = default;
 
-	virtual void Perform(APlayerCharacter *Character, UItem *Item) override;
+	virtual void Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item) override;
 
 	// ^ set up above to be implementable via blueprint. Idk if I can do any
 	// sort of validation that it is but I guess that's okay for blueprints.
 
 	// Blueprint-overrideable version of the Perform function
 	UFUNCTION(BlueprintImplementableEvent)
-	void PerformBP(APlayerCharacter *Character, UItem *Item);
+	void PerformBP(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item);
 
 	// Then make the four basic classes?
 };
@@ -189,7 +189,7 @@ public:
 
 	virtual ~UItemActionNoAction() = default;
 
-	virtual void Perform(APlayerCharacter *Character, UItem *Item) override {};
+	virtual void Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item) override {};
 };
 
 UCLASS(Blueprintable)
@@ -203,7 +203,7 @@ public:
 
 	virtual ~UItemActionPlace() = default;
 
-	virtual void Perform(APlayerCharacter *Character, UItem *Item) override;
+	virtual void Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item) override;
 };
 
 UCLASS(Blueprintable)
@@ -217,5 +217,5 @@ public:
 
 	virtual ~UItemActionEquip() = default;
 
-	virtual void Perform(APlayerCharacter *Character, UItem *Item) override;
+	virtual void Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item) override;
 };

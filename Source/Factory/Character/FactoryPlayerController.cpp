@@ -9,7 +9,9 @@
 #include "Framework/Application/SlateApplication.h"
 //#include "SlateApplication.h"
 
-#include "PlayerCharacter.h"
+#include "Factory/Character/PlayerCharacter.h"
+#include "Factory/Character/PlacingActor.h"
+#include "Factory/Logical/Item.h"
 
 AFactoryPlayerController::AFactoryPlayerController()
 {
@@ -60,6 +62,35 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 		End = Start + (Dir * 8000.0f);
 		Trace(Start, End, false);
 	}
+
+	if (ActiveMouseItemActor)
+	{
+		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+		bool bHit = false;
+		if (LocalPlayer && LocalPlayer->ViewportClient)
+		{
+			FVector2D MousePosition;
+			if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
+			{
+				FHitResult HitResult;
+				FVector Origin;
+				FVector BoxExtent;
+				FCollisionQueryParams Params;
+
+				Params.bTraceComplex = true;
+				Params.AddIgnoredActor(ActiveMouseItemActor);
+
+				if (GetHitResultAtScreenPosition(MousePosition, ECollisionChannel::ECC_Visibility, Params, HitResult))
+				{
+					// Center actor on cursor, which means getting bounds
+					ActiveMouseItemActor->GetActorBounds(false, Origin, BoxExtent, true);
+					BoxExtent.Z = 0; // Center horizontally but leave bottom vertical where it's at
+
+					ActiveMouseItemActor->SetActorLocation(HitResult.Location - BoxExtent);
+				}
+			}
+		}
+	}
 }
 
 void AFactoryPlayerController::OnResetVR()
@@ -73,6 +104,8 @@ void AFactoryPlayerController::PrimaryClick()
 	{
 		CurrentBlockFocus->HandleClicked();
 	}*/
+
+w	this->ActiveItemClicked();
 }
 
 void AFactoryPlayerController::SecondaryClick()
@@ -257,5 +290,56 @@ void AFactoryPlayerController::OnPossess(APawn* aPawn)
 	if (ControlledCharacter)
 	{
 		HUDManager->SetCharacter(ControlledCharacter);
+	}
+}
+
+void AFactoryPlayerController::SetActiveMouseItem(UInventorySlotRef *ItemSlotRef)
+{
+	FActorSpawnParameters Parameters{};
+
+	ClearActiveItem();
+
+	if (ItemSlotRef && ItemSlotRef->GetItem())
+	{
+		UItem *Item = ItemSlotRef->GetItem();
+
+		if (Item && Item->GetType()->GetMesh())
+		{
+			ActiveMouseItem = ItemSlotRef;
+			Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			ActiveMouseItemActor = GetWorld()->SpawnActor<APlacingActor>(Parameters);
+			ActiveMouseItemActor->Setup(this, Item->GetType()->GetMesh());
+		}
+	}
+}
+
+void AFactoryPlayerController::ClearActiveItem()
+{
+	if (ActiveMouseItemActor && ActiveMouseItemActor->IsValidLowLevel())
+	{
+		ActiveMouseItemActor->GetWorld()->DestroyActor(ActiveMouseItemActor);// ... I guess not since the controller won't die until the very end?
+	}
+	ActiveMouseItemActor = nullptr;
+	ActiveMouseItem = nullptr;
+}
+
+AFactoryPlayerController::~AFactoryPlayerController()
+{
+	ClearActiveItem();
+}
+
+void AFactoryPlayerController::ActiveItemClicked()
+{
+	if (ActiveMouseItem && ActiveMouseItemActor)
+	{
+		if (this->ActiveMouseItem->IsValid())
+		{
+			ActiveMouseItem->RemoveItems(1);
+		}
+
+		if (!this->ActiveMouseItem->IsValid())
+		{
+			ClearActiveItem();
+		}
 	}
 }

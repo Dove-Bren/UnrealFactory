@@ -1,5 +1,7 @@
 #include "Clickable.h"
 
+#include "Factory/Character/FactoryPlayerController.h"
+
 #include "Components/PrimitiveComponent.h"
 
 AClickableActor::AClickableActor()
@@ -11,8 +13,9 @@ AClickableActor::AClickableActor()
 
 void AClickableActor::OnClickHandler(AActor *Actor, FKey ButtonPressed)
 {
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	AClickableActor *Clickable = Cast<AClickableActor>(Actor);
-	if (Clickable)
+	if (Clickable && Controller && !Controller->GetActiveMouseItem())
 	{
 		Clickable->OnClick(ButtonPressed);
 	}
@@ -20,8 +23,9 @@ void AClickableActor::OnClickHandler(AActor *Actor, FKey ButtonPressed)
 
 void AClickableActor::OnHoverStart(AActor *Actor)
 {
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	AClickableActor *Clickable = Cast<AClickableActor>(Actor);
-	if (Clickable && Clickable->bHighlight)
+	if (Clickable && Clickable->bHighlight && Controller && !Controller->GetActiveMouseItem())
 	{
 		Clickable->ForEachComponent<UPrimitiveComponent>(true, [](UPrimitiveComponent *Component) {
 			Component->SetRenderCustomDepth(true);
@@ -31,8 +35,9 @@ void AClickableActor::OnHoverStart(AActor *Actor)
 
 void AClickableActor::OnHoverEnd(AActor *Actor)
 {
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	AClickableActor *Clickable = Cast<AClickableActor>(Actor);
-	if (Clickable && Clickable->bHighlight)
+	if (Clickable && Clickable->bHighlight && Controller && !Controller->GetActiveMouseItem())
 	{
 		Clickable->ForEachComponent<UPrimitiveComponent>(true, [](UPrimitiveComponent *Component) {
 			Component->SetRenderCustomDepth(false);

@@ -2,6 +2,8 @@
 
 #include "Factory/FactorySingletons.h"
 #include "Factory/FactoryLocale.h"
+#include "Factory/Character/PlayerCharacter.h"
+#include "Factory/Character/FactoryPlayerController.h"
 
 /*static*/ UItemTypeRegistry *UItemTypeRegistry::GetInstance(const UObject *WorldContextObject)
 {
@@ -137,17 +139,21 @@ UItemActionBP::UItemActionBP()
 
 }
 
-void UItemActionBP::Perform(APlayerCharacter *Character, UItem *Item)
+void UItemActionBP::Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item)
 {
-	this->PerformBP(Character, Item);
+	this->PerformBP(Character, Inventory, SlotIdx, Item);
 }
 
-void UItemActionPlace::Perform(APlayerCharacter *Character, UItem *Item)
+void UItemActionPlace::Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item)
 {
-
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(Character->GetController());
+	if (Controller)
+	{
+		Controller->SetActiveMouseItem(UInventorySlotRef::MakeRef(Controller, Inventory, SlotIdx));
+	}
 }
 
-void UItemActionEquip::Perform(APlayerCharacter *Character, UItem *Item)
+void UItemActionEquip::Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item)
 {
 
 }
