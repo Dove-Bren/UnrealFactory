@@ -10,7 +10,7 @@
 
 #include "Factory/GameEnums.h"
 #include "Factory/Logical/LogicalPlatform.h"
-#include "NonComponents/Ladder.h"
+#include "Component/NonLogical/Ladder.h"
 
 #include "Platform.generated.h"
 

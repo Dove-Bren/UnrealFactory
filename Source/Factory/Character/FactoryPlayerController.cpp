@@ -43,6 +43,8 @@ void AFactoryPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Sprint", IE_Pressed, this, &AFactoryPlayerController::StartSprinting);
 	InputComponent->BindAction("Sprint", IE_Released, this, &AFactoryPlayerController::StopSprinting);
 	InputComponent->BindAction("AlwaysSprint", IE_Pressed, this, &AFactoryPlayerController::StopSprinting);
+	InputComponent->BindAxis("RotatePlacement", this, &AFactoryPlayerController::RotatePlacement);
+	
 }
 
 void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
@@ -68,10 +70,9 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 		Trace(Start, End, false);
 	}
 
+	bActiveMouseItemValid = false;
 	if (ActiveMouseItemActor)
 	{
-		bool bValid = false;
-
 		if (PlayerCharacter && PlayerCharacter->GetShop())
 		{
 			AShop *ShopBuilding = PlayerCharacter->GetShop();
@@ -109,21 +110,21 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 							HitResult.Location.Y = WorldCenterPos.Y;
 							HitResult.Location.Z = PlatformBuilding->GetComponentLocation().Z;
 
-							// Center pos on cursor, which means getting actor bounds
-							ActiveMouseItemActor->GetActorBounds(false, Origin, BoxExtent, true);
-							BoxExtent.Z = 0; // Center horizontally but leave bottom vertical where it's at
-							HitResult.Location -= BoxExtent;
-
 							ActiveMouseItemActor->SetActorLocation(HitResult.Location);
 
+							// Rotate according to rotation
+							FRotator Rotation = GetRotationFromDirection(this->ActiveMouseItemDirection);
+							ActiveMouseItemActor->SetActorRotation(Rotation);
+
 							// For now, treat as valid if there's nothing there already
-							bValid = !Layout.Center;
+							bActiveMouseItemValid = !Layout.Center;
 						}
 					}
 				}
 			}
 		}
 
+		const bool bValid = bActiveMouseItemValid;
 		ActiveMouseItemActor->ForEachComponent<UPrimitiveComponent>(true, [bValid](UPrimitiveComponent *Component) {
 			Component->SetRenderCustomDepth(true);
 			Component->SetCustomDepthStencilValue(GetColorIndex(bValid ? EStandardColors::GREEN : EStandardColors::RED));
@@ -166,6 +167,20 @@ bool AFactoryPlayerController::IsSprinting()
 	}
 
 	return bRunning;
+}
+
+void AFactoryPlayerController::RotatePlacement(float Value)
+{
+	APlayerCharacter *ControlledCharacter = Cast<APlayerCharacter>(this->GetCharacter());
+	if (ControlledCharacter && Value != 0 && ActiveMouseItem)
+	{
+		bool bForward = Value > 0;
+		Value = FMath::Abs(Value);
+		while (Value-- > 0)
+		{
+			ActiveMouseItemDirection = RotateDirection(ActiveMouseItemDirection, bForward);
+		}
+	}
 }
 
 void AFactoryPlayerController::MoveForward(float Value)
@@ -359,6 +374,7 @@ void AFactoryPlayerController::ClearActiveItem()
 	}
 	ActiveMouseItemActor = nullptr;
 	ActiveMouseItem = nullptr;
+	ActiveMouseItemDirection = EDirection::NORTH;
 }
 
 AFactoryPlayerController::~AFactoryPlayerController()
@@ -368,11 +384,45 @@ AFactoryPlayerController::~AFactoryPlayerController()
 
 void AFactoryPlayerController::ActiveItemClicked()
 {
-	if (ActiveMouseItem && ActiveMouseItemActor)
+	APlayerCharacter *PlayerCharacter = dynamic_cast<APlayerCharacter *>(this->GetCharacter());
+	if (ActiveMouseItem && ActiveMouseItemActor && bActiveMouseItemValid && PlayerCharacter && PlayerCharacter->GetShop())
 	{
 		if (this->ActiveMouseItem->IsValid())
 		{
-			ActiveMouseItem->RemoveItems(1);
+			UPlatform *PlatformBuilding = PlayerCharacter->GetPlatform();
+			ULogicalPlatform *Platform = PlatformBuilding->GetLogicalPlatform();
+			FVector PlacePos = ActiveMouseItemActor->GetActorLocation();
+
+			FGridPosition GridPos = Platform->GetGridPosFromWorld(PlacePos.X, PlacePos.Y);
+			FLocalLayout Layout = Platform->GetComponent(GridPos);
+			
+			// Last check
+			if (!Layout.Center)
+			{
+				UItem *UsedItem = ActiveMouseItem->GetItem();
+				ULogicalPlatformComponent *Component = UsedItem->GetType()->SpawnPlatformComponent(
+					PlayerCharacter->GetShopPlatformType(),
+					Platform,
+					PlayerCharacter,
+					UsedItem
+				);
+
+				if (Component)
+				{
+					UItem *ConsumedItem = ActiveMouseItem->RemoveItems(1); //APlayerCharacter *PlacingCharacter, UItem *Item
+					Component->OnInitialPlacement(PlayerCharacter, ConsumedItem, ActiveMouseItemDirection);
+					Platform->AddComponent(GridPos, Component);
+
+					// Spawn in world, too
+					Component->SpawnWorldComponent(PlatformBuilding);
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Tried to place component but at the last minute we found one was there!"));
+			}
+
+			
 		}
 
 		if (!this->ActiveMouseItem->IsValid())

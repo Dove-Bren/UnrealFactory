@@ -1,6 +1,6 @@
 #pragma once
 
-// 
+// Ladder world object that players click on to move between platforms
 
 #include "CoreMinimal.h"
 #include "Components/StaticMeshComponent.h"

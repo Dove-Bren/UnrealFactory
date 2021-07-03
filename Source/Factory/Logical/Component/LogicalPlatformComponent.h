@@ -13,8 +13,13 @@
 #include "LogicalPlatformComponent.generated.h"
 
 typedef class ULogicalPlatform ULogicalPlatform;
+typedef class APlayerCharacter APlayerCharacter;
+typedef class UItem UItem;
 
-UCLASS()
+typedef class APlatformComponent APlatformComponent;
+typedef class UPlatform UPlatform;
+
+UCLASS(BlueprintType, Abstract)
 class ULogicalPlatformComponent : public UObject
 {
 	GENERATED_BODY()
@@ -26,11 +31,25 @@ private:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere)
 	FGridPosition Position;
+
+	UPROPERTY(VisibleAnywhere)
+	EDirection Direction = EDirection::NORTH;
+
+	static FActorSpawnParameters MakeSpawnParams() { FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; return Params; }
+	void MakeSpawnLocation(FVector &Location);
+	// should store direction!
 
 public:
 
 	ULogicalPlatformComponent();
+	virtual ~ULogicalPlatformComponent() = default;
+
+	// Called when the component is first ever placed with an item.
+	// Note this is NOT called when loading and recreating things from save data.
+	// This is done BEFORE registering component to the platform, so platform and position will not be valid.
+	virtual void OnInitialPlacement(APlayerCharacter *PlacingCharacter, UItem *Item, EDirection DirectionIn) { this->Direction = DirectionIn; };
 
 	// Init the component as part of the provided platform
 	UFUNCTION(BlueprintCallable)
@@ -59,5 +78,7 @@ public:
 	virtual void RefreshNearby(FLocalLayout NearbyLayout = { });
 
 	FGridPosition GetPosition() const { return Position; }
+
+	virtual APlatformComponent *SpawnWorldComponent(UPlatform *Platform) PURE_VIRTUAL(ULogicalPlatformComponent::SpawnWorldComponent, return nullptr;);
 
 };

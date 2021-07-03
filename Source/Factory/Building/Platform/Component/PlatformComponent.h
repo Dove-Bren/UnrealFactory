@@ -33,6 +33,7 @@ protected:
 public:
 
 	APlatformComponent();
+	virtual ~APlatformComponent() = default;
 
 	// TODO remove these as they are part of logical
 

@@ -49,6 +49,50 @@ enum class EDirection : uint8
 ENUM_RANGE_BY_COUNT(EDirection, EDirection::MAX)
 ENUM_HAS_NAMES(EDirection, Direction);
 
+inline FRotator GetRotationFromDirection(EDirection Direction)
+{
+	FRotator Rotation;
+	switch (Direction)
+	{
+	case EDirection::NORTH:
+	default:
+		Rotation.Yaw = 90;
+		break;
+	case EDirection::EAST:
+		Rotation.Yaw = 0;
+		break;
+	case EDirection::SOUTH:
+		Rotation.Yaw = 270;
+		break;
+	case EDirection::WEST:
+		Rotation.Yaw = 180;
+		break;
+	}
+	return Rotation;
+};
+
+inline EDirection RotateDirection(EDirection Direction, bool bClockwise = true)
+{
+	EDirection Out;
+	switch (Direction)
+	{
+	case EDirection::NORTH:
+	default:
+		Out = bClockwise ? EDirection::EAST : EDirection::WEST;
+		break;
+	case EDirection::EAST:
+		Out = bClockwise ? EDirection::SOUTH : EDirection::NORTH;
+		break;
+	case EDirection::SOUTH:
+		Out = bClockwise ? EDirection::WEST : EDirection::EAST;
+		break;
+	case EDirection::WEST:
+		Out = bClockwise ? EDirection::NORTH : EDirection::SOUTH;
+		break;
+	}
+	return Out;
+}
+
 UENUM()
 enum class EItemActionType : uint8
 {

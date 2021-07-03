@@ -4,6 +4,7 @@
 #include "Factory/FactoryLocale.h"
 #include "Factory/Character/PlayerCharacter.h"
 #include "Factory/Character/FactoryPlayerController.h"
+#include "Factory/Logical/Component/LogicalStaticComponent.h"
 
 /*static*/ UItemTypeRegistry *UItemTypeRegistry::GetInstance(const UObject *WorldContextObject)
 {
@@ -69,9 +70,13 @@ void UItemTypeRegistry::Register(UItemType *Type)
 	ClassRegistry.Add(Type->GetClass(), Type);
 }
 
+ULogicalPlatformComponent *UItemType::SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item)
+{
+	return NewObject<ULogicalItemStaticComponent>(LogicalPlatform);
+}
+
 UItemAction *UItemTypeBP::GetUseAction(EGamePlatform Platform, APlayerCharacter *Character, UItem *Item)
 {
-	//GetTransientPackage() ? donotcheckin TODO
 	TSubclassOf<UItemAction> ActionClass;
 	switch (Platform)
 	{
@@ -87,7 +92,7 @@ UItemAction *UItemTypeBP::GetUseAction(EGamePlatform Platform, APlayerCharacter 
 		break;
 	}
 
-	return NewObject<UItemAction>(this, ActionClass);
+	return NewObject<UItemAction>(Character, ActionClass);
 }
 
 EDataValidationResult UItemTypeBP::IsDataValid(TArray<FText> & ValidationErrors)
@@ -117,6 +122,26 @@ EDataValidationResult UItemTypeBP::IsDataValid(TArray<FText> & ValidationErrors)
 	}
 
 	return result;
+}
+
+ULogicalPlatformComponent *UPlaceableItemTypeBP::SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item)
+{
+	TSubclassOf<ULogicalPlatformComponent> ComponentClass;
+	switch (Platform)
+	{
+	case EGamePlatform::STORE:
+	default:
+		ComponentClass = this->StoreComponentClass;
+		break;
+	case EGamePlatform::FACTORY:
+		ComponentClass = this->FactoryComponentClass;
+		break;
+	case EGamePlatform::MINE:
+		ComponentClass = this->MineComponentClass;
+		break;
+	}
+
+	return NewObject<ULogicalPlatformComponent>(LogicalPlatform, ComponentClass);
 }
 
 UItemAction::UItemAction() : UItemAction(EItemActionType::NO_ACTION)

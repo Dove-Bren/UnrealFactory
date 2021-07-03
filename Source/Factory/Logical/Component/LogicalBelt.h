@@ -16,9 +16,9 @@ class ULogicalBelt : public ULogicalPlatformComponent, public IItemHandler
 	GENERATED_BODY()
 private:
 
-	// Direction the belt is facing (and pushing)
-	UPROPERTY(VisibleAnywhere)
-	EDirection Direction;
+	//// Direction the belt is facing (and pushing)
+	//UPROPERTY(VisibleAnywhere)
+	//EDirection Direction;
 
 protected:
 

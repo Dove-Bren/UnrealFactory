@@ -57,12 +57,17 @@ struct ElementChunk
 	T *SetFromWorld(int WorldX, int WorldY, T *Element);
 };
 
-#define TO_CHUNK_OFFSET(X) (X & (CHUNK_SIDE_LEN - 1))
+#define TO_CHUNK_OFFSET(X) (X % CHUNK_SIDE_LEN)
+#define TO_CHUNK_BOUNDARY(X) (X - TO_CHUNK_OFFSET(X))
 
 static_assert(CHUNK_SIDE_LEN % 2 == 0, "Chunk side length MUST be a multiple of 2");
 static_assert(CHUNK_SIDE_LEN > 0, "Chunk side length MUST be > 0");
 
-#define CHUNK_POS(X, Y) int Chunk##X = TO_CHUNK_OFFSET(X), Chunk##Y = TO_CHUNK_OFFSET(Y)
+// Make Chunk##X and Chunk##Y hold the offsets within the chunk being referred
+#define CHUNK_POS(X, Y) int Chunk##X = TO_CHUNK_BOUNDARY(X), Chunk##Y = TO_CHUNK_BOUNDARY(Y)
+
+// Make Chunk##X and Chunk##Y hold the offsets within the chunk being referred
+#define OFFSET_POS(X, Y) int Offset##X = TO_CHUNK_OFFSET(X), Offset##Y = TO_CHUNK_OFFSET(Y)
 
 template<class T>
 T *ElementChunk<T>::GetFromOffset(int OffsetX, int OffsetY)
@@ -79,8 +84,8 @@ T *ElementChunk<T>::GetFromOffset(int OffsetX, int OffsetY)
 template<class T>
 T *ElementChunk<T>::GetFromWorld(int WorldX, int WorldY)
 {
-	CHUNK_POS(WorldX, WorldY);
-	return GetFromOffset(WorldX - ChunkWorldX, WorldY - ChunkWorldY);
+	OFFSET_POS(WorldX, WorldY);
+	return GetFromOffset(OffsetWorldX, OffsetWorldY);
 }
 
 template<class T>
@@ -100,8 +105,8 @@ T *ElementChunk<T>::SetFromOffset(int OffsetX, int OffsetY, T *Element)
 template<class T>
 T *ElementChunk<T>::SetFromWorld(int WorldX, int WorldY, T *Element)
 {
-	CHUNK_POS(WorldX, WorldY);
-	return SetFromOffset(WorldX - ChunkWorldX, WorldY - ChunkWorldY, Element);
+	OFFSET_POS(WorldX, WorldY);
+	return SetFromOffset(OffsetWorldX, OffsetWorldY, Element);
 }
 
 template<class T>

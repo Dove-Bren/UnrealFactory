@@ -57,10 +57,12 @@ FVector ULogicalPlatform::GetWorldPosFromGrid(FGridPosition GridPos, bool bCente
 	FVector Pos;
 	float OriginX = 0;
 	float OriginY = 0;
+	float OriginZ = 0;
 	if (ShopParent)
 	{
 		OriginX = ShopParent->GetX();
 		OriginY = ShopParent->GetY();
+		OriginZ = ShopParent->GetZ();
 	}
 
 	if (bCentered)
@@ -74,7 +76,7 @@ FVector ULogicalPlatform::GetWorldPosFromGrid(FGridPosition GridPos, bool bCente
 		Pos.Y = CELL_TO_WORLD(GridPos.Y) + OriginY;
 	}
 
-	Pos.Z = 0;
+	Pos.Z = OriginZ + GetPlatformOffset(PlatformType);
 
 	return Pos;
 }

@@ -48,6 +48,7 @@ protected:
 	void OnResetVR();
 	void PrimaryClick();
 	void SecondaryClick();
+	void RotatePlacement(float Value);
 	void MouseYaw(float Value);
 	void MoveForward(float Value);
 	void MoveRight(float Value);
@@ -76,8 +77,16 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UInventorySlotRef *ActiveMouseItem;
 
+	// Current rotation of the ActiveMouseItem
+	UPROPERTY(VisibleAnywhere)
+	EDirection ActiveMouseItemDirection = EDirection::NORTH;
+
 	// Actor in world to match ActiveMouseItem
 	APlacingActor *ActiveMouseItemActor;
+
+	// Whether the active item in hand is over a valid location and can be used
+	UPROPERTY(VisibleAnywhere)
+	bool bActiveMouseItemValid;
 
 	// Internal notification from the placing actor that it has been clicked
 	virtual void ActiveItemClicked();

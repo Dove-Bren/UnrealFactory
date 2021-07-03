@@ -50,3 +50,15 @@ void ULogicalPlatformComponent::RefreshNearby(FLocalLayout NearbyLayout)
 {
 	;
 }
+
+void ULogicalPlatformComponent::MakeSpawnLocation(FVector &Location)
+{
+	if (!ParentPlatform)
+	{
+		Location.X = Location.Y = Location.Z = 0;
+	}
+	else
+	{
+		Location = ParentPlatform->GetWorldPosFromGrid(Position, true);
+	}
+}

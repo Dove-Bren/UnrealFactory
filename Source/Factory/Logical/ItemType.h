@@ -14,8 +14,10 @@
 typedef class APlayerCharacter;
 typedef class UItem;
 typedef class UItemAction;
+typedef class ULogicalPlatform;
+typedef class ULogicalPlatformComponent;
 
-UCLASS(Abstract)
+UCLASS(BlueprintType, Abstract)
 class UItemType : public UObject
 {
 	GENERATED_BODY()
@@ -79,6 +81,10 @@ public:
 	// Get what action should be taken when an item is selected for use in an inventory
 	UFUNCTION(BlueprintCallable)
 	virtual UItemAction *GetUseAction(EGamePlatform Platform, APlayerCharacter *Character, UItem *Item) PURE_VIRTUAL(UItemType::GetUseAction, return nullptr;);
+
+	// Create and return the platform component to use when this item type is 'placed' on a platform
+	// May return nullptr
+	virtual ULogicalPlatformComponent *SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item);
 };
 
 UCLASS(Blueprintable, Abstract)
@@ -102,12 +108,39 @@ protected:
 
 public:
 
-	UItemTypeBP() {};
+	UItemTypeBP() : UItemType() {};
 	virtual ~UItemTypeBP() = default;
 
 	virtual UItemAction *GetUseAction(EGamePlatform Platform, APlayerCharacter *Character, UItem *Item) override;
 
 	virtual EDataValidationResult IsDataValid(TArray<FText> & ValidationErrors) override;
+};
+
+UCLASS(Blueprintable, Abstract)
+class UPlaceableItemTypeBP : public UItemTypeBP
+{
+	GENERATED_BODY()
+
+protected:
+
+	// Which Platform Component type to spawn on STORE layers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ULogicalPlatformComponent> StoreComponentClass;
+
+	// Which Platform Component type to spawn on FACTORY layers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ULogicalPlatformComponent> FactoryComponentClass;
+
+	// Which Platform Component type to spawn on MINE layers
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<ULogicalPlatformComponent> MineComponentClass;
+
+public:
+
+	UPlaceableItemTypeBP() : UItemTypeBP() {};
+	virtual ~UPlaceableItemTypeBP() = default;
+
+	virtual ULogicalPlatformComponent *SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item) override;
 };
 
 UCLASS(BlueprintType, NotBlueprintable)
