@@ -9,9 +9,12 @@
 #include "Framework/Application/SlateApplication.h"
 //#include "SlateApplication.h"
 
+#include "Factory/GameEnums.h"
 #include "Factory/Character/PlayerCharacter.h"
 #include "Factory/Character/PlacingActor.h"
 #include "Factory/Logical/Item.h"
+#include "Factory/Logical/LogicalShop.h"
+#include "Factory/Logical/LogicalPlatform.h"
 
 AFactoryPlayerController::AFactoryPlayerController()
 {
@@ -46,6 +49,8 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
 
+	APlayerCharacter *PlayerCharacter = Cast<APlayerCharacter>(GetCharacter());
+
 	if (UHeadMountedDisplayFunctionLibrary::IsHeadMountedDisplayEnabled())
 	{
 		if (UCameraComponent* OurCamera = GetViewTarget()->FindComponentByClass<UCameraComponent>())
@@ -65,31 +70,64 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 
 	if (ActiveMouseItemActor)
 	{
-		ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
-		bool bHit = false;
-		if (LocalPlayer && LocalPlayer->ViewportClient)
+		bool bValid = false;
+
+		if (PlayerCharacter && PlayerCharacter->GetShop())
 		{
-			FVector2D MousePosition;
-			if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
+			AShop *ShopBuilding = PlayerCharacter->GetShop();
+			UPlatform *PlatformBuilding = PlayerCharacter->GetPlatform();
+			ULogicalShop *Shop = ShopBuilding->GetLogicalShop();
+			ULogicalPlatform *Platform = PlatformBuilding->GetLogicalPlatform();
+
+			if (Shop && Platform)
 			{
-				FHitResult HitResult;
-				FVector Origin;
-				FVector BoxExtent;
-				FCollisionQueryParams Params;
-
-				Params.bTraceComplex = true;
-				Params.AddIgnoredActor(ActiveMouseItemActor);
-
-				if (GetHitResultAtScreenPosition(MousePosition, ECollisionChannel::ECC_Visibility, Params, HitResult))
+				ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+				bool bHit = false;
+				if (LocalPlayer && LocalPlayer->ViewportClient)
 				{
-					// Center actor on cursor, which means getting bounds
-					ActiveMouseItemActor->GetActorBounds(false, Origin, BoxExtent, true);
-					BoxExtent.Z = 0; // Center horizontally but leave bottom vertical where it's at
+					FVector2D MousePosition;
+					if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
+					{
+						FHitResult HitResult;
+						FVector Origin;
+						FVector BoxExtent;
+						FCollisionQueryParams Params;
 
-					ActiveMouseItemActor->SetActorLocation(HitResult.Location - BoxExtent);
+						Params.bTraceComplex = true;
+						Params.AddIgnoredActor(ActiveMouseItemActor);
+
+						if (GetHitResultAtScreenPosition(MousePosition, ECollisionChannel::ECC_Visibility, Params, HitResult)
+							&& FMath::Abs(HitResult.Location.Z - PlatformBuilding->GetComponentLocation().Z) < 10)
+						{
+							// Query platform for grid position and what may already be there
+							FGridPosition GridPos = Platform->GetGridPosFromWorld(HitResult.Location.X, HitResult.Location.Y);
+							FLocalLayout Layout = Platform->GetComponent(GridPos);
+							FVector WorldCenterPos = Platform->GetWorldPosFromGrid(GridPos, true);
+
+							// Adjust hitpos to center of cell
+							HitResult.Location.X = WorldCenterPos.X;
+							HitResult.Location.Y = WorldCenterPos.Y;
+							HitResult.Location.Z = PlatformBuilding->GetComponentLocation().Z;
+
+							// Center pos on cursor, which means getting actor bounds
+							ActiveMouseItemActor->GetActorBounds(false, Origin, BoxExtent, true);
+							BoxExtent.Z = 0; // Center horizontally but leave bottom vertical where it's at
+							HitResult.Location -= BoxExtent;
+
+							ActiveMouseItemActor->SetActorLocation(HitResult.Location);
+
+							// For now, treat as valid if there's nothing there already
+							bValid = !Layout.Center;
+						}
+					}
 				}
 			}
 		}
+
+		ActiveMouseItemActor->ForEachComponent<UPrimitiveComponent>(true, [bValid](UPrimitiveComponent *Component) {
+			Component->SetRenderCustomDepth(true);
+			Component->SetCustomDepthStencilValue(GetColorIndex(bValid ? EStandardColors::GREEN : EStandardColors::RED));
+		});
 	}
 }
 
@@ -105,12 +143,12 @@ void AFactoryPlayerController::PrimaryClick()
 		CurrentBlockFocus->HandleClicked();
 	}*/
 
-w	this->ActiveItemClicked();
+	this->ActiveItemClicked();
 }
 
 void AFactoryPlayerController::SecondaryClick()
 {
-	;
+	this->ClearActiveItem();
 }
 
 void AFactoryPlayerController::MouseYaw(float Value)

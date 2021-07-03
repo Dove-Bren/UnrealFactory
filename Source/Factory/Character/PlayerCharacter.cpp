@@ -270,3 +270,8 @@ void APlayerCharacter::BeginPlay()
 		FactoryController->GoToShop(WorldShop);
 	}
 }
+
+UPlatform *APlayerCharacter::GetPlatform()
+{
+	return CurrentShop ? CurrentShop->GetPlatforms()[CurrentPlatform] : nullptr;
+}

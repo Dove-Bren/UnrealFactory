@@ -6,25 +6,29 @@
 
 #include "GameFramework/Actor.h"
 
+#include "Factory/GameEnums.h"
+
 #include "Clickable.generated.h"
 
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, Abstract)
 class AClickableActor : public AActor
 {
 	GENERATED_BODY()
 public:
 
-	AClickableActor(bool bHighlight) : bHighlight(bHighlight) {}
-	AClickableActor();
+	AClickableActor(bool bHighlight, EStandardColors HighlightColorIn = EStandardColors::ORANGE);
+	AClickableActor() : AClickableActor(true) {};
 	
 	virtual ~AClickableActor() = default;
 
 protected:
 
+	bool bHighlight = true;
+	EStandardColors HighlightColor = EStandardColors::ORANGE;
+
 	virtual void OnClick(FKey ButtonPressed) {};
 
 private:
-	bool bHighlight = true;
 
 	UFUNCTION()
 	void OnClickHandler(AActor *Actor, FKey ButtonPressed);

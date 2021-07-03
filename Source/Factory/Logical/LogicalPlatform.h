@@ -75,6 +75,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FLocalLayout GetComponentAt(float WorldX, float WorldY);
 
+	// Get the grid position at the given world position
+	UFUNCTION(BlueprintCallable)
+	FGridPosition GetGridPosFromWorld(float WorldX, float WorldY);
+
+	// Get the world position of the given grid position
+	UFUNCTION(BlueprintCallable)
+	FVector GetWorldPosFromGrid(FGridPosition GridPos, bool bCentered = false);
+
 	// Transition to the provided state, including stopping any activities from the previous one
 	UFUNCTION(BlueprintCallable)
 	virtual void StartPhase(EGamePhase Phase);

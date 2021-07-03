@@ -5,7 +5,9 @@
 #define WALL3_LENGTH 500
 #define FLOOR_LENGTH 100
 
-#define WORLD_TO_CELL(X) ((int32) X / CELL_SIZE)
+#define WORLD_TO_CELL(X) FMath::FloorToInt(X / CELL_SIZE)
+#define CELL_TO_WORLD(X) (X * CELL_SIZE)
+#define CELL_TO_WORLD_CENTER(X) (CELL_TO_WORLD(X) + (CELL_SIZE / 2))
 
 static inline FGridPosition MakeLocalInternal(ULogicalShop *ShopParent, float WorldX, float WorldY)
 {
@@ -19,6 +21,12 @@ static inline FGridPosition MakeLocalInternal(ULogicalShop *ShopParent, float Wo
 		OriginX = ShopParent->GetX();
 		OriginY = ShopParent->GetY();
 	}
+
+	WorldX -= OriginX;
+	WorldY -= OriginY;
+
+	Position.X = WORLD_TO_CELL(WorldX);
+	Position.Y = WORLD_TO_CELL(WorldY);
 
 	return Position;
 }
@@ -37,6 +45,38 @@ void ULogicalPlatform::AttachToShop(EGamePlatform Type, ULogicalShop *Shop)
 {
 	this->PlatformType = Type;
 	this->ShopParent = Shop;
+}
+
+FGridPosition ULogicalPlatform::GetGridPosFromWorld(float WorldX, float WorldY)
+{
+	return MakeLocal(WorldX, WorldY);
+}
+
+FVector ULogicalPlatform::GetWorldPosFromGrid(FGridPosition GridPos, bool bCentered)
+{
+	FVector Pos;
+	float OriginX = 0;
+	float OriginY = 0;
+	if (ShopParent)
+	{
+		OriginX = ShopParent->GetX();
+		OriginY = ShopParent->GetY();
+	}
+
+	if (bCentered)
+	{
+		Pos.X = CELL_TO_WORLD_CENTER(GridPos.X) + OriginX;
+		Pos.Y = CELL_TO_WORLD_CENTER(GridPos.Y) + OriginY;
+	}
+	else
+	{
+		Pos.X = CELL_TO_WORLD(GridPos.X) + OriginX;
+		Pos.Y = CELL_TO_WORLD(GridPos.Y) + OriginY;
+	}
+
+	Pos.Z = 0;
+
+	return Pos;
 }
 
 void ULogicalPlatform::AddComponentAt(float WorldX, float WorldY, ULogicalPlatformComponent *Component)

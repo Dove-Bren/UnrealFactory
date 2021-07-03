@@ -4,7 +4,7 @@
 
 #include "Components/PrimitiveComponent.h"
 
-AClickableActor::AClickableActor()
+AClickableActor::AClickableActor(bool bHighlight, EStandardColors HighlightColorIn) : bHighlight(bHighlight), HighlightColor(HighlightColorIn)
 {
 	OnClicked.AddDynamic(this, &AClickableActor::OnClickHandler);
 	OnBeginCursorOver.AddDynamic(this, &AClickableActor::OnHoverStart);
@@ -27,8 +27,10 @@ void AClickableActor::OnHoverStart(AActor *Actor)
 	AClickableActor *Clickable = Cast<AClickableActor>(Actor);
 	if (Clickable && Clickable->bHighlight && Controller && !Controller->GetActiveMouseItem())
 	{
-		Clickable->ForEachComponent<UPrimitiveComponent>(true, [](UPrimitiveComponent *Component) {
+		const EStandardColors Color = HighlightColor;
+		Clickable->ForEachComponent<UPrimitiveComponent>(true, [Color](UPrimitiveComponent *Component) {
 			Component->SetRenderCustomDepth(true);
+			Component->SetCustomDepthStencilValue((int)GetColorIndex(Color));
 		});
 	}
 }

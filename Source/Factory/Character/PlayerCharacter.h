@@ -15,6 +15,7 @@
 #include "PlayerCharacter.generated.h"
 
 typedef class AShop AShop;
+typedef class UPlatform UPlatform;
 
 UCLASS()
 class APlayerCharacter : public ACharacter
@@ -37,6 +38,14 @@ public:
 	// Get current shop if any
 	UFUNCTION(BlueprintCallable)
 	AShop *GetShop() { return CurrentShop; }
+
+	// Get current shop platform if we're in one
+	UFUNCTION(BlueprintCallable)
+	EGamePlatform GetShopPlatformType() { return CurrentPlatform; }
+
+	// Get current shop platform object if we're in one
+	UFUNCTION(BlueprintCallable)
+	UPlatform *GetPlatform();
 
 	bool CanSprint() { return bCanSprint; }
 	bool CanJump() { return bCanJump; }
