@@ -178,7 +178,7 @@ void AFactoryPlayerController::RotatePlacement(float Value)
 		Value = FMath::Abs(Value);
 		while (Value-- > 0)
 		{
-			ActiveMouseItemDirection = RotateDirection(ActiveMouseItemDirection, bForward);
+			ActiveMouseItemDirection = RotateDirection(ActiveMouseItemDirection, !bForward);
 		}
 	}
 }
@@ -362,6 +362,10 @@ void AFactoryPlayerController::SetActiveMouseItem(UInventorySlotRef *ItemSlotRef
 			Parameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			ActiveMouseItemActor = GetWorld()->SpawnActor<APlacingActor>(Parameters);
 			ActiveMouseItemActor->Setup(this, Item->GetType()->GetMesh());
+
+			// Set initial direction based on camera rotation
+			const FRotator Rotation = GetControlRotation();
+			ActiveMouseItemDirection = GetDirectionFromYaw(Rotation.Yaw);
 		}
 	}
 }

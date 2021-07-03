@@ -36,9 +36,9 @@ inline FGridPosition FGridPosition::Offset(EDirection Direction)
 	case EDirection::SOUTH:
 		return FGridPosition(X, Y + 1);
 	case EDirection::EAST:
-		return FGridPosition(X - 1, Y);
-	case EDirection::WEST:
 		return FGridPosition(X + 1, Y);
+	case EDirection::WEST:
+		return FGridPosition(X - 1, Y);
 	}
 }
 

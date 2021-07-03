@@ -39,9 +39,16 @@ ENUM_HAS_NAMES(EGamePhase, Phase);
 UENUM()
 enum class EDirection : uint8
 {
+	// Negative Y, Yaw = -90/270
 	NORTH,
+
+	// Positive X, Yaw = 0
 	EAST,
+
+	// Positive Y, Yaw = 90
 	SOUTH,
+
+	// Negative X, Yaw = 180
 	WEST,
 
 	MAX
@@ -56,13 +63,13 @@ inline FRotator GetRotationFromDirection(EDirection Direction)
 	{
 	case EDirection::NORTH:
 	default:
-		Rotation.Yaw = 90;
+		Rotation.Yaw = 270;
 		break;
 	case EDirection::EAST:
 		Rotation.Yaw = 0;
 		break;
 	case EDirection::SOUTH:
-		Rotation.Yaw = 270;
+		Rotation.Yaw = 90;
 		break;
 	case EDirection::WEST:
 		Rotation.Yaw = 180;
@@ -70,6 +77,30 @@ inline FRotator GetRotationFromDirection(EDirection Direction)
 	}
 	return Rotation;
 };
+
+inline EDirection GetDirectionFromYaw(float Yaw)
+{
+	EDirection Direction;
+	while (Yaw < 0) Yaw += 360.0f;
+	int idx = (FMath::RoundToInt(Yaw / 90.f) % 4); // 0 - 3
+	switch (idx)
+	{
+	case 0:
+		Direction = EDirection::EAST;
+		break;
+	case 1:
+		Direction = EDirection::SOUTH;
+		break;
+	case 2:
+		Direction = EDirection::WEST;
+		break;
+	case 3:
+	default:
+		Direction = EDirection::NORTH;
+		break;
+	}
+	return Direction;
+}
 
 inline EDirection RotateDirection(EDirection Direction, bool bClockwise = true)
 {

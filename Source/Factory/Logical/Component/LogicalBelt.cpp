@@ -1,10 +1,25 @@
 #include "LogicalBelt.h"
 
-/*static*/ ULogicalBelt *ULogicalBelt::MakeBelt(EDirection Direction)
+#include "Factory/Building/Platform/Platform.h"
+#include "Factory/Building/Platform/Component/Belt.h"
+#include "Factory/GameEnums.h"
+
+///*static*/ ULogicalBelt *ULogicalBelt::MakeBelt(EDirection Direction)
+//{
+//	ULogicalBelt *Belt = NewObject<ULogicalBelt>();
+//	Belt->SetDirection(Direction);
+//	return Belt;
+//}
+
+APlatformComponent *ULogicalBelt::SpawnWorldComponent(UPlatform *Platform)
 {
-	ULogicalBelt *Belt = NewObject<ULogicalBelt>();
-	Belt->SetDirection(Direction);
-	return Belt;
+	FVector SpawnLoc;
+	MakeSpawnLocation(SpawnLoc);
+	UE_LOG(LogTemp, Warning, TEXT("Direction: %s"), *GetDirectionName(Direction).ToString());
+	ABelt *WorldComp = Platform->GetWorld()->SpawnActor<ABelt>(SpawnLoc, GetRotationFromDirection(Direction), MakeSpawnParams());
+	WorldComp->SetLogicalBelt(this);
+	WorldComp->RegisterPlatform(Platform);
+	return WorldComp;
 }
 
 void ULogicalBelt::RegisterPlatform(ULogicalPlatform *Platform, FGridPosition GridPosition)

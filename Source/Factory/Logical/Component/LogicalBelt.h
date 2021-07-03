@@ -31,7 +31,7 @@ protected:
 
 public:
 
-	static ULogicalBelt *MakeBelt(EDirection Direction);
+	//static ULogicalBelt *MakeBelt(EDirection Direction);
 	
 	// Change the belt direction. This forces a refresh of nearby tiles.
 	UFUNCTION(BlueprintCallable)
@@ -51,6 +51,8 @@ public:
 
 	// IItemHandler
 public:
+
+	virtual APlatformComponent *SpawnWorldComponent(UPlatform *Platform) override;
 
 	virtual bool CanAccept_Implementation(EDirection Direction, const UItem *ItemIn) override;
 
