@@ -140,8 +140,6 @@ void APlacingActor::UpdateConnectionInfo(const FDirectionMap<EConnectionStatus> 
 		EConnectionStatus InputStatus = Inputs.Get(Direction);
 		EConnectionStatus OutputStatus = Outputs.Get(Direction);
 		TPair<UStaticMeshComponent*, UStaticMeshComponent*> Meshes = ConnectionIndicators[Direction];
-		bool bBoth = (InputStatus != EConnectionStatus::NO_CONNECTION
-						&& OutputStatus != EConnectionStatus::NO_CONNECTION);
 
 		// Input
 		{
@@ -153,11 +151,6 @@ void APlacingActor::UpdateConnectionInfo(const FDirectionMap<EConnectionStatus> 
 			if (bUsed)
 			{
 				DirPlane->SetMaterial(0, bValid ? ConnectionInActiveMat : ConnectionInInactiveMat);
-			}
-
-			if (bBoth)
-			{
-				// Move to the side if both are going to be present!!! TODO
 			}
 		}
 
@@ -172,11 +165,6 @@ void APlacingActor::UpdateConnectionInfo(const FDirectionMap<EConnectionStatus> 
 			if (bUsed)
 			{
 				DirPlane->SetMaterial(0, bValid ? ConnectionOutValidMat : ConnectionOutInvalidMat);
-			}
-
-			if (bBoth)
-			{
-				// Move to the side if both are going to be present!!! TODO
 			}
 		}
 	}

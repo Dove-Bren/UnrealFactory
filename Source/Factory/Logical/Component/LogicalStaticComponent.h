@@ -27,7 +27,7 @@ public:
 
 	virtual UStaticMesh *GetStaticMesh() { return nullptr; };
 
-	virtual APlatformComponent *SpawnWorldComponent(UPlatform *Platform) override;
+	virtual APlatformComponent *SpawnWorldComponentInternal(UPlatform *Platform) override;
 };
 
 UCLASS(BlueprintType)

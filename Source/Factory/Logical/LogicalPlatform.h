@@ -91,6 +91,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void ShopTick(EGamePhase Phase);
 
+	// Refresh connections for all components around and on the provided position
+	void RefreshAround(FGridPosition GridPos);
+
 	const ULogicalShop *GetShop() { return ShopParent; }
 
 	EGamePlatform GetType() { return PlatformType; }

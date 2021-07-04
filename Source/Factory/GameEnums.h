@@ -58,7 +58,7 @@ ENUM_HAS_NAMES(EDirection, Direction);
 
 inline FRotator GetRotationFromDirection(EDirection Direction)
 {
-	FRotator Rotation;
+	FRotator Rotation(0, 0, 0);
 	switch (Direction)
 	{
 	case EDirection::NORTH:

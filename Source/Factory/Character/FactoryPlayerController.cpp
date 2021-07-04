@@ -175,17 +175,8 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 										}
 										else
 										{
-											FDirectionFlagMap TheirIncomingSupport = Comp->GetDefaultIncomingConnectionPorts();
-											FDirectionFlagMap TheirOutgoingSupport = Comp->GetDefaultOutgoingConnectionPorts();
-
-											// Rotate to proper rotation
-											DirIter = EDirection::EAST;
-											while (DirIter != Comp->GetDirection())
-											{
-												DirIter = RotateDirection(DirIter);
-												TheirIncomingSupport.Rotate();
-												TheirOutgoingSupport.Rotate();
-											}
+											FDirectionFlagMap TheirIncomingSupport = Comp->GetIncomingConnectionPorts();
+											FDirectionFlagMap TheirOutgoingSupport = Comp->GetOutgoingConnectionPorts();
 
 											bIncomingPresent = TheirOutgoingSupport.Get(OppositeDirection(Dir));
 											bOutgoingBlocked = !TheirIncomingSupport.Get(OppositeDirection(Dir));

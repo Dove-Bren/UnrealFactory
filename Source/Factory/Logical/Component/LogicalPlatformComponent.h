@@ -30,6 +30,10 @@ private:
 	UPROPERTY(EditAnywhere)
 	ULogicalPlatform *ParentPlatform;
 
+	// World actor spawned for this component, if there is one.
+	// This can easily become null as the player moves around. Check before using!
+	APlatformComponent *WorldActor;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere)
@@ -41,6 +45,10 @@ protected:
 	static FActorSpawnParameters MakeSpawnParams() { FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; return Params; }
 	void MakeSpawnLocation(FVector &Location);
 	// should store direction!
+
+	FLocalLayout & FixupLocalLayout(FLocalLayout & Existing);
+
+	APlatformComponent *GetWorldActor();
 
 public:
 
@@ -73,24 +81,29 @@ public:
 	virtual void ShopTick(EGamePhase Phase);
 
 	// Refresh information about what this component is next to and connected to
+	// Returns true if the component has changed (indicating any world actors may need to be updated, too)
 	UFUNCTION(BlueprintCallable)
-	void RefreshConnections();
-
-	// Check whether this component would 'connect' to another component if it were placed in the given direction
-	UFUNCTION(BlueprintCallable)
-	virtual bool WouldConnect(EDirection DirectionIn) { return false; }
+	bool RefreshConnections();
 
 	// Get what directions we'd accept incoming connections from IF WE ARE FACING EAST.
 	// This function is called on the CDO and can't do anything fancy. Be warned!
 	virtual FDirectionFlagMap GetDefaultIncomingConnectionPorts() { return FDirectionFlagMap(); }
 	virtual FDirectionFlagMap GetDefaultOutgoingConnectionPorts() { return FDirectionFlagMap(); }
+	
+	// Not to be called on a CDO. Does the above but rotates for our given direction.
+	virtual FDirectionFlagMap GetIncomingConnectionPorts();
+	virtual FDirectionFlagMap GetOutgoingConnectionPorts();
 
-	virtual void RefreshNearby(FLocalLayout NearbyLayout = { });
+	virtual bool RefreshNearby(FLocalLayout NearbyLayout = { });
 
 	FGridPosition GetPosition() const { return Position; }
 
 	EDirection GetDirection() const { return Direction; }
 
-	virtual APlatformComponent *SpawnWorldComponent(UPlatform *Platform) PURE_VIRTUAL(ULogicalPlatformComponent::SpawnWorldComponent, return nullptr;);
+	APlatformComponent *SpawnWorldComponent(UPlatform *Platform);
+
+	virtual APlatformComponent *SpawnWorldComponentInternal(UPlatform *Platform) PURE_VIRTUAL(ULogicalPlatformComponent::SpawnWorldComponent, return nullptr;);
+
+	virtual void RefreshWorldActor();
 
 };

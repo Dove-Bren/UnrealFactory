@@ -25,7 +25,9 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	UItem *Item;
 
-	// Local cache of nearby item receiving machines, etc. -- possibly other belts?
+	IItemHandler *CachedReceiver;
+	IItemHandler *CachedRearProducer;
+	bool bCachedExtended; // If we're connected to the side of another belt
 
 	ULogicalBelt() : ULogicalPlatformComponent() {};
 
@@ -45,19 +47,20 @@ public:
 
 	virtual void ShopTick(EGamePhase Phase) override;
 
-	virtual void RefreshNearby(FLocalLayout NearbyLayout) override;
+	virtual bool RefreshNearby(FLocalLayout NearbyLayout) override;
 
 	virtual FDirectionFlagMap GetDefaultIncomingConnectionPorts() override { return FDirectionFlagMap(false, true, true, true); } // all but east
 	virtual FDirectionFlagMap GetDefaultOutgoingConnectionPorts() override { return FDirectionFlagMap(true, false, false, false); } // only east
 
-	IItemHandler *GetReceivingHandler(); // Return what belt is pointing towards.
+	// Return what belt is pointing towards.
+	IItemHandler *GetReceivingHandler() { return CachedReceiver; }
+	IItemHandler *GetRearProducerHandler() { return CachedRearProducer; }
+	bool GetIsExtended() { return bCachedExtended; }
 
 	// IItemHandler
 public:
 
-	virtual APlatformComponent *SpawnWorldComponent(UPlatform *Platform) override;
-
-	virtual bool WouldConnect(EDirection DirectionIn) override { return DirectionIn == this->Direction; };
+	virtual APlatformComponent *SpawnWorldComponentInternal(UPlatform *Platform) override;
 
 	virtual bool CanAccept_Implementation(EDirection Direction, const UItem *ItemIn) override;
 

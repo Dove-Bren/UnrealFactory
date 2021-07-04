@@ -94,6 +94,7 @@ void ULogicalPlatform::AddComponent(FGridPosition Position, ULogicalPlatformComp
 		Existing->RemoveFromPlatform(this);
 	}
 	Component->RegisterPlatform(this, Position);
+	RefreshAround(Position);
 }
 
 FLocalLayout ULogicalPlatform::GetComponent(FGridPosition Position)
@@ -157,4 +158,16 @@ void ULogicalPlatform::Resize(float Width, float Height)
 
 	// TODO if we have a display platform, forward event?
 	//SpawnWalls(this->FloorWidth, this->FloorHeight);
+}
+
+#define UPDATE(Comp) if (Comp->RefreshConnections()) { Comp->RefreshWorldActor(); }
+
+void ULogicalPlatform::RefreshAround(FGridPosition GridPos)
+{
+	FLocalLayout Layout = GetComponent(GridPos);
+	if (Layout.Center) UPDATE(Layout.Center);
+	if (Layout.East) UPDATE(Layout.East);
+	if (Layout.South) UPDATE(Layout.South);
+	if (Layout.West) UPDATE(Layout.West);
+	if (Layout.North) UPDATE(Layout.North);
 }

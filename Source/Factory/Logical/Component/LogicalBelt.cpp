@@ -11,7 +11,7 @@
 //	return Belt;
 //}
 
-APlatformComponent *ULogicalBelt::SpawnWorldComponent(UPlatform *Platform)
+APlatformComponent *ULogicalBelt::SpawnWorldComponentInternal(UPlatform *Platform)
 {
 	FVector SpawnLoc;
 	MakeSpawnLocation(SpawnLoc);
@@ -45,14 +45,65 @@ void ULogicalBelt::ShopTick(EGamePhase Phase)
 	; // TODO do belt mechs!
 }
 
-void ULogicalBelt::RefreshNearby(FLocalLayout NearbyLayout)
+bool ULogicalBelt::RefreshNearby(FLocalLayout NearbyLayout)
 {
-	; // TODO find nearby things and create connections!
-}
+	bool bChanged = ULogicalPlatformComponent::RefreshNearby(NearbyLayout);
+	FixupLocalLayout(NearbyLayout);
 
-IItemHandler *ULogicalBelt::GetReceivingHandler()
-{
-	return nullptr; // TODO get thing we're connected to and return it!
+	IItemHandler *StartReceiver = CachedReceiver;
+	IItemHandler *StartProducer = CachedRearProducer;
+
+	// Look to see if there's a machine to feed into
+	ULogicalPlatformComponent *Comp = NearbyLayout.GetDirection(GetDirection());
+	bCachedExtended = false;
+	if (!Comp)
+	{
+		CachedReceiver = nullptr;
+	}
+	else
+	{
+		IItemHandler *Handler = Cast<IItemHandler>(Comp);
+
+		if (Comp->GetIncomingConnectionPorts().Get(OppositeDirection(GetDirection()))
+			&& Handler)
+		{
+			CachedReceiver = Handler;
+
+			ULogicalBelt *OtherBelt = Cast<ULogicalBelt>(Comp);
+			if (OtherBelt)
+			{
+				EDirection OtherDir = OtherBelt->GetDirection();
+				bCachedExtended = (OtherDir != GetDirection() && OtherDir != OppositeDirection(GetDirection()));
+			}
+		}
+		else
+		{
+			CachedReceiver = nullptr;
+		}
+	}
+
+	// Repeat but looking at behind us
+	Comp = NearbyLayout.GetDirection(OppositeDirection(GetDirection()));
+	if (!Comp)
+	{
+		CachedRearProducer = nullptr;
+	}
+	else
+	{
+		IItemHandler *Handler = Cast<IItemHandler>(Comp);
+
+		if (Comp->GetOutgoingConnectionPorts().Get(GetDirection())
+			&& Handler)
+		{
+			CachedRearProducer = Handler;
+		}
+		else
+		{
+			CachedRearProducer = nullptr;
+		}
+	}
+
+	return bChanged || (CachedReceiver != StartReceiver) || (CachedRearProducer != StartProducer);
 }
 
 bool ULogicalBelt::CanAccept_Implementation(EDirection DirectionIn, const UItem *ItemIn)

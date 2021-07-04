@@ -2,6 +2,8 @@
 
 #include "Factory/Logical/LogicalPlatform.h"
 
+#include "Factory/Building/Platform/Component/PlatformComponent.h"
+
 ULogicalPlatformComponent::ULogicalPlatformComponent()
 {
 	;
@@ -33,22 +35,17 @@ void ULogicalPlatformComponent::ShopTick(EGamePhase Phase)
 	;
 }
 
-void ULogicalPlatformComponent::RefreshConnections()
+bool ULogicalPlatformComponent::RefreshConnections()
 {
 	// TODO gather nearby layout
 	FLocalLayout Layout{};
 
-	if (ParentPlatform)
-	{
-		Layout = ParentPlatform->GetComponent(Position);
-	}
-
-	RefreshNearby(Layout);
+	return RefreshNearby(FixupLocalLayout(Layout));
 }
 
-void ULogicalPlatformComponent::RefreshNearby(FLocalLayout NearbyLayout)
+bool ULogicalPlatformComponent::RefreshNearby(FLocalLayout NearbyLayout)
 {
-	;
+	return false;
 }
 
 void ULogicalPlatformComponent::MakeSpawnLocation(FVector &Location)
@@ -61,4 +58,62 @@ void ULogicalPlatformComponent::MakeSpawnLocation(FVector &Location)
 	{
 		Location = ParentPlatform->GetWorldPosFromGrid(Position, true);
 	}
+}
+
+FLocalLayout & ULogicalPlatformComponent::FixupLocalLayout(FLocalLayout & Existing)
+{
+	if (!Existing.Center && ParentPlatform)
+	{
+		Existing = ParentPlatform->GetComponent(Position);
+	}
+	return Existing;
+}
+
+APlatformComponent *ULogicalPlatformComponent::GetWorldActor()
+{
+	if (WorldActor && !WorldActor->IsValidLowLevel())
+	{
+		WorldActor = nullptr;
+	}
+	return WorldActor;
+}
+
+void ULogicalPlatformComponent::RefreshWorldActor()
+{
+	APlatformComponent *Actor = GetWorldActor(); // Not using variable to give chance to clear if it's been destroyed
+	if (Actor)
+	{
+		Actor->Refresh();
+	}
+}
+
+FDirectionFlagMap ULogicalPlatformComponent::GetIncomingConnectionPorts()
+{
+	FDirectionFlagMap Map = this->GetDefaultIncomingConnectionPorts();
+	EDirection DirIter = EDirection::EAST;
+	while (DirIter != GetDirection())
+	{
+		DirIter = RotateDirection(DirIter);
+		Map.Rotate();
+	}
+	return Map;
+}
+
+FDirectionFlagMap ULogicalPlatformComponent::GetOutgoingConnectionPorts()
+{
+	FDirectionFlagMap Map = this->GetDefaultOutgoingConnectionPorts();
+	EDirection DirIter = EDirection::EAST;
+	while (DirIter != GetDirection())
+	{
+		DirIter = RotateDirection(DirIter);
+		Map.Rotate();
+	}
+	return Map;
+}
+
+APlatformComponent *ULogicalPlatformComponent::SpawnWorldComponent(UPlatform *Platform)
+{
+	APlatformComponent *Actor = this->SpawnWorldComponentInternal(Platform);
+	this->WorldActor = Actor;
+	return Actor;
 }

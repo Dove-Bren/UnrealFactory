@@ -4,7 +4,7 @@
 #include "Factory/Building/Platform/Component/NonLogical/StaticComponent.h"
 #include "Factory/GameEnums.h"
 
-APlatformComponent *ULogicalStaticComponent::SpawnWorldComponent(UPlatform *Platform)
+APlatformComponent *ULogicalStaticComponent::SpawnWorldComponentInternal(UPlatform *Platform)
 {
 	FVector SpawnLoc;
 	MakeSpawnLocation(SpawnLoc);

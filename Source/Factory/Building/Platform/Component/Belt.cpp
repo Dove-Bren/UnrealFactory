@@ -41,11 +41,37 @@ ABelt::ABelt()
 	MiddleMesh = MeshStatics.MiddleMesh.Get();
 	MiddleExtendedMesh = MeshStatics.MiddleExtendedMesh.Get();
 
-	RefreshMesh();
+	Refresh();
 }
 
-void ABelt::RefreshMesh()
+void ABelt::Refresh()
 {
-	this->Mesh->SetStaticMesh(UnconnectedMesh);
+	APlatformComponent::Refresh();
+
+	// Remember: "Ext" are longer to connect to the sides of conveyer belts rather
+	// then the proper back of a belt (or the side of a machine)
+	UStaticMesh *BeltMesh = UnconnectedMesh;
+
+	if (LogicalBelt)
+	{
+		bool bForward = !!LogicalBelt->GetReceivingHandler();
+		bool bBackwards = !!LogicalBelt->GetRearProducerHandler();
+		bool bExtended = LogicalBelt->GetIsExtended();
+
+		if (!bForward)
+		{
+			BeltMesh = bBackwards ? EndMesh : UnconnectedMesh;
+		}
+		else if (!bBackwards)
+		{
+			BeltMesh = (bExtended ? BeginExtendedMesh : BeginMesh);
+		}
+		else
+		{
+			BeltMesh = (bExtended ? MiddleExtendedMesh : MiddleMesh);
+		}
+	}
+
+	this->Mesh->SetStaticMesh(BeltMesh);
 	this->Mesh->SetMaterial(0, Belt1Mat);
 }

@@ -24,9 +24,9 @@ public:
 
 	ABelt();
 
-	void SetLogicalBelt(ULogicalBelt *Belt) { this->LogicalBelt = Belt; RefreshMesh(); }
+	void SetLogicalBelt(ULogicalBelt *Belt) { this->LogicalBelt = Belt; Refresh(); }
 	ULogicalBelt *GetLogicalBelt() const { return this->LogicalBelt; }
 
-	void RefreshMesh();
+	virtual void Refresh() override;
 
 };

@@ -31,6 +31,7 @@ private:
 protected:
 
 	AShop();
+	virtual ~AShop() = default;
 
 	// Create the platform for the provided platform type.
 	virtual UPlatform *MakePlatform(EGamePlatform PlatformType);

@@ -57,4 +57,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void ShopTick(EGamePhase Phase);
 
+	virtual void Refresh() {}
+
 };
