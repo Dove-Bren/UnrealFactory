@@ -124,6 +124,51 @@ inline EDirection RotateDirection(EDirection Direction, bool bClockwise = true)
 	return Out;
 }
 
+inline EDirection OppositeDirection(EDirection Direction)
+{
+	EDirection Out;
+	switch (Direction)
+	{
+	case EDirection::NORTH:
+	default:
+		Out = EDirection::SOUTH;
+		break;
+	case EDirection::EAST:
+		Out = EDirection::WEST;
+		break;
+	case EDirection::SOUTH:
+		Out = EDirection::NORTH;
+		break;
+	case EDirection::WEST:
+		Out = EDirection::EAST;
+		break;
+	}
+	return Out;
+}
+
+// Return a vector offset by magnitude 1 in the direction indicated in world-space
+inline FVector GetDirectionOffset(EDirection Direction)
+{
+	FVector Vector(0, 0, 0);
+	switch (Direction)
+	{
+	case EDirection::NORTH:
+	default:
+		Vector.Y = -1;
+		break;
+	case EDirection::EAST:
+		Vector.X = 1;
+		break;
+	case EDirection::SOUTH:
+		Vector.Y = 1;
+		break;
+	case EDirection::WEST:
+		Vector.X = -1;
+		break;
+	}
+	return Vector;
+}
+
 UENUM()
 enum class EItemActionType : uint8
 {
@@ -197,13 +242,6 @@ uint32 GetColorARGB(EStandardColors Color);
 
 // Return the color as an RGBA int.
 uint32 GetColorRGBA(EStandardColors Color);
-
-
-
-
-
-
-
 
 inline uint8 GetColorIndex(EStandardColors Color)
 {
@@ -385,3 +423,16 @@ inline uint32 GetColorRGBA(EStandardColors Color)
 		return 0x70360BFF;
 	}
 }
+
+UENUM()
+enum class EConnectionStatus : uint8
+{
+	NO_CONNECTION,
+	VALID,
+	ACTIVE = VALID,
+	INVALID,
+	INACTIVE = INVALID,
+
+	MAX
+};
+ENUM_RANGE_BY_COUNT(EConnectionStatus, EConnectionStatus::MAX)

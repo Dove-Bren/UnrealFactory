@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 
+#include "Factory/DirectionFlagMap.h"
 #include "Factory/GameEnums.h"
 #include "Factory/GridPosition.h"
 #include "LocalLayout.h"
@@ -75,9 +76,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void RefreshConnections();
 
+	// Check whether this component would 'connect' to another component if it were placed in the given direction
+	UFUNCTION(BlueprintCallable)
+	virtual bool WouldConnect(EDirection DirectionIn) { return false; }
+
+	// Get what directions we'd accept incoming connections from IF WE ARE FACING EAST.
+	// This function is called on the CDO and can't do anything fancy. Be warned!
+	virtual FDirectionFlagMap GetDefaultIncomingConnectionPorts() { return FDirectionFlagMap(); }
+	virtual FDirectionFlagMap GetDefaultOutgoingConnectionPorts() { return FDirectionFlagMap(); }
+
 	virtual void RefreshNearby(FLocalLayout NearbyLayout = { });
 
 	FGridPosition GetPosition() const { return Position; }
+
+	EDirection GetDirection() const { return Direction; }
 
 	virtual APlatformComponent *SpawnWorldComponent(UPlatform *Platform) PURE_VIRTUAL(ULogicalPlatformComponent::SpawnWorldComponent, return nullptr;);
 

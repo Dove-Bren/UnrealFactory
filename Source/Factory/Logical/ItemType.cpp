@@ -70,6 +70,11 @@ void UItemTypeRegistry::Register(UItemType *Type)
 	ClassRegistry.Add(Type->GetClass(), Type);
 }
 
+TSubclassOf<ULogicalPlatformComponent> UItemType::GetPlatformComponentClass(EGamePlatform Platform, const UItem *Item) const
+{
+	return ULogicalItemStaticComponent::StaticClass();
+}
+
 ULogicalPlatformComponent *UItemType::SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item)
 {
 	return NewObject<ULogicalItemStaticComponent>(LogicalPlatform);
@@ -124,7 +129,7 @@ EDataValidationResult UItemTypeBP::IsDataValid(TArray<FText> & ValidationErrors)
 	return result;
 }
 
-ULogicalPlatformComponent *UPlaceableItemTypeBP::SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item)
+TSubclassOf<ULogicalPlatformComponent> UPlaceableItemTypeBP::GetPlatformComponentClass(EGamePlatform Platform, const UItem *Item) const
 {
 	TSubclassOf<ULogicalPlatformComponent> ComponentClass;
 	switch (Platform)
@@ -140,7 +145,12 @@ ULogicalPlatformComponent *UPlaceableItemTypeBP::SpawnPlatformComponent(EGamePla
 		ComponentClass = this->MineComponentClass;
 		break;
 	}
+	return ComponentClass;
+}
 
+ULogicalPlatformComponent *UPlaceableItemTypeBP::SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item)
+{
+	TSubclassOf<ULogicalPlatformComponent> ComponentClass = this->GetPlatformComponentClass(Platform, Item);
 	return NewObject<ULogicalPlatformComponent>(LogicalPlatform, ComponentClass);
 }
 

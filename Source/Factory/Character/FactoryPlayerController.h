@@ -3,7 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Factory/DirectionFlagMap.h"
 #include "Factory/GameEnums.h"
+#include "Factory/GridPosition.h"
 #include "Factory/Building/Shop.h"
 #include "Factory/UI/HudManager.h"
 #include "Factory/Logical/Inventory.h"
@@ -87,6 +89,13 @@ private:
 	// Whether the active item in hand is over a valid location and can be used
 	UPROPERTY(VisibleAnywhere)
 	bool bActiveMouseItemValid;
+
+	// Last pos we updated for (and cached maps)
+	FGridPosition ActiveMouseItemCachePos;
+	// "" but direction
+	EDirection ActiveMouseItemCacheDirection;
+	// Override for both of the above since they can't be null reset
+	bool bActiveMouseItemCacheDirty = true;
 
 	// Internal notification from the placing actor that it has been clicked
 	virtual void ActiveItemClicked();

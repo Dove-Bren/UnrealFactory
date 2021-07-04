@@ -70,6 +70,7 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 		Trace(Start, End, false);
 	}
 
+	bool bLastFrameActiveItemValid = bActiveMouseItemValid;
 	bActiveMouseItemValid = false;
 	if (ActiveMouseItemActor)
 	{
@@ -102,7 +103,6 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 						{
 							// Query platform for grid position and what may already be there
 							FGridPosition GridPos = Platform->GetGridPosFromWorld(HitResult.Location.X, HitResult.Location.Y);
-							FLocalLayout Layout = Platform->GetComponent(GridPos);
 							FVector WorldCenterPos = Platform->GetWorldPosFromGrid(GridPos, true);
 
 							// Adjust hitpos to center of cell
@@ -116,8 +116,102 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 							FRotator Rotation = GetRotationFromDirection(this->ActiveMouseItemDirection);
 							ActiveMouseItemActor->SetActorRotation(Rotation);
 
-							// For now, treat as valid if there's nothing there already
-							bActiveMouseItemValid = !Layout.Center;
+							// Don't re-update if this is same position as last frame
+							if (bActiveMouseItemCacheDirty 
+								|| (GridPos != ActiveMouseItemCachePos || ActiveMouseItemDirection != ActiveMouseItemCacheDirection))
+							{
+								FLocalLayout Layout = Platform->GetComponent(GridPos);
+								ActiveMouseItemCachePos = GridPos;
+								ActiveMouseItemCacheDirection = ActiveMouseItemDirection;
+								bActiveMouseItemCacheDirty = false;
+
+								// For now, treat as valid if there's nothing there already
+								bActiveMouseItemValid = !Layout.Center;
+
+								// Build map of nearby connection opportunities and update actor
+								FDirectionMap<EConnectionStatus> IncomingStatuses;
+								FDirectionMap<EConnectionStatus> OutgoingStatuses;
+
+								if (bActiveMouseItemValid)
+								{
+									TSubclassOf<ULogicalPlatformComponent> ComponentClass = ActiveMouseItem->GetItem()->GetType()->GetPlatformComponentClass(
+										Platform->GetType(),
+										ActiveMouseItem->GetItem()
+									);
+									ULogicalPlatformComponent *CDO = Cast<ULogicalPlatformComponent>(ComponentClass->GetDefaultObject(true));
+									FDirectionFlagMap MyIncomingSupport = CDO->GetDefaultIncomingConnectionPorts();
+									FDirectionFlagMap MyOutgoingSupport = CDO->GetDefaultOutgoingConnectionPorts();
+
+									// Rotate to proper rotation
+									EDirection DirIter = EDirection::EAST;
+									while (DirIter != ActiveMouseItemDirection)
+									{
+										DirIter = RotateDirection(DirIter);
+										MyIncomingSupport.Rotate();
+										MyOutgoingSupport.Rotate();
+									}
+
+									for (EDirection Dir : TEnumRange<EDirection>())
+									{
+										EConnectionStatus Incoming;
+										EConnectionStatus Outgoing;
+										ULogicalPlatformComponent *Comp = Layout.GetDirection(Dir);
+
+										// Cases?
+										// If no comp in that slot, there won't be any incoming. Outgoing is unblocked or null.
+										// If there is one, incoming exists if they push. Accept depends on support map.
+										//     ->			outgoing exists if we push. Accept depends on if THEY support it.
+
+										
+										bool bOutgoingPresent = MyOutgoingSupport.Get(Dir); // WE are trying to output in this direction
+										bool bIncomingBlocked = !MyIncomingSupport.Get(Dir); // WE are not accepting input from them in this direction
+
+										bool bOutgoingBlocked; // THEY are not accepting input from us in this direction
+										bool bIncomingPresent; // THEY have output coming to us in this direction
+										if (!Comp)
+										{
+											bOutgoingBlocked = false;
+											bIncomingPresent = false;
+										}
+										else
+										{
+											FDirectionFlagMap TheirIncomingSupport = Comp->GetDefaultIncomingConnectionPorts();
+											FDirectionFlagMap TheirOutgoingSupport = Comp->GetDefaultOutgoingConnectionPorts();
+
+											// Rotate to proper rotation
+											DirIter = EDirection::EAST;
+											while (DirIter != Comp->GetDirection())
+											{
+												DirIter = RotateDirection(DirIter);
+												TheirIncomingSupport.Rotate();
+												TheirOutgoingSupport.Rotate();
+											}
+
+											bIncomingPresent = TheirOutgoingSupport.Get(OppositeDirection(Dir));
+											bOutgoingBlocked = !TheirIncomingSupport.Get(OppositeDirection(Dir));
+										}
+
+										Outgoing = (!bOutgoingPresent ? EConnectionStatus::NO_CONNECTION : (bOutgoingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
+										Incoming = (!bIncomingPresent ? EConnectionStatus::NO_CONNECTION : (bIncomingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
+
+										IncomingStatuses.Set(Dir, Incoming);
+										OutgoingStatuses.Set(Dir, Outgoing);
+									}
+								}
+								else
+								{
+									IncomingStatuses = FDirectionMap<EConnectionStatus>(EConnectionStatus::NO_CONNECTION);
+									OutgoingStatuses = FDirectionMap<EConnectionStatus>(EConnectionStatus::NO_CONNECTION);
+								}
+
+								ActiveMouseItemActor->UpdateConnectionInfo(IncomingStatuses, OutgoingStatuses);
+							}
+							else
+							{
+								// Put back old valid flag
+								// This instead of adding else to all cases to set it false
+								bActiveMouseItemValid = bLastFrameActiveItemValid;
+							}
 						}
 					}
 				}
@@ -379,6 +473,7 @@ void AFactoryPlayerController::ClearActiveItem()
 	ActiveMouseItemActor = nullptr;
 	ActiveMouseItem = nullptr;
 	ActiveMouseItemDirection = EDirection::NORTH;
+	bActiveMouseItemCacheDirty = true;
 }
 
 AFactoryPlayerController::~AFactoryPlayerController()

@@ -82,6 +82,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual UItemAction *GetUseAction(EGamePlatform Platform, APlayerCharacter *Character, UItem *Item) PURE_VIRTUAL(UItemType::GetUseAction, return nullptr;);
 
+	virtual TSubclassOf<ULogicalPlatformComponent> GetPlatformComponentClass(EGamePlatform Platform, const UItem *Item) const;
+
 	// Create and return the platform component to use when this item type is 'placed' on a platform
 	// May return nullptr
 	virtual ULogicalPlatformComponent *SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item);
@@ -140,6 +142,7 @@ public:
 	UPlaceableItemTypeBP() : UItemTypeBP() {};
 	virtual ~UPlaceableItemTypeBP() = default;
 
+	virtual TSubclassOf<ULogicalPlatformComponent> GetPlatformComponentClass(EGamePlatform Platform, const UItem *Item) const override;
 	virtual ULogicalPlatformComponent *SpawnPlatformComponent(EGamePlatform Platform, ULogicalPlatform *LogicalPlatform, APlayerCharacter *Character, UItem *Item) override;
 };
 

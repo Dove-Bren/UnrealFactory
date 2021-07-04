@@ -15,7 +15,6 @@ APlatformComponent *ULogicalBelt::SpawnWorldComponent(UPlatform *Platform)
 {
 	FVector SpawnLoc;
 	MakeSpawnLocation(SpawnLoc);
-	UE_LOG(LogTemp, Warning, TEXT("Direction: %s"), *GetDirectionName(Direction).ToString());
 	ABelt *WorldComp = Platform->GetWorld()->SpawnActor<ABelt>(SpawnLoc, GetRotationFromDirection(Direction), MakeSpawnParams());
 	WorldComp->SetLogicalBelt(this);
 	WorldComp->RegisterPlatform(Platform);

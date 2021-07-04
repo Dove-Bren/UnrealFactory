@@ -47,12 +47,17 @@ public:
 
 	virtual void RefreshNearby(FLocalLayout NearbyLayout) override;
 
+	virtual FDirectionFlagMap GetDefaultIncomingConnectionPorts() override { return FDirectionFlagMap(false, true, true, true); } // all but east
+	virtual FDirectionFlagMap GetDefaultOutgoingConnectionPorts() override { return FDirectionFlagMap(true, false, false, false); } // only east
+
 	IItemHandler *GetReceivingHandler(); // Return what belt is pointing towards.
 
 	// IItemHandler
 public:
 
 	virtual APlatformComponent *SpawnWorldComponent(UPlatform *Platform) override;
+
+	virtual bool WouldConnect(EDirection DirectionIn) override { return DirectionIn == this->Direction; };
 
 	virtual bool CanAccept_Implementation(EDirection Direction, const UItem *ItemIn) override;
 

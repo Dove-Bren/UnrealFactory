@@ -22,6 +22,9 @@ struct FGridPosition
 	FGridPosition() : FGridPosition(0, 0) {};
 	FGridPosition(int32 PosX, int32 PosY) : X(PosX), Y(PosY) {}
 
+	friend bool operator==(const FGridPosition& Pos1, const FGridPosition& Pos2) { return (Pos1.X == Pos2.X && Pos1.Y == Pos2.Y); }
+	friend bool operator!=(const FGridPosition& Pos1, const FGridPosition& Pos2) { return !(Pos1 == Pos2); }
+
 	FGridPosition Offset(EDirection Direction);
 	FGridPosition Move(EDirection Direction);
 };
