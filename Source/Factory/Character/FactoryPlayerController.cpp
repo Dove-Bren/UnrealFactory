@@ -47,6 +47,17 @@ void AFactoryPlayerController::SetupInputComponent()
 	
 }
 
+FVector2D AFactoryPlayerController::GetMousePositon()
+{
+	FVector2D MousePosition(0, 0);
+	ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	if (LocalPlayer && LocalPlayer->ViewportClient)
+	{
+		LocalPlayer->ViewportClient->GetMousePosition(MousePosition);
+	}
+	return MousePosition;
+}
+
 void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 {
 	Super::PlayerTick(DeltaSeconds);
@@ -70,151 +81,308 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 		Trace(Start, End, false);
 	}
 
-	bool bLastFrameActiveItemValid = bActiveMouseItemValid;
-	bActiveMouseItemValid = false;
-	if (ActiveMouseItemActor)
+	// Update placing logic if we're in placement mode
+	if (ActiveMouseItemActor && PlayerCharacter && PlayerCharacter->GetShop())
 	{
-		if (PlayerCharacter && PlayerCharacter->GetShop())
+		AShop *ShopBuilding = PlayerCharacter->GetShop();
+		UPlatform *PlatformBuilding = PlayerCharacter->GetPlatform();
+		ULogicalShop *Shop = ShopBuilding->GetLogicalShop();
+		ULogicalPlatform *Platform = PlatformBuilding->GetLogicalPlatform();
+
+		check(Shop && Platform);
+
+		// First, try to figure out where cursor is at
+		bool bValidLocation = false;
+		FVector WorldPos;
+		FGridPosition GridPos;
+
 		{
-			AShop *ShopBuilding = PlayerCharacter->GetShop();
-			UPlatform *PlatformBuilding = PlayerCharacter->GetPlatform();
-			ULogicalShop *Shop = ShopBuilding->GetLogicalShop();
-			ULogicalPlatform *Platform = PlatformBuilding->GetLogicalPlatform();
+			FVector2D MousePosition = GetMousePositon();
+			FHitResult HitResult;
+			FVector Origin;
+			FVector BoxExtent;
+			FCollisionQueryParams Params;
 
-			if (Shop && Platform)
+			Params.bTraceComplex = true;
+			Params.AddIgnoredActor(ActiveMouseItemActor);
+
+			if (GetHitResultAtScreenPosition(MousePosition, ECollisionChannel::ECC_Visibility, Params, HitResult)
+				&& HitResult.bBlockingHit
+				&& FMath::Abs(HitResult.Location.Z - PlatformBuilding->GetComponentLocation().Z) < 100)
 			{
-				ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
-				bool bHit = false;
-				if (LocalPlayer && LocalPlayer->ViewportClient)
-				{
-					FVector2D MousePosition;
-					if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
-					{
-						FHitResult HitResult;
-						FVector Origin;
-						FVector BoxExtent;
-						FCollisionQueryParams Params;
+				// Raytrace hit something!
+				GridPos = Platform->GetGridPosFromWorld(HitResult.Location.X, HitResult.Location.Y);
+				WorldPos = Platform->GetWorldPosFromGrid(GridPos, true);
+				WorldPos.Z = PlatformBuilding->GetComponentLocation().Z;
 
-						Params.bTraceComplex = true;
-						Params.AddIgnoredActor(ActiveMouseItemActor);
-
-						if (GetHitResultAtScreenPosition(MousePosition, ECollisionChannel::ECC_Visibility, Params, HitResult)
-							&& FMath::Abs(HitResult.Location.Z - PlatformBuilding->GetComponentLocation().Z) < 10)
-						{
-							// Query platform for grid position and what may already be there
-							FGridPosition GridPos = Platform->GetGridPosFromWorld(HitResult.Location.X, HitResult.Location.Y);
-							FVector WorldCenterPos = Platform->GetWorldPosFromGrid(GridPos, true);
-
-							// Adjust hitpos to center of cell
-							HitResult.Location.X = WorldCenterPos.X;
-							HitResult.Location.Y = WorldCenterPos.Y;
-							HitResult.Location.Z = PlatformBuilding->GetComponentLocation().Z;
-
-							ActiveMouseItemActor->SetActorLocation(HitResult.Location);
-
-							// Rotate according to rotation
-							FRotator Rotation = GetRotationFromDirection(this->ActiveMouseItemDirection);
-							ActiveMouseItemActor->SetActorRotation(Rotation);
-
-							// Don't re-update if this is same position as last frame
-							if (bActiveMouseItemCacheDirty 
-								|| (GridPos != ActiveMouseItemCachePos || ActiveMouseItemDirection != ActiveMouseItemCacheDirection))
-							{
-								FLocalLayout Layout = Platform->GetComponent(GridPos);
-								ActiveMouseItemCachePos = GridPos;
-								ActiveMouseItemCacheDirection = ActiveMouseItemDirection;
-								bActiveMouseItemCacheDirty = false;
-
-								// For now, treat as valid if there's nothing there already
-								bActiveMouseItemValid = !Layout.Center;
-
-								// Build map of nearby connection opportunities and update actor
-								FDirectionMap<EConnectionStatus> IncomingStatuses;
-								FDirectionMap<EConnectionStatus> OutgoingStatuses;
-
-								if (bActiveMouseItemValid)
-								{
-									TSubclassOf<ULogicalPlatformComponent> ComponentClass = ActiveMouseItem->GetItem()->GetType()->GetPlatformComponentClass(
-										Platform->GetType(),
-										ActiveMouseItem->GetItem()
-									);
-									ULogicalPlatformComponent *CDO = Cast<ULogicalPlatformComponent>(ComponentClass->GetDefaultObject(true));
-									FDirectionFlagMap MyIncomingSupport = CDO->GetDefaultIncomingConnectionPorts();
-									FDirectionFlagMap MyOutgoingSupport = CDO->GetDefaultOutgoingConnectionPorts();
-
-									// Rotate to proper rotation
-									EDirection DirIter = EDirection::EAST;
-									while (DirIter != ActiveMouseItemDirection)
-									{
-										DirIter = RotateDirection(DirIter);
-										MyIncomingSupport.Rotate();
-										MyOutgoingSupport.Rotate();
-									}
-
-									for (EDirection Dir : TEnumRange<EDirection>())
-									{
-										EConnectionStatus Incoming;
-										EConnectionStatus Outgoing;
-										ULogicalPlatformComponent *Comp = Layout.GetDirection(Dir);
-
-										// Cases?
-										// If no comp in that slot, there won't be any incoming. Outgoing is unblocked or null.
-										// If there is one, incoming exists if they push. Accept depends on support map.
-										//     ->			outgoing exists if we push. Accept depends on if THEY support it.
-
-										
-										bool bOutgoingPresent = MyOutgoingSupport.Get(Dir); // WE are trying to output in this direction
-										bool bIncomingBlocked = !MyIncomingSupport.Get(Dir); // WE are not accepting input from them in this direction
-
-										bool bOutgoingBlocked; // THEY are not accepting input from us in this direction
-										bool bIncomingPresent; // THEY have output coming to us in this direction
-										if (!Comp)
-										{
-											bOutgoingBlocked = false;
-											bIncomingPresent = false;
-										}
-										else
-										{
-											FDirectionFlagMap TheirIncomingSupport = Comp->GetIncomingConnectionPorts();
-											FDirectionFlagMap TheirOutgoingSupport = Comp->GetOutgoingConnectionPorts();
-
-											bIncomingPresent = TheirOutgoingSupport.Get(OppositeDirection(Dir));
-											bOutgoingBlocked = !TheirIncomingSupport.Get(OppositeDirection(Dir));
-										}
-
-										Outgoing = (!bOutgoingPresent ? EConnectionStatus::NO_CONNECTION : (bOutgoingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
-										Incoming = (!bIncomingPresent ? EConnectionStatus::NO_CONNECTION : (bIncomingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
-
-										IncomingStatuses.Set(Dir, Incoming);
-										OutgoingStatuses.Set(Dir, Outgoing);
-									}
-								}
-								else
-								{
-									IncomingStatuses = FDirectionMap<EConnectionStatus>(EConnectionStatus::NO_CONNECTION);
-									OutgoingStatuses = FDirectionMap<EConnectionStatus>(EConnectionStatus::NO_CONNECTION);
-								}
-
-								ActiveMouseItemActor->UpdateConnectionInfo(IncomingStatuses, OutgoingStatuses);
-							}
-							else
-							{
-								// Put back old valid flag
-								// This instead of adding else to all cases to set it false
-								bActiveMouseItemValid = bLastFrameActiveItemValid;
-							}
-						}
-					}
-				}
+				// Make sure this is in the limits of the platform but otherwise call it good
+				bValidLocation = Platform->IsGridPosValid(GridPos);
 			}
 		}
 
+		if (bValidLocation)
+		{
+			// Get logical info around cell
+			FLocalLayout Layout = Platform->GetComponent(GridPos);
+
+			// Update actor location
+			ActiveMouseItemActor->SetActorLocation(WorldPos);
+
+			// Update logical info about cell if it's not our cached cell/direction
+			if (bActiveMouseItemCacheDirty
+				|| (GridPos != ActiveMouseItemCachePos || ActiveMouseItemDirection != ActiveMouseItemCacheDirection))
+			{
+				ActiveMouseItemCachePos = GridPos;
+				ActiveMouseItemCacheDirection = ActiveMouseItemDirection;
+				bActiveMouseItemCacheDirty = false;
+
+				// Build map of nearby connection opportunities and update actor
+				FDirectionMap<EConnectionStatus> IncomingStatuses;
+				FDirectionMap<EConnectionStatus> OutgoingStatuses;
+
+				TSubclassOf<ULogicalPlatformComponent> ComponentClass = ActiveMouseItem->GetItem()->GetType()->GetPlatformComponentClass(
+					Platform->GetType(),
+					ActiveMouseItem->GetItem()
+				);
+				ULogicalPlatformComponent *CDO = Cast<ULogicalPlatformComponent>(ComponentClass->GetDefaultObject(true));
+				FDirectionFlagMap MyIncomingSupport = CDO->GetDefaultIncomingConnectionPorts();
+				FDirectionFlagMap MyOutgoingSupport = CDO->GetDefaultOutgoingConnectionPorts();
+
+				// Rotate to proper rotation
+				EDirection DirIter = EDirection::EAST;
+				while (DirIter != ActiveMouseItemDirection)
+				{
+					DirIter = RotateDirection(DirIter);
+					MyIncomingSupport.Rotate();
+					MyOutgoingSupport.Rotate();
+				}
+
+				for (EDirection Dir : TEnumRange<EDirection>())
+				{
+					EConnectionStatus Incoming;
+					EConnectionStatus Outgoing;
+					ULogicalPlatformComponent *Comp = Layout.GetDirection(Dir);
+
+					bool bOutgoingPresent = MyOutgoingSupport.Get(Dir); // WE are trying to output in this direction
+					bool bIncomingBlocked = !MyIncomingSupport.Get(Dir); // WE are not accepting input from them in this direction
+
+					bool bOutgoingBlocked; // THEY are not accepting input from us in this direction
+					bool bIncomingPresent; // THEY have output coming to us in this direction
+					if (!Comp)
+					{
+						bOutgoingBlocked = false;
+						bIncomingPresent = false;
+					}
+					else
+					{
+						FDirectionFlagMap TheirIncomingSupport = Comp->GetIncomingConnectionPorts();
+						FDirectionFlagMap TheirOutgoingSupport = Comp->GetOutgoingConnectionPorts();
+
+						bIncomingPresent = TheirOutgoingSupport.Get(OppositeDirection(Dir));
+						bOutgoingBlocked = !TheirIncomingSupport.Get(OppositeDirection(Dir));
+					}
+
+					Outgoing = (!bOutgoingPresent ? EConnectionStatus::NO_CONNECTION : (bOutgoingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
+					Incoming = (!bIncomingPresent ? EConnectionStatus::NO_CONNECTION : (bIncomingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
+
+					IncomingStatuses.Set(Dir, Incoming);
+					OutgoingStatuses.Set(Dir, Outgoing);
+				}
+
+				ActiveMouseItemActor->UpdateConnectionInfo(IncomingStatuses, OutgoingStatuses);
+			}
+
+			// Mark as valid if nothing's at the cell -- including the player :P
+			FVector PlayerWorldPos = PlayerCharacter->GetActorLocation();
+			FGridPosition PlayerGridPos = Platform->GetGridPosFromWorld(PlayerWorldPos.X, PlayerWorldPos.Y);
+			if (!!Layout.Center || PlayerGridPos == GridPos)
+			{
+				bActiveMouseItemValid = false;
+			}
+			else
+			{
+				bActiveMouseItemValid = true;
+			}
+		}
+		else
+		{
+			// Don't update actor location and definitely mark things as bad
+			bActiveMouseItemValid = false;
+		}
+
+		// Regardless of location updates, rotate actor according to rotation
+		FRotator Rotation = GetRotationFromDirection(this->ActiveMouseItemDirection);
+		ActiveMouseItemActor->SetActorRotation(Rotation);
+
+		// Update outlining info based on what we discovered as well
 		const bool bValid = bActiveMouseItemValid;
 		ActiveMouseItemActor->ForEachComponent<UPrimitiveComponent>(true, [bValid](UPrimitiveComponent *Component) {
 			Component->SetRenderCustomDepth(true);
 			Component->SetCustomDepthStencilValue(GetColorIndex(bValid ? EStandardColors::GREEN : EStandardColors::RED));
 		});
 	}
+	else
+	{
+		bActiveMouseItemValid = false;
+	}
+
+	//bool bLastFrameActiveItemValid = bActiveMouseItemValid;
+	//bActiveMouseItemValid = false;
+	//if (ActiveMouseItemActor)
+	//{
+	//	if (PlayerCharacter && PlayerCharacter->GetShop())
+	//	{
+	//		AShop *ShopBuilding = PlayerCharacter->GetShop();
+	//		UPlatform *PlatformBuilding = PlayerCharacter->GetPlatform();
+	//		ULogicalShop *Shop = ShopBuilding->GetLogicalShop();
+	//		ULogicalPlatform *Platform = PlatformBuilding->GetLogicalPlatform();
+
+	//		if (Shop && Platform)
+	//		{
+	//			ULocalPlayer* LocalPlayer = Cast<ULocalPlayer>(Player);
+	//			bool bHit = false;
+	//			if (LocalPlayer && LocalPlayer->ViewportClient)
+	//			{
+	//				FVector2D MousePosition;
+	//				if (LocalPlayer->ViewportClient->GetMousePosition(MousePosition))
+	//				{
+	//					FHitResult HitResult;
+	//					FVector Origin;
+	//					FVector BoxExtent;
+	//					FCollisionQueryParams Params;
+
+	//					Params.bTraceComplex = true;
+	//					Params.AddIgnoredActor(ActiveMouseItemActor);
+
+	//					if (GetHitResultAtScreenPosition(MousePosition, ECollisionChannel::ECC_Visibility, Params, HitResult)
+	//						&& FMath::Abs(HitResult.Location.Z - PlatformBuilding->GetComponentLocation().Z) < 10)
+	//					{
+	//						// Query platform for grid position and what may already be there
+	//						FGridPosition GridPos = Platform->GetGridPosFromWorld(HitResult.Location.X, HitResult.Location.Y);
+	//						FVector WorldCenterPos = Platform->GetWorldPosFromGrid(GridPos, true);
+
+	//						// Adjust hitpos to center of cell
+	//						HitResult.Location.X = WorldCenterPos.X;
+	//						HitResult.Location.Y = WorldCenterPos.Y;
+	//						HitResult.Location.Z = PlatformBuilding->GetComponentLocation().Z;
+
+	//						ActiveMouseItemActor->SetActorLocation(HitResult.Location);
+
+	//						/*
+	//						// Make sure player isn't in that cell
+	//						FVector PlayerWorldPos = PlayerCharacter->GetActorLocation();
+	//						FGridPosition PlayerGridPos = Platform->GetGridPosFromWorld(PlayerWorldPos.X, PlayerWorldPos.Y);
+	//						if (PlayerGridPos == GridPos)
+	//						{
+
+	//							bActiveMouseItemCacheDirty = true; // Re-eval logic bits once we've moved
+	//						}
+	//						
+	//						*/
+
+	//						// Don't re-update if this is same position as last frame
+	//						if (bActiveMouseItemCacheDirty 
+	//							|| (GridPos != ActiveMouseItemCachePos || ActiveMouseItemDirection != ActiveMouseItemCacheDirection))
+	//						{
+	//							FLocalLayout Layout = Platform->GetComponent(GridPos);
+	//							ActiveMouseItemCachePos = GridPos;
+	//							ActiveMouseItemCacheDirection = ActiveMouseItemDirection;
+	//							bActiveMouseItemCacheDirty = false;
+
+	//							// For now, treat as valid if there's nothing there already
+	//							bActiveMouseItemValid = !Layout.Center;
+
+	//							// Build map of nearby connection opportunities and update actor
+	//							FDirectionMap<EConnectionStatus> IncomingStatuses;
+	//							FDirectionMap<EConnectionStatus> OutgoingStatuses;
+
+	//							if (bActiveMouseItemValid)
+	//							{
+	//								TSubclassOf<ULogicalPlatformComponent> ComponentClass = ActiveMouseItem->GetItem()->GetType()->GetPlatformComponentClass(
+	//									Platform->GetType(),
+	//									ActiveMouseItem->GetItem()
+	//								);
+	//								ULogicalPlatformComponent *CDO = Cast<ULogicalPlatformComponent>(ComponentClass->GetDefaultObject(true));
+	//								FDirectionFlagMap MyIncomingSupport = CDO->GetDefaultIncomingConnectionPorts();
+	//								FDirectionFlagMap MyOutgoingSupport = CDO->GetDefaultOutgoingConnectionPorts();
+
+	//								// Rotate to proper rotation
+	//								EDirection DirIter = EDirection::EAST;
+	//								while (DirIter != ActiveMouseItemDirection)
+	//								{
+	//									DirIter = RotateDirection(DirIter);
+	//									MyIncomingSupport.Rotate();
+	//									MyOutgoingSupport.Rotate();
+	//								}
+
+	//								for (EDirection Dir : TEnumRange<EDirection>())
+	//								{
+	//									EConnectionStatus Incoming;
+	//									EConnectionStatus Outgoing;
+	//									ULogicalPlatformComponent *Comp = Layout.GetDirection(Dir);
+
+	//									// Cases?
+	//									// If no comp in that slot, there won't be any incoming. Outgoing is unblocked or null.
+	//									// If there is one, incoming exists if they push. Accept depends on support map.
+	//									//     ->			outgoing exists if we push. Accept depends on if THEY support it.
+
+	//									
+	//									bool bOutgoingPresent = MyOutgoingSupport.Get(Dir); // WE are trying to output in this direction
+	//									bool bIncomingBlocked = !MyIncomingSupport.Get(Dir); // WE are not accepting input from them in this direction
+
+	//									bool bOutgoingBlocked; // THEY are not accepting input from us in this direction
+	//									bool bIncomingPresent; // THEY have output coming to us in this direction
+	//									if (!Comp)
+	//									{
+	//										bOutgoingBlocked = false;
+	//										bIncomingPresent = false;
+	//									}
+	//									else
+	//									{
+	//										FDirectionFlagMap TheirIncomingSupport = Comp->GetIncomingConnectionPorts();
+	//										FDirectionFlagMap TheirOutgoingSupport = Comp->GetOutgoingConnectionPorts();
+
+	//										bIncomingPresent = TheirOutgoingSupport.Get(OppositeDirection(Dir));
+	//										bOutgoingBlocked = !TheirIncomingSupport.Get(OppositeDirection(Dir));
+	//									}
+
+	//									Outgoing = (!bOutgoingPresent ? EConnectionStatus::NO_CONNECTION : (bOutgoingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
+	//									Incoming = (!bIncomingPresent ? EConnectionStatus::NO_CONNECTION : (bIncomingBlocked ? EConnectionStatus::INVALID : EConnectionStatus::VALID));
+
+	//									IncomingStatuses.Set(Dir, Incoming);
+	//									OutgoingStatuses.Set(Dir, Outgoing);
+	//								}
+	//							}
+	//							else
+	//							{
+	//								IncomingStatuses = FDirectionMap<EConnectionStatus>(EConnectionStatus::NO_CONNECTION);
+	//								OutgoingStatuses = FDirectionMap<EConnectionStatus>(EConnectionStatus::NO_CONNECTION);
+	//							}
+
+	//							ActiveMouseItemActor->UpdateConnectionInfo(IncomingStatuses, OutgoingStatuses);
+	//						}
+	//						else
+	//						{
+	//							// Put back old valid flag
+	//							// This instead of adding else to all cases to set it false
+	//							bActiveMouseItemValid = bLastFrameActiveItemValid;
+	//						}
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//	const bool bValid = bActiveMouseItemValid;
+	//	ActiveMouseItemActor->ForEachComponent<UPrimitiveComponent>(true, [bValid](UPrimitiveComponent *Component) {
+	//		Component->SetRenderCustomDepth(true);
+	//		Component->SetCustomDepthStencilValue(GetColorIndex(bValid ? EStandardColors::GREEN : EStandardColors::RED));
+	//	});
+
+	//	// Rotate according to rotation
+	//	FRotator Rotation = GetRotationFromDirection(this->ActiveMouseItemDirection);
+	//	ActiveMouseItemActor->SetActorRotation(Rotation);
+	//}
 }
 
 void AFactoryPlayerController::OnResetVR()

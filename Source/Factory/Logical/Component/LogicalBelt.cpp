@@ -115,18 +115,26 @@ bool ULogicalBelt::CanAccept_Implementation(EDirection DirectionIn, const UItem 
 
 UItem *ULogicalBelt::InsertItem_Implementation(EDirection DirectionIn, UItem *ItemIn)
 {
-	UItem *Leftover = nullptr;
+	UItem *Leftover = ItemIn;
 	if (CanAccept_Implementation(DirectionIn, ItemIn))
 	{
 		if (!ITEM_EXISTS(Item))
 		{
 			Item = ItemIn;
+			Leftover = nullptr;
 		}
 		else
 		{
 			Leftover = Item->Merge(ItemIn);
 		}
 	}
+
+	// Fix up remainder if it's the same itemstack
+	if (Leftover == ItemIn)
+	{
+		Leftover = ItemIn->Clone();
+	}
+
 	return Leftover;
 }
 

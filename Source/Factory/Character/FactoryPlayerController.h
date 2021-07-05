@@ -66,6 +66,8 @@ protected:
 
 	virtual void OnPossess(APawn* aPawn) override;
 
+	FVector2D GetMousePositon();
+
 private:
 	bool bSprintLock;
 	bool bSprintMod;

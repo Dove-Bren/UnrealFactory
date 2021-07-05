@@ -106,4 +106,14 @@ public:
 
 	bool IsFloorStatic() { return bStaticFloor; }
 
+
+#define CHECK_IN_LOP_BOUNDS(X, WIDTH) (X < 0 ? (X >= -((int32)WIDTH/2)) : (X <= ((int32)(WIDTH-1)/2)))
+
+	// Check if this pos is within the confines of the platform.
+	// Note: Width 10 means valid Xs are -5 to 4. 
+	// Width 11 means valid Xs are -5 to 5
+	bool IsGridPosValid(FGridPosition GridPos) { return CHECK_IN_LOP_BOUNDS(GridPos.X, FloorWidth) && CHECK_IN_LOP_BOUNDS(GridPos.Y, FloorHeight); }
+
+#undef CHECK_IN_LOP_BOUNDS
+
 };

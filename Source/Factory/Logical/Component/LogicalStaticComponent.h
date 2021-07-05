@@ -38,6 +38,7 @@ class ULogicalItemStaticComponent : public ULogicalStaticComponent
 private:
 
 protected:
+
 	UItemType *ItemType;
 
 public:
