@@ -92,3 +92,10 @@ int32 GetPlatformOffset(EGamePlatform PlatformType)
 
 	return 0;
 }
+
+FName EResourceTypeNames[] = {
+	FName(TEXT("Gold")), // GOLD
+	FName(TEXT("Wood")), // WOOD
+	FName(TEXT("Ore")), // ORE
+};
+static_assert(sizeof(EResourceTypeNames) / sizeof(EResourceTypeNames[0]) == (uint8)EResourceType::MAX, "Resource name list not kept in sync");

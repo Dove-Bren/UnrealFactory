@@ -165,7 +165,10 @@ protected:
 	UItemTypeRegistry();
 	~UItemTypeRegistry();
 
+	UPROPERTY()
 	TMap<FName, UItemType*> Registry;
+
+	UPROPERTY()
 	TMap<UClass*, UItemType*> ClassRegistry;
 };
 

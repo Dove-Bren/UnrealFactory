@@ -20,6 +20,10 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	ULogicalBelt *LogicalBelt;
 
+	// Comp for showing items moving on the belt
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent *ItemMeshComp;
+
 public:
 
 	ABelt();
@@ -28,5 +32,7 @@ public:
 	ULogicalBelt *GetLogicalBelt() const { return this->LogicalBelt; }
 
 	virtual void Refresh() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 
 };

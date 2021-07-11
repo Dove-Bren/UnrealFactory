@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 
+#include "Factory/GameEnums.h"
+
 #include "ShopResources.generated.h"
 
 USTRUCT(BlueprintType)
@@ -20,4 +22,20 @@ struct FShopResources
 	// Raw ore. Base material resource.
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int32 Ore;
+
+	int32 GetCount(EResourceType Type) const;
 };
+
+inline int32 FShopResources::GetCount(EResourceType Type) const
+{
+	switch (Type)
+	{
+	case EResourceType::GOLD:
+	default:
+		return this->Gold;
+	case EResourceType::WOOD:
+		return this->Wood;
+	case EResourceType::ORE:
+		return this->Ore;
+	}
+}

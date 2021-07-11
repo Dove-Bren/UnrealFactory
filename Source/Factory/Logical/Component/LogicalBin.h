@@ -39,6 +39,8 @@ protected:
 
 public:
 
+	virtual ~ULogicalBin() = default;
+
 	virtual EDataValidationResult IsDataValid(TArray<FText> & ValidationErrors) override;
 
 	virtual void RemoveFromPlatform(ULogicalPlatform *Platform) override;
@@ -70,7 +72,7 @@ public:
 
 	virtual UItem *InsertItem_Implementation(EDirection Direction, UItem *ItemIn) override;
 
-	void PeekItems_Implementation(TArray<UItem*> &ItemArray) override;
+	virtual void PeekItems_Implementation(TArray<UItem*> &ItemArray) override;
 
 	virtual bool CanTake_Implementation(EDirection Direction, const UItem *ItemDemandOpt) override;
 

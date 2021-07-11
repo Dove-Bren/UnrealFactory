@@ -436,3 +436,15 @@ enum class EConnectionStatus : uint8
 	MAX
 };
 ENUM_RANGE_BY_COUNT(EConnectionStatus, EConnectionStatus::MAX)
+
+UENUM()
+enum class EResourceType : uint8
+{
+	GOLD,
+	WOOD,
+	ORE,
+
+	MAX
+};
+ENUM_RANGE_BY_COUNT(EResourceType, EResourceType::MAX)
+ENUM_HAS_NAMES(EResourceType, ResourceType);

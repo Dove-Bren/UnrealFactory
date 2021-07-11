@@ -94,7 +94,7 @@ public:
 	// Refresh connections for all components around and on the provided position
 	void RefreshAround(FGridPosition GridPos);
 
-	const ULogicalShop *GetShop() { return ShopParent; }
+	ULogicalShop *GetShop() { return ShopParent; }
 
 	EGamePlatform GetType() { return PlatformType; }
 

@@ -31,7 +31,7 @@ UItemType *UItemTypeRegistry::GetDefaultInstance(TSubclassOf<UItemType> ItemType
 	}
 	else
 	{
-		UItemType *Type = NewObject<UItemType>(GetTransientPackage(), ItemTypeClass);
+		UItemType *Type = NewObject<UItemType>(this, ItemTypeClass);
 		Register(Type);
 		return Type;
 	}

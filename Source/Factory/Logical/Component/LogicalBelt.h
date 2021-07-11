@@ -22,14 +22,26 @@ private:
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UItem *Item;
+
+	// Position of current item on the belt, from 0 to 1.
+	// 1 indicates the item will be pushed onto next item if one is present.
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float fItemProgress;
+
+	EDirection LastIncomeDirection;
+
+	virtual float GetProgressPerTick() { return 1.0f / (20 * 1); }
 
 	IItemHandler *CachedReceiver;
 	IItemHandler *CachedRearProducer;
 	bool bCachedExtended; // If we're connected to the side of another belt
 
 	ULogicalBelt() : ULogicalPlatformComponent() {};
+
+	void SetItem(UItem *NewItem, EDirection FromDirection = EDirection::MAX);
+	void ClearItem();
 
 public:
 
@@ -57,6 +69,10 @@ public:
 	IItemHandler *GetRearProducerHandler() { return CachedRearProducer; }
 	bool GetIsExtended() { return bCachedExtended; }
 
+	virtual UItem *GetItem() { return Item; }
+	virtual float GetItemProgress() { return fItemProgress; }
+	virtual EDirection GetLastInputDirection() { return LastIncomeDirection; }
+
 	// IItemHandler
 public:
 
@@ -66,7 +82,7 @@ public:
 
 	virtual UItem *InsertItem_Implementation(EDirection Direction, UItem *ItemIn) override;
 
-	void PeekItems_Implementation(TArray<UItem*> &ItemArray) override;
+	virtual void PeekItems_Implementation(TArray<UItem*> &ItemArray) override;
 
 	virtual bool CanTake_Implementation(EDirection Direction, const UItem *ItemDemandOpt) override;
 

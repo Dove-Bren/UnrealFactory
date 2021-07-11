@@ -41,6 +41,16 @@ ABelt::ABelt()
 	MiddleMesh = MeshStatics.MiddleMesh.Get();
 	MiddleExtendedMesh = MeshStatics.MiddleExtendedMesh.Get();
 
+	ItemMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComp"));
+	ItemMeshComp->SetRelativeScale3D(FVector(.5, .5, 1));
+	ItemMeshComp->SetWorldRotation(FRotator(0, 0, 0));
+	ItemMeshComp->SetUsingAbsoluteRotation(true);
+	ItemMeshComp->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	ItemMeshComp->SetVisibility(false);
+	ItemMeshComp->SetCollisionResponseToAllChannels(ECR_Ignore);
+
+	PrimaryActorTick.bCanEverTick = true;
+
 	Refresh();
 }
 
@@ -74,4 +84,44 @@ void ABelt::Refresh()
 
 	this->Mesh->SetStaticMesh(BeltMesh);
 	this->Mesh->SetMaterial(0, Belt1Mat);
+}
+
+void ABelt::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (LogicalBelt && UItem::ItemExists(LogicalBelt->GetItem()))
+	{
+		ItemMeshComp->SetVisibility(true);
+		ItemMeshComp->SetStaticMesh(LogicalBelt->GetItem()->GetType()->GetMesh());
+
+		// Set position along the belt
+		// If first half, rotate towards input
+		float Progress = LogicalBelt->GetItemProgress();
+		FVector Loc(0, 0, 0);
+		if (Progress < 0.5f)
+		{
+			EDirection FromDir = LogicalBelt->GetLastInputDirection();
+
+			// Rotate so act as if this is an eastward belt
+			EDirection Iter = LogicalBelt->GetDirection();
+			while (Iter != EDirection::EAST)
+			{
+				Iter = RotateDirection(Iter);
+				FromDir = RotateDirection(FromDir);
+			}
+
+			FVector Offset = GetDirectionOffset(FromDir) * 100.0f;
+			Loc = Offset * (0.5f - Progress);
+		}
+		else
+		{
+			Loc.X = -50 + (Progress * 100);
+		}
+		ItemMeshComp->SetRelativeLocation(Loc);
+	}
+	else
+	{
+		ItemMeshComp->SetVisibility(false);
+	}
 }

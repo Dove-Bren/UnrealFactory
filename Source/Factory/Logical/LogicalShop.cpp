@@ -28,9 +28,9 @@ void ULogicalShop::InitShop(FName ShopName, float X, float Y, float Z)
 
 }
 
-/*static*/ ULogicalShop *ULogicalShop::MakeShop(FName Name, float X, float Y, float Z)
+/*static*/ ULogicalShop *ULogicalShop::MakeShop(UWorld *World, FName Name, float X, float Y, float Z)
 {
-	ULogicalShop *Shop = NewObject<ULogicalShop>();
+	ULogicalShop *Shop = NewObject<ULogicalShop>(World);
 	Shop->InitShop(Name, X, Y, Z);
 	return Shop;
 }
@@ -105,4 +105,21 @@ void ULogicalShop::AddWood(int32 Count)
 void ULogicalShop::AddOre(int32 Count)
 {
 	CLAMP_SIGNED(Resources.Ore, Count);
+}
+
+void ULogicalShop::AddResource(EResourceType Type, int32 Count)
+{
+	switch (Type)
+	{
+	case EResourceType::GOLD:
+	default:
+		AddGold(Count);
+		break;
+	case EResourceType::WOOD:
+		AddWood(Count);
+		break;
+	case EResourceType::ORE:
+		AddOre(Count);
+		break;
+	}
 }

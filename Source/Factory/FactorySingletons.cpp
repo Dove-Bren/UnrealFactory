@@ -17,4 +17,6 @@
 UFactorySingletons::UFactorySingletons()
 {
 	ItemRegistry = CreateDefaultSubobject<UItemTypeRegistry>(TEXT("ItemRegistry"));
+
+	AddToRoot();
 }

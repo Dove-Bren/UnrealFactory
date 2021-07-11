@@ -15,11 +15,11 @@ struct FLocalLayout
 {
 	GENERATED_BODY()
 
-	ULogicalPlatformComponent *Center;
-	ULogicalPlatformComponent *North;
-	ULogicalPlatformComponent *East;
-	ULogicalPlatformComponent *South;
-	ULogicalPlatformComponent *West;
+	ULogicalPlatformComponent *Center = nullptr;
+	ULogicalPlatformComponent *North = nullptr;
+	ULogicalPlatformComponent *East = nullptr;
+	ULogicalPlatformComponent *South = nullptr;
+	ULogicalPlatformComponent *West = nullptr;
 
 	ULogicalPlatformComponent *GetDirection(EDirection Direction) const;
 };

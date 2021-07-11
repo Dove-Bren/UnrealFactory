@@ -64,11 +64,6 @@ UItem *ULogicalBin::InsertItem_Implementation(EDirection DirectionIn, UItem *Ite
 		}
 	}
 
-	if (Leftover == ItemIn)
-	{
-		Leftover = ItemIn->Clone();
-	}
-
 	return Leftover;
 }
 

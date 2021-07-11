@@ -53,7 +53,7 @@ protected:
 
 public:
 
-	static ULogicalShop *MakeShop(FName ShopName, float X, float Y, float Z);
+	static ULogicalShop *MakeShop(UWorld *World, FName ShopName, float X, float Y, float Z);
 
 	const TMap<EGamePlatform, ULogicalPlatform*> & GetPlatforms() const { return Platforms; }
 	const FName & GetName() const { return this->Name; }
@@ -73,6 +73,9 @@ public:
 	// Add some avaialble ore to the shop
 	UFUNCTION(BlueprintCallable)
 	void AddOre(int32 Count);
+
+	int32 GetResource(EResourceType Type) { return Resources.GetCount(Type); }
+	void AddResource(EResourceType Type, int32 Count);
 
 	// Transition to the provided state, including stopping any activities from the previous one.
 	// This is echoed down to all platforms in the shop.

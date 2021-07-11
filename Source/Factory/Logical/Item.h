@@ -106,4 +106,18 @@ public:
 
 	static bool ItemExists(const UItem *Item) { return ITEM_EXISTS(Item); }
 
+	static bool ItemsEqual(const UItem *Item1, const UItem *Item2, bool bMatchCount = false);
+
 };
+
+/*static*/ inline bool UItem::ItemsEqual(const UItem *Item1, const UItem *Item2, bool bMatchCount)
+{
+	return
+		Item1 == Item2
+		|| (!ITEM_EXISTS(Item1) && !ITEM_EXISTS(Item2))
+		|| (
+			ITEM_EXISTS(Item1) && ITEM_EXISTS(Item2)
+			&& Item1->MatchesType(Item2)
+			&& (!bMatchCount || Item1->GetCount() == Item2->GetCount())
+			);
+}

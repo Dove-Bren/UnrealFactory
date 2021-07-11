@@ -106,4 +106,6 @@ public:
 
 	virtual void RefreshWorldActor();
 
+	ULogicalPlatform *GetParentPlatform() { return ParentPlatform; }
+
 };

@@ -56,10 +56,10 @@ inline FGridPosition FGridPosition::Move(EDirection Direction)
 		Y++;
 		break;
 	case EDirection::EAST:
-		X--;
+		X++;
 		break;
 	case EDirection::WEST:
-		X++;
+		X--;
 		break;
 	}
 

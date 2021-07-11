@@ -30,8 +30,6 @@ public:
 
 	// Insert the provided item from the given direction.
 	// If not all of the item will fit, returns the leftover amount.
-	// Returned item will either be nullptr or a new item.
-	// Function takes ownership of passed in item.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	UItem *InsertItem(EDirection Direction, UItem *ItemIn);
 
@@ -52,4 +50,21 @@ public:
 	// not enough of the demanded item existed.
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	UItem *TakeItem(EDirection Direction, const UItem *ItemDemandOpt);
+
+	// Wrap up calling CanAccept and then InsertItem on a handler.
+	// Handler must cast cleanly to a UObject.
+	static UItem *AttemptInsert(IItemHandler *Handler, EDirection Direction, UItem *InsertItem);
 };
+
+/*static*/ inline UItem *IItemHandler::AttemptInsert(IItemHandler *Handler, EDirection Direction, UItem *InsertItem)
+{
+	UItem *Leftover = InsertItem;
+	UObject *Comp = Cast<UObject>(Handler);
+	check(Comp);
+	if (Comp && Handler->Execute_CanAccept(Comp, Direction, InsertItem))
+	{
+		Leftover = Handler->Execute_InsertItem(Comp, Direction, InsertItem);
+	}
+
+	return Leftover;
+}
