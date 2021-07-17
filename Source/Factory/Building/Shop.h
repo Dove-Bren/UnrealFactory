@@ -42,6 +42,8 @@ protected:
 
 	void SetupLogicalShop(ULogicalShop *LogicalShop);
 
+	virtual void TickShop(EGamePhase Phase);
+
 public:
 
 	static AShop *MakeShop(UWorld *World, ULogicalShop *LogicalShop);
@@ -55,4 +57,6 @@ public:
 	// Sets only the provided platform type to be visible
 	UFUNCTION(BlueprintCallable)
 	void SetPlatformVisibility(EGamePlatform VisiblePlatform);
+
+	virtual void Tick(float DeltaSeconds) override;
 };

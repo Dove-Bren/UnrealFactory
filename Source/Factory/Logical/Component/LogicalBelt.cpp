@@ -1,8 +1,9 @@
 #include "LogicalBelt.h"
 
+#include "Factory/GameEnums.h"
 #include "Factory/Building/Platform/Platform.h"
 #include "Factory/Building/Platform/Component/Belt.h"
-#include "Factory/GameEnums.h"
+#include "Factory/Logical/Component/LogicalBin.h"
 
 ///*static*/ ULogicalBelt *ULogicalBelt::MakeBelt(EDirection Direction)
 //{
@@ -42,18 +43,22 @@ bool ULogicalBelt::IsActiveDuring(EGamePhase Phase)
 
 void ULogicalBelt::ShopTick(EGamePhase Phase)
 {
-	if (this->Item && fItemProgress < 1.0f)
+	if (ITEM_EXISTS(this->Item) && fItemProgress < 1.0f && LastIncomeTick != UFactorySingletons::GetInstance(GetWorld())->TotalTickCount)
 	{
 		fItemProgress += GetProgressPerTick();
 	}
 
 	// maybe should use "CanTake" function to avoid code duplication?
-	if (this->Item && fItemProgress >= 1.0f && CachedReceiver && Cast<UObject>(CachedReceiver)->Implements<UItemHandler>())
+	if (this->Item && fItemProgress >= 1.0f && CachedReceiver)
 	{
-		IItemHandler *Handler = Cast<IItemHandler>(CachedReceiver);
-		check(!!Handler);
+		SetItem(IItemHandler::AttemptInsert(CachedReceiver, OppositeDirection(Direction), Item));
+	}
 
-		SetItem(IItemHandler::AttemptInsert(Handler, OppositeDirection(Direction), Item));
+	// If (after previousprocessing) we have no items, pull from any producers behind us.
+	// This makes same-frame back propogation work
+	if (!ITEM_EXISTS(this->Item) && !!CachedRearProducer)
+	{
+		SetItem(IItemHandler::AttemptTake(CachedRearProducer, Direction, nullptr), OppositeDirection(Direction));
 	}
 }
 
@@ -104,8 +109,10 @@ bool ULogicalBelt::RefreshNearby(FLocalLayout NearbyLayout)
 	{
 		IItemHandler *Handler = Cast<IItemHandler>(Comp);
 
-		if (Comp->GetOutgoingConnectionPorts().Get(GetDirection())
-			&& Handler)
+		// Note: We treat bins as 'producers' for belts even though they don't advertise as such
+
+		if (Handler && 
+			(!!Cast<ULogicalBin>(Comp) || Comp->GetOutgoingConnectionPorts().Get(GetDirection())))
 		{
 			CachedRearProducer = Handler;
 		}
@@ -194,6 +201,12 @@ UItem *ULogicalBelt::TakeItem_Implementation(EDirection DirectionIn, const UItem
 		{
 			Taken = Item;
 			ClearItem();
+
+			// Backwards propogation on belts to avoid frame-order lag?
+			if (!UItem::ItemExists(Item) && !!CachedRearProducer)
+			{
+				SetItem(IItemHandler::AttemptTake(CachedRearProducer, Direction, nullptr), OppositeDirection(Direction));
+			}
 		}
 	}
 
@@ -205,6 +218,7 @@ void ULogicalBelt::SetItem(UItem *NewItem, EDirection FromDirection)
 	if (!UItem::ItemsEqual(Item, NewItem))
 	{
 		this->fItemProgress = 0;
+		this->LastIncomeTick = UFactorySingletons::GetInstance(GetWorld())->TotalTickCount;
 	}
 
 	if (FromDirection != EDirection::MAX)
@@ -219,4 +233,19 @@ void ULogicalBelt::ClearItem()
 {
 	this->Item = nullptr;
 	this->fItemProgress = 0;
+}
+
+float ULogicalBelt::GetItemProgress(float PartialTicks)
+{
+	/*if (bTestSwitch)
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}*/
+	return FMath::Min(1.0f, 
+		this->fItemProgress	+ (PartialTicks * GetProgressPerTick())
+	);
 }

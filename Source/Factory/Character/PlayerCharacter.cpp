@@ -12,6 +12,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "DrawDebugHelpers.h"
 
+#include "Factory/FactorySingletons.h"
 #include "Factory/Building/Shop.h"
 #include "Factory/Building/Platform/Platform.h"
 
@@ -130,21 +131,30 @@ APlayerCharacter::APlayerCharacter()
 
 void APlayerCharacter::Tick(float DeltaSeconds)
 {
+	static float SecondBuildup = 0;
+	SecondBuildup += DeltaSeconds;
+
 	Super::Tick(DeltaSeconds);
 
 	// Shouldn't be here. Shop registry?
-#define TICKS_PER_SECOND 20.0
-#define SECONDS_PER_TICK (1.0 / TICKS_PER_SECOND)
-	if (this->CurrentShop && CurrentShop->GetLogicalShop())
+#define TICKS_PER_SECOND 20.0f
+#define SECONDS_PER_TICK (1.0f / TICKS_PER_SECOND)
+	
+	while (SecondBuildup >= SECONDS_PER_TICK)
 	{
-		static float SecondBuildup = 0;
-		SecondBuildup += DeltaSeconds;
-		while (SecondBuildup > SECONDS_PER_TICK)
+		UFactorySingletons::GetInstance(GetWorld())->PartialTicks = 0.0f;
+		UFactorySingletons::GetInstance(GetWorld())->TotalTickCount++;
+		SecondBuildup -= SECONDS_PER_TICK;
+		if (this->CurrentShop && CurrentShop->GetLogicalShop())
 		{
-			SecondBuildup -= SECONDS_PER_TICK;
 			CurrentShop->GetLogicalShop()->ShopTick(EGamePhase::MORNING);
 		}
 	}
+
+	UFactorySingletons::GetInstance(GetWorld())->PartialTicks = SecondBuildup / SECONDS_PER_TICK;
+
+#undef TICKS_PER_SECOND
+#undef SECONDS_PER_TICK
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

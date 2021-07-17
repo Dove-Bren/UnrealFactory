@@ -2,6 +2,8 @@
 
 #include "CoreMinimal.h"
 
+#include "Components/PostProcessComponent.h"
+
 #include "PlatformComponent.h"
 #include "Factory/GameEnums.h"
 #include "Factory/Logical/Component/LogicalBelt.h"
@@ -23,6 +25,10 @@ protected:
 	// Comp for showing items moving on the belt
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent *ItemMeshComp;
+
+	// Comp for adjusting blur
+	UPROPERTY(VisibleAnywhere)
+	UPostProcessComponent *PostProcessComp;
 
 public:
 

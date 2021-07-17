@@ -30,6 +30,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float fItemProgress;
 
+	int32 LastIncomeTick = 0;
+
 	EDirection LastIncomeDirection;
 
 	virtual float GetProgressPerTick() { return 1.0f / (20 * 1); }
@@ -42,6 +44,9 @@ protected:
 
 	void SetItem(UItem *NewItem, EDirection FromDirection = EDirection::MAX);
 	void ClearItem();
+
+	UPROPERTY(EditAnywhere)
+	bool bTestSwitch = false;
 
 public:
 
@@ -70,7 +75,7 @@ public:
 	bool GetIsExtended() { return bCachedExtended; }
 
 	virtual UItem *GetItem() { return Item; }
-	virtual float GetItemProgress() { return fItemProgress; }
+	virtual float GetItemProgress(float PartialTicks = 0.0f);
 	virtual EDirection GetLastInputDirection() { return LastIncomeDirection; }
 
 	// IItemHandler

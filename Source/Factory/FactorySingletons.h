@@ -21,6 +21,12 @@ public:
 
 	UItemTypeRegistry *GetItemRegistry() { return ItemRegistry; }
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	float PartialTicks = 0.0f;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	int32 TotalTickCount = 0;
+
 protected:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)

@@ -182,3 +182,11 @@ void UPlatform::RefreshFloor()
 
 	SpawnWalls(FloorWidth, FloorHeight);
 }
+
+void UPlatform::ShopTick(EGamePhase Phase)
+{
+	for (APlatformComponent *Comp : this->PlatformComponents)
+	{
+		Comp->ShopTick(Phase);
+	}
+}

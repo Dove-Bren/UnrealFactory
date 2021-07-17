@@ -9,6 +9,7 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "Factory/GameEnums.h"
+#include "Factory/Building/Platform/Component/PlatformComponent.h"
 #include "Factory/Logical/LogicalPlatform.h"
 #include "Component/NonLogical/Ladder.h"
 
@@ -56,6 +57,9 @@ protected:
 
 	void SpawnWalls(float Width, float Height);
 
+	UPROPERTY(VisibleAnywhere)
+	TSet<APlatformComponent*> PlatformComponents;
+
 public:
 	UPlatform();
 	virtual ~UPlatform() = default;
@@ -74,5 +78,10 @@ public:
 	EGamePlatform GetType() { return PlatformType; }
 
 	void RefreshFloor();
+
+	virtual void AddComponent(APlatformComponent *Component) { PlatformComponents.Add(Component); }
+	virtual void RemoveComponent(APlatformComponent *Component) { PlatformComponents.Remove(Component); }
+
+	virtual void ShopTick(EGamePhase Phase);
 
 };

@@ -54,6 +54,10 @@ public:
 	// Wrap up calling CanAccept and then InsertItem on a handler.
 	// Handler must cast cleanly to a UObject.
 	static UItem *AttemptInsert(IItemHandler *Handler, EDirection Direction, UItem *InsertItem);
+
+	// Wrap up calling CanTake and then TakeItem on a handler.
+	// Handler must cast cleanly to a UObject.
+	static UItem *AttemptTake(IItemHandler *Handler, EDirection Direction, const UItem *ItemDemandOpt);
 };
 
 /*static*/ inline UItem *IItemHandler::AttemptInsert(IItemHandler *Handler, EDirection Direction, UItem *InsertItem)
@@ -67,4 +71,17 @@ public:
 	}
 
 	return Leftover;
+}
+
+/*static*/ inline UItem *IItemHandler::AttemptTake(IItemHandler *Handler, EDirection Direction, const UItem *ItemDemandOpt)
+{
+	UItem *Taken = nullptr;
+	UObject *Comp = Cast<UObject>(Handler);
+	check(Comp);
+	if (Comp && Handler->Execute_CanTake(Comp, Direction, ItemDemandOpt))
+	{
+		Taken = Handler->Execute_TakeItem(Comp, Direction, ItemDemandOpt);
+	}
+
+	return Taken;
 }

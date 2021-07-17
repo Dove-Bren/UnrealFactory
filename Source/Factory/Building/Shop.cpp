@@ -10,6 +10,8 @@ AShop::AShop()
 {
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	this->RootComponent = Mesh;
+
+	this->PrimaryActorTick.bCanEverTick = true;
 }
 
 void AShop::SetupLogicalShop(ULogicalShop *LogicalShopIn)
@@ -69,4 +71,35 @@ void AShop::SetPlatformVisibility(EGamePlatform VisiblePlatform)
 		UPlatform *Platform = Platforms[PlatformType];
 		Platform->SetVisibility(PlatformType == VisiblePlatform, true);
 	}
+}
+
+void AShop::TickShop(EGamePhase Phase)
+{
+	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
+	{
+		UPlatform *Platform = Platforms[PlatformType];
+		Platform->ShopTick(Phase);
+	}
+}
+
+// TODO actually maybe just unify this with regular factory ticking?
+// Or maybe this will have a faster tick rate since it's the visual world representation?
+void AShop::Tick(float DeltaSeconds)
+{
+	static float SecondBuildup = 0;
+	SecondBuildup += DeltaSeconds;
+
+	Super::Tick(DeltaSeconds);
+
+	// Shouldn't be here. Shop registry?
+#define TICKS_PER_SECOND 60.0f
+#define SECONDS_PER_TICK (1.0f / TICKS_PER_SECOND)
+
+	while (SecondBuildup >= SECONDS_PER_TICK)
+	{
+		SecondBuildup -= SECONDS_PER_TICK;
+		TickShop(EGamePhase::MORNING); // TODO
+	}
+#undef TICKS_PER_SECOND
+#undef SECONDS_PER_TICK
 }

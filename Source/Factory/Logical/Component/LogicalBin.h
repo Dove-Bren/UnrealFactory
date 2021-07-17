@@ -65,6 +65,9 @@ public:
 	UFUNCTION()
 	int32 GetMaxItemCount() { if (!ItemType) return 0; return ItemType->GetMaxStackSize() * MaxStackCount; }
 
+	UFUNCTION()
+	float GetFullness() { if (!ItemType) return 0; return (float)GetItemCount() / (float)GetMaxItemCount(); }
+
 	// IItemHandler
 public:
 
