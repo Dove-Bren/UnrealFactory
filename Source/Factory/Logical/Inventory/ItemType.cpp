@@ -1,4 +1,4 @@
-#include "Factory/Logical/ItemType.h"
+#include "ItemType.h"
 
 #include "Factory/FactorySingletons.h"
 #include "Factory/FactoryLocale.h"

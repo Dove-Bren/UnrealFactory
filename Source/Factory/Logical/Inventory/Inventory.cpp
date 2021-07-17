@@ -10,7 +10,7 @@ UInventory::~UInventory()
 
 }
 
-bool UInventory::CanFit(const UItem *Item)
+bool UInventory::CanFit_Implementation(const UItem *Item)
 {
 	if (HeldItems.Num() < this->GetMaxSlots())
 	{
@@ -35,7 +35,7 @@ bool UInventory::CanFit(const UItem *Item)
 	return Count <= 0;
 }
 
-UItem *UInventory::AddItem(UItem *ItemIn)
+UItem *UInventory::AddItem_Implementation(UItem *ItemIn)
 {
 	// First, attempt to merge
 	for (UItem *InSlot : HeldItems)
@@ -62,7 +62,7 @@ UItem *UInventory::AddItem(UItem *ItemIn)
 	return ItemIn; // Whatever didn't fit
 }
 
-bool UInventory::HasItem(const UItem *Item)
+bool UInventory::HasItem_Implementation(const UItem *Item)
 {
 	int32 Count = Item->GetCount();
 	for (UItem *InSlot : HeldItems)
@@ -79,7 +79,7 @@ bool UInventory::HasItem(const UItem *Item)
 	return Count <= 0;
 }
 
-UItem *UInventory::TakeItem(UItem *Item)
+UItem *UInventory::TakeItem_Implementation(UItem *Item)
 {
 	UItem *Out = Item->Clone();
 	Out->SetCount(0);
@@ -109,7 +109,7 @@ UItem *UInventory::TakeItem(UItem *Item)
 	return Out->IsEmpty() ? nullptr : Out;
 }
 
-UItem *UInventory::GetItemSlot(int32 SlotIdx)
+UItem *UInventory::GetItemSlot_Implementation(int32 SlotIdx)
 {
 	UItem *Item = nullptr;
 	if (SlotIdx < this->HeldItems.Num())
@@ -119,7 +119,7 @@ UItem *UInventory::GetItemSlot(int32 SlotIdx)
 	return Item;
 }
 
-UItem *UInventory::TakeItemSlot(int32 SlotIdx, int32 Count)
+UItem *UInventory::TakeItemSlot_Implementation(int32 SlotIdx, int32 Count)
 {
 	UItem *Item = nullptr;
 	if (SlotIdx < this->HeldItems.Num())
@@ -134,7 +134,7 @@ UItem *UInventory::TakeItemSlot(int32 SlotIdx, int32 Count)
 	return Item;
 }
 
-int32 UInventory::AddItemCountSlot(int32 SlotIdx, int32 Count)
+int32 UInventory::AddItemCountSlot_Implementation(int32 SlotIdx, int32 Count)
 {
 	int32 Leftover = Count;
 	if (SlotIdx < this->HeldItems.Num())
@@ -144,7 +144,7 @@ int32 UInventory::AddItemCountSlot(int32 SlotIdx, int32 Count)
 	return Leftover;
 }
 
-UItem *UInventory::AddItemSlot(int32 SlotIdx, UItem *OtherItem)
+UItem *UInventory::AddItemSlot_Implementation(int32 SlotIdx, UItem *OtherItem)
 {
 	UItem *Leftover = OtherItem;
 	if (SlotIdx < this->HeldItems.Num())
@@ -161,7 +161,7 @@ UItem *UInventorySlotRef::RemoveItems(int32 Count)
 	{
 		const UItem *Ref = GetItem(); // For checking if stack was exhausted
 
-		Taken = Inventory->TakeItemSlot(SlotIdx, Count);
+		Taken = Inventory->Execute_TakeItemSlot((UObject*)Inventory, SlotIdx, Count);
 
 		if (GetItem() != Ref) // Slot Item changed!
 		{

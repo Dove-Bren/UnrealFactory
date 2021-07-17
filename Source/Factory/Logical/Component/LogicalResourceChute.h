@@ -6,9 +6,9 @@
 
 #include "LogicalPlatformComponent.h"
 #include "Factory/GameEnums.h"
-#include "Factory/Logical/Item.h"
-#include "Factory/Logical/ItemHandler.h"
-#include "Factory/Logical/ItemType.h"
+#include "Factory/Logical/Inventory/Item.h"
+#include "Factory/Logical/Inventory/ItemHandler.h"
+#include "Factory/Logical/Inventory/ItemType.h"
 #include "Factory/Logical/LogicalShop.h"
 #include "Factory/Logical/Component/LogicalBin.h"
 

@@ -2,7 +2,7 @@
 
 #include "Factory/GameEnums.h"
 #include "Factory/FactoryLocale.h"
-#include "Factory/Logical/Item.h"
+#include "Factory/Logical/Inventory/Item.h"
 #include "Factory/Logical/LogicalPlatform.h"
 #include "Factory/Logical/LogicalShop.h"
 #include "Factory/Building/Platform/Platform.h"

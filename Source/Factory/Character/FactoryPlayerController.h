@@ -8,7 +8,7 @@
 #include "Factory/GridPosition.h"
 #include "Factory/Building/Shop.h"
 #include "Factory/UI/HudManager.h"
-#include "Factory/Logical/Inventory.h"
+#include "Factory/Logical/Inventory/Inventory.h"
 #include "GameFramework/PlayerController.h"
 #include "FactoryPlayerController.generated.h"
 

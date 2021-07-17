@@ -4,7 +4,7 @@
 
 #include "Engine/GameInstance.h"
 
-#include "Factory/Logical/ItemType.h" // For itemtype registry
+#include "Factory/Logical/Inventory/ItemType.h" // For itemtype registry
 
 #include "FactorySingletons.generated.h"
 

@@ -12,7 +12,7 @@
 #include "Factory/GameEnums.h"
 #include "Factory/Character/PlayerCharacter.h"
 #include "Factory/Character/PlacingActor.h"
-#include "Factory/Logical/Item.h"
+#include "Factory/Logical/Inventory/Item.h"
 #include "Factory/Logical/LogicalShop.h"
 #include "Factory/Logical/LogicalPlatform.h"
 

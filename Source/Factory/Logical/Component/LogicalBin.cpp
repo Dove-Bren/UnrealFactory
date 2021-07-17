@@ -2,7 +2,7 @@
 
 #include "Factory/GameEnums.h"
 #include "Factory/FactoryLocale.h"
-#include "Factory/Logical/Item.h"
+#include "Factory/Logical/Inventory/Item.h"
 #include "Factory/Building/Platform/Platform.h"
 #include "Factory/Building/Platform/Component/Bin.h"
 #include "Factory/Character/FactoryPlayerController.h"
@@ -42,6 +42,7 @@ UItem *ULogicalBin::InsertItem_Implementation(EDirection DirectionIn, UItem *Ite
 			ItemType = ItemIn->GetType();
 			ItemCount = ItemIn->GetCount();
 			Leftover = nullptr;
+			RefreshDisplayItem();
 		}
 		else
 		{
@@ -59,6 +60,7 @@ UItem *ULogicalBin::InsertItem_Implementation(EDirection DirectionIn, UItem *Ite
 					ItemIn->Split(Room);
 					// leave Leftover as ItemIn to be cloned later
 				}
+				RefreshDisplayItem();
 			}
 			// else Leftover = ItemIn
 		}
@@ -69,20 +71,7 @@ UItem *ULogicalBin::InsertItem_Implementation(EDirection DirectionIn, UItem *Ite
 
 void ULogicalBin::PeekItems_Implementation(TArray<UItem*> &ItemArray)
 {
-	if (!!ItemType)
-	{
-		int32 Count = this->ItemCount;
-		while (Count > 0)
-		{
-			int32 Amt = FMath::Min(Count, ItemType->GetMaxStackSize());
-
-			UItem *Item = UItem::MakeItemEx(GetWorld(), ItemType);
-			Item->SetCount(Amt);
-			ItemArray.Add(Item);
-
-			Count -= Amt;
-		}
-	}
+	ItemArray = this->DisplayMultiItemCache;
 }
 
 bool ULogicalBin::CanTake_Implementation(EDirection DirectionIn, const UItem *ItemDemandOpt)
@@ -133,6 +122,7 @@ UItem *ULogicalBin::TakeItem_Implementation(EDirection DirectionIn, const UItem 
 			{
 				ItemType = nullptr;
 			}
+			RefreshDisplayItem();
 		}
 		
 	}
@@ -162,4 +152,167 @@ EDataValidationResult ULogicalBin::IsDataValid(TArray<FText> & ValidationErrors)
 	}
 
 	return result;
+}
+
+void ULogicalBin::RefreshDisplayItem()
+{
+	if (DisplaySingleItemCache
+		&& DisplaySingleItemCache->GetType() == ItemType
+		&& DisplaySingleItemCache->GetCount() == this->GetItemCount()
+		) {
+		return;
+	}
+
+	DisplayMultiItemCache.Empty();
+	if (ItemType)
+	{
+		if (!DisplaySingleItemCache || DisplaySingleItemCache->GetType() != ItemType)
+		{
+			DisplaySingleItemCache = UItem::MakeItemEx(this, ItemType);
+		}
+		DisplaySingleItemCache->SetCount(GetItemCount());
+
+		int32 Count = GetItemCount();
+		while (Count > 0)
+		{
+			int32 Amt = FMath::Min(Count, ItemType->GetMaxStackSize());
+
+			UItem *Item = UItem::MakeItemEx(GetWorld(), ItemType);
+			Item->SetCount(Amt);
+			DisplayMultiItemCache.Add(Item);
+
+			Count -= Amt;
+		}
+	}
+	else
+	{
+		DisplaySingleItemCache = nullptr;
+	}
+
+}
+
+TArray<UItem*> ULogicalBin::GetItems_Implementation()
+{
+	return DisplayMultiItemCache;
+}
+
+bool ULogicalBin::CanFit_Implementation(const UItem *Item)
+{
+	if (!Item) return true;
+
+	return
+		(!ItemType || ItemType == Item->GetType()) // Check type is okay
+		&&
+		(GetItemCount() + Item->GetCount() <= Item->GetType()->GetMaxStackSize() * this->GetMaxStackCount()); // Check count fits
+}
+
+UItem *ULogicalBin::AddItem_Implementation(UItem *ItemIn)
+{
+	UItem *Leftover = ItemIn;
+
+	if (!ItemType || ItemType == ItemIn->GetType())
+	{
+		int32 Room = GetMaxItemCount() - GetItemCount();
+		if (Room > 0)
+		{
+			int32 Amt = FMath::Min(Room, ItemIn->GetCount());
+			this->ItemCount += Amt;
+			ItemIn->AddCount(-Amt);
+			RefreshDisplayItem();
+		}
+	}
+	
+	return Leftover;
+}
+
+bool ULogicalBin::HasItem_Implementation(const UItem *Item)
+{
+	if (!Item) return false;
+
+	return
+		(ItemType && ItemType == Item->GetType()) // Check type is okay
+		&&
+		(GetItemCount() <= Item->GetCount()); // Check count is enough
+}
+
+UItem *ULogicalBin::TakeItem_Implementation(UItem *Item)
+{
+	UItem *Taken = nullptr;
+	if (ItemType && ItemType == Item->GetType())
+	{
+		int32 Amt = FMath::Min(Item->GetCount(), this->ItemCount);
+		if (Amt > 0)
+		{
+			Taken = UItem::MakeItemEx(GetWorld(), ItemType);
+			Taken->SetCount(Amt);
+			this->ItemCount -= Amt;
+			if (ItemCount <= 0)
+			{
+				ItemType = nullptr;
+			}
+			RefreshDisplayItem();
+		}
+	}
+	return Taken;
+}
+
+int32 ULogicalBin::GetMaxSlots_Implementation()
+{
+	return this->GetMaxStackCount();
+}
+
+UItem *ULogicalBin::TakeItemSlot_Implementation(int32 SlotIdx, int32 Count)
+{
+	UItem *Taken = nullptr;
+
+	// Cheat and use display items (via GetItemSlot_Implementation) to figure
+	// out what's "in the slot" and then subtract that
+	UItem *Template = GetItemSlot_Implementation(SlotIdx);
+	if (Template)
+	{
+		Taken = Template->Clone();
+		this->ItemCount -= Template->GetCount();
+		if (ItemCount <= 0)
+		{
+			ItemType = nullptr;
+		}
+		RefreshDisplayItem();
+	}
+
+	return Taken;
+}
+
+int32 ULogicalBin::AddItemCountSlot_Implementation(int32 SlotIdx, int32 Count)
+{
+	if (ItemType)
+	{
+		int32 Room = this->GetMaxItemCount() - this->GetItemCount();
+		int32 Amt = FMath::Min(Room, Count);
+
+		this->ItemCount += Amt;
+		Count -= Amt;
+		RefreshDisplayItem();
+	}
+
+	return Count;
+}
+
+UItem *ULogicalBin::AddItemSlot_Implementation(int32 SlotIdx, UItem *ItemIn)
+{
+	// Basically treat as generic 'insert' since our slots are faked
+	return AddItem(ItemIn);
+}
+
+UItem *ULogicalBin::GetItemSlot_Implementation(int32 SlotIdx)
+{
+	UItem *Item = nullptr;
+
+	if (ItemType && ItemCount > 0)
+	{
+		// Take advantage of the fact that we make display items that happen
+		// to line up with a sparse inventory array
+		Item = (DisplayMultiItemCache.Num() > SlotIdx ? DisplayMultiItemCache[SlotIdx] : nullptr);
+	}
+
+	return Item;
 }

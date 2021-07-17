@@ -4,9 +4,9 @@
 
 #include "CoreMinimal.h"
 
-//#include "Factory/Item/Item.h"
+//#include "Factory/Logical/Inventory/Item.h"
 #include "LogicalPlatformComponent.h"
-#include "Factory/Logical/ItemHandler.h"
+#include "Factory/Logical/Inventory/ItemHandler.h"
 
 #include "LogicalBelt.generated.h"
 

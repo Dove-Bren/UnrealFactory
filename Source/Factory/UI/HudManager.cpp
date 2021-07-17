@@ -36,20 +36,26 @@ UHUDManager::UHUDManager()
 
 UHUDManager::~UHUDManager()
 {
-	if (CurrentWidget)
+	if (CurrentHud)
 	{
-		//CurrentWidget->RemoveFromViewport();
-		CurrentWidget = nullptr;
+		//CurrentHud->RemoveFromViewport();
+		CurrentHud = nullptr;
+	}
+	if (CurrentScreen)
+	{
+		CurrentScreen = nullptr;
 	}
 }
 
 void UHUDManager::SetGamePlatform(EGamePlatform Platform)
 {
+	SetScreen(nullptr);
+
 	// TODO transition?
-	if (CurrentWidget)
+	if (CurrentHud)
 	{
-		CurrentWidget->RemoveFromViewport();
-		CurrentWidget = nullptr;
+		CurrentHud->RemoveFromViewport();
+		CurrentHud = nullptr;
 	}
 
 	TSubclassOf<class UFactoryHUDWidget> WidgetClass;
@@ -68,29 +74,17 @@ void UHUDManager::SetGamePlatform(EGamePlatform Platform)
 		break;
 	}
 
-	CurrentWidget = CreateWidget<UFactoryHUDWidget>(GetWorld()->GetFirstPlayerController(), WidgetClass);
+	CurrentHud = CreateWidget<UFactoryHUDWidget>(GetWorld()->GetFirstPlayerController(), WidgetClass);
 
-	if (CurrentWidget)
+	if (CurrentHud)
 	{
 		if (CurrentCharacter)
 		{
-			CurrentWidget->SetCharacter(CurrentCharacter);
+			CurrentHud->SetCharacter(CurrentCharacter);
 		}
 
-		CurrentWidget->AddToViewport(0);
+		CurrentHud->AddToViewport(0);
 	}
-
-	/*if (CurrentCharacter)
-	{
-		AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(CurrentCharacter->GetController());
-		if (Controller)
-		{
-			Controller->bShowMouseCursor = bShowCursor;
-			Controller->bEnableClickEvents = bShowCursor;
-			Controller->bEnableMouseOverEvents = bShowCursor;
-			Controller->bEnableTouchEvents = bShowCursor;
-		}
-	}*/
 }
 
 bool UHUDManager::IsGamePaused()
@@ -101,4 +95,31 @@ bool UHUDManager::IsGamePaused()
 void UHUDManager::PauseGame()
 {
 
+}
+
+void UHUDManager::SetScreen(UFactoryHUDWidget *Screen)
+{
+	if (CurrentScreen)
+	{
+		CurrentScreen->RemoveFromViewport();
+		CurrentScreen = nullptr;
+	}
+
+	CurrentScreen = Screen;
+	if (CurrentScreen)
+	{
+		if (CurrentCharacter)
+		{
+			CurrentScreen->SetCharacter(CurrentCharacter);
+		}
+
+		CurrentScreen->AddToViewport(0);
+	}
+}
+
+void UHUDManager::SetCharacter(APlayerCharacter *Character)
+{
+	CurrentCharacter = Character;
+	if (CurrentHud) CurrentHud->SetCharacter(Character);
+	if (CurrentScreen) CurrentScreen->SetCharacter(Character);
 }

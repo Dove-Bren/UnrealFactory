@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 
 #include "LogicalPlatformComponent.h"
-#include "Factory/Logical/Item.h"
-#include "Factory/Logical/ItemHandler.h"
+#include "Factory/Logical/Inventory/Item.h"
+#include "Factory/Logical/Inventory/ItemHandler.h"
+#include "Factory/Logical/Inventory/InventoryBase.h"
 
 #include "LogicalBin.generated.h"
 
 UCLASS(Blueprintable, Abstract)
-class ULogicalBin : public ULogicalPlatformComponent, public IItemHandler
+class ULogicalBin : public ULogicalPlatformComponent, public IItemHandler, public IInventoryBase
 {
 	GENERATED_BODY()
 private:
@@ -36,6 +37,11 @@ protected:
 	UStaticMesh *BinMesh;
 
 	ULogicalBin() : ULogicalPlatformComponent() {};
+
+	UItem *DisplaySingleItemCache;
+	TArray<UItem *>DisplayMultiItemCache;
+
+	virtual void RefreshDisplayItem();
 
 public:
 
@@ -80,5 +86,18 @@ public:
 	virtual bool CanTake_Implementation(EDirection Direction, const UItem *ItemDemandOpt) override;
 
 	virtual UItem *TakeItem_Implementation(EDirection Direction, const UItem *ItemDemandOpt) override;
+
+	// IInventoryBase
+public:
+	virtual TArray<UItem*> GetItems_Implementation () override;
+	virtual bool CanFit_Implementation (const UItem *Item) override;
+	virtual UItem *AddItem_Implementation (UItem *ItemIn) override;
+	virtual bool HasItem_Implementation (const UItem *Item) override;
+	virtual UItem *TakeItem_Implementation (UItem *Item) override;
+	virtual int32 GetMaxSlots_Implementation () override;
+	virtual UItem *TakeItemSlot_Implementation (int32 SlotIdx, int32 Count) override;
+	virtual int32 AddItemCountSlot_Implementation (int32 SlotIdx, int32 Count) override;
+	virtual UItem *AddItemSlot_Implementation (int32 SlotIdx, UItem *ItemIn) override;
+	virtual UItem *GetItemSlot_Implementation (int32 SlotIdx) override;
 
 };

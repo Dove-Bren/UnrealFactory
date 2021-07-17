@@ -10,7 +10,7 @@
 #include "Components/SkyLightComponent.h"
 
 #include "Factory/GameEnums.h"
-#include "Factory/Logical/Inventory.h"
+#include "Factory/Logical/Inventory/Inventory.h"
 
 #include "PlayerCharacter.generated.h"
 

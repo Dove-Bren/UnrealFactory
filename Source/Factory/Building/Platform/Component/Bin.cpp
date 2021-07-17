@@ -1,6 +1,6 @@
 #include "Bin.h"
 
-#include "Factory/Logical/ItemType.h"
+#include "Factory/Logical/Inventory/ItemType.h"
 
 ABin::ABin() : APlatformComponent()
 {

@@ -36,12 +36,18 @@ public:
 
 	// Update the character the huds represent
 	UFUNCTION(BlueprintCallable)
-	void SetCharacter(APlayerCharacter *Character) { CurrentCharacter = Character; if (CurrentWidget) CurrentWidget->SetCharacter(Character); }
+	void SetCharacter(APlayerCharacter *Character);
+
+	// Update what popup (if any -- can be null) to display.
+	UFUNCTION(BlueprintCallable)
+	void SetScreen(UFactoryHUDWidget *Screen);
 
 protected:
 
 	APlayerCharacter *CurrentCharacter;
-	UFactoryHUDWidget *CurrentWidget;
+	UFactoryHUDWidget *CurrentHud;
+
+	UFactoryHUDWidget *CurrentScreen;
 
 private:
 

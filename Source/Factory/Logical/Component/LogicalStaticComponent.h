@@ -7,8 +7,8 @@
 #include "Engine/StaticMesh.h"
 
 #include "LogicalPlatformComponent.h"
-#include "Factory/Logical/ItemType.h"
-#include "Factory/Logical/Item.h"
+#include "Factory/Logical/Inventory/ItemType.h"
+#include "Factory/Logical/Inventory/Item.h"
 
 #include "LogicalStaticComponent.generated.h"
 
