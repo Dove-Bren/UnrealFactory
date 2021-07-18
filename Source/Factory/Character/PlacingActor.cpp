@@ -1,6 +1,6 @@
 #include "PlacingActor.h"
 
-APlacingActor::APlacingActor()
+APlacingActor::APlacingActor() : AClickableActor()
 {
 	// Structure to hold one-time initialization
 	struct FMeshStatics
@@ -131,7 +131,7 @@ void APlacingActor::Tick(float DeltaTime)
 	}
 }
 
-void APlacingActor::OnClick(FKey ButtonPressed)
+void APlacingActor::OnClick_Implementation(FKey ButtonPressed)
 {
 	if (Controller)
 	{

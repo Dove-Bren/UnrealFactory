@@ -2,14 +2,15 @@
 
 #include "CoreMinimal.h"
 
-#include "PlatformComponent.h"
+#include "ClickablePlatformComponent.h"
 #include "Factory/GameEnums.h"
 #include "Factory/Logical/Component/LogicalBin.h"
+#include "Factory/UI/FactoryInventoryScreen.h"
 
 #include "Bin.generated.h"
 
 UCLASS(BlueprintType)
-class ABin : public APlatformComponent
+class ABin : public AClickablePlatformComponent
 {
 	GENERATED_BODY()
 private:
@@ -42,6 +43,8 @@ protected:
 
 	void UpdateContentDisplay();
 
+	TSubclassOf<class UFactoryInventoryScreen> ScreenClass;
+
 public:
 
 	ABin();
@@ -52,5 +55,9 @@ public:
 	virtual void Refresh() override;
 
 	virtual void ShopTick(EGamePhase Phase) override;
+
+	virtual void SetScreenClass(TSubclassOf<class UFactoryInventoryScreen> ScreenClassIn) { ScreenClass = ScreenClassIn; }
+
+	virtual void OnClick_Implementation(FKey ButtonPressed) override;
 
 };

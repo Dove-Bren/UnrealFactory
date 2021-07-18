@@ -15,7 +15,7 @@ typedef class IItemHandler;
 typedef class UItem;
 typedef class UItemType;
 
-UINTERFACE()//(BlueprintType, Abstract)
+UINTERFACE(BlueprintType, Blueprintable)//(BlueprintType, Abstract)
 class UInventoryBase : public UInterface
 {
 	GENERATED_BODY()
@@ -99,49 +99,50 @@ protected:
 	UInventorySlotRef() {};
 	virtual ~UInventorySlotRef() = default;
 
-	UInventorySlotRef *Setup(IInventoryBase *InventoryIn, int32 SlotIdxIn) { Inventory = InventoryIn; SlotIdx = SlotIdxIn; return this; }
+	UInventorySlotRef *Setup(IInventoryBase *InventoryIn, int32 SlotIdxIn) { Inventory.SetInterface(InventoryIn); Inventory.SetObject((UObject*)InventoryIn); SlotIdx = SlotIdxIn; return this; }
 
 	// Inventory we're pointing at
-	IInventoryBase *Inventory;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TScriptInterface<IInventoryBase> Inventory;
 
 	// Slot index we're referring to
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		int32 SlotIdx = -1;
+	int32 SlotIdx = -1;
 
 public:
 
 	UFUNCTION(BlueprintCallable)
-		static UInventorySlotRef *MakeRefBP(UObject *Outer, TScriptInterface<IInventoryBase> InventoryIn, int32 SlotIdxIn) { return MakeRef(Outer, (IInventoryBase*)InventoryIn.GetObject(), SlotIdxIn); }
+	static UInventorySlotRef *MakeRefBP(UObject *Outer, TScriptInterface<IInventoryBase> InventoryIn, int32 SlotIdxIn) { return MakeRef(Outer, (IInventoryBase*)InventoryIn.GetObject(), SlotIdxIn); }
 
-	static UInventorySlotRef *MakeRef(UObject *Outer, IInventoryBase *InventoryIn, int32 SlotIdxIn) { UInventorySlotRef *Ref = NewObject<UInventorySlotRef>(Outer ? Outer : GetTransientPackage()); Ref->Setup(InventoryIn, SlotIdxIn); return Ref; }
+	static UInventorySlotRef *MakeRef(UObject *Outer, IInventoryBase *InventoryIn, int32 SlotIdxIn) { UInventorySlotRef *Ref = NewObject<UInventorySlotRef>(Outer); Ref->Setup(InventoryIn, SlotIdxIn); return Ref; }
 
 	// Check if we still should refer to a valid item
 	UFUNCTION(BlueprintCallable)
-		bool IsValid() const { return Inventory && SlotIdx >= 0; }
+	bool IsValid() const { return Inventory && SlotIdx >= 0; }
 
 	// Return the item in the slot we're pointing to
 	UFUNCTION(BlueprintCallable)
-		UItem *GetItem() const { if (IsValid()) return Inventory->Execute_GetItemSlot((UObject*)Inventory, SlotIdx); else return nullptr; }
+	UItem *GetItem() const { if (IsValid()) return Inventory->Execute_GetItemSlot(Inventory.GetObject(), SlotIdx); else return nullptr; }
 
 	// Remove count from the item slot we're pointed at, possibly exhausting it.
 	// Return a new item with the removed count.
 	UFUNCTION(BlueprintCallable)
-		UItem *RemoveItems(int32 Count);
+	UItem *RemoveItems(int32 Count);
 
 	// Attempt to add some count to the item slot we're pointed at.
 	// This obeys stack limit restrictions and returns how many we couldn't
 	// add.
 	UFUNCTION(BlueprintCallable)
-		int32 AddItemCount(int32 Count) { if (IsValid()) return Inventory->Execute_AddItemCountSlot((UObject*)Inventory, SlotIdx, Count); return Count; }
+	int32 AddItemCount(int32 Count) { if (IsValid()) return Inventory->Execute_AddItemCountSlot(Inventory.GetObject(), SlotIdx, Count); return Count; }
 
 	// Attempt to merge in another item stack into the one we're pointed at.
 	// This obeys stack limit restrictions, and can't merge items of different types.
 	// Returns anything that couldn't be added.
 	UFUNCTION(BlueprintCallable)
-		UItem *AddItem(UItem *OtherItem) { if (IsValid()) return Inventory->Execute_AddItemSlot((UObject*)Inventory, SlotIdx, OtherItem); return nullptr; }
+	UItem *AddItem(UItem *OtherItem) { if (IsValid()) return Inventory->Execute_AddItemSlot(Inventory.GetObject(), SlotIdx, OtherItem); return nullptr; }
 
 	// Another name for AddItem to match Item interface
 	UFUNCTION(BlueprintCallable)
-		UItem *MergeItem(UItem *OtherItem) { return AddItem(OtherItem); }
+	UItem *MergeItem(UItem *OtherItem) { return AddItem(OtherItem); }
 
 };

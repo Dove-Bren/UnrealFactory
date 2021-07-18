@@ -1,9 +1,29 @@
 #include "Bin.h"
 
+#include "Factory/Character/FactoryPlayerController.h"
+#include "Factory/UI/HUDManager.h"
+
 #include "Factory/Logical/Inventory/ItemType.h"
 
-ABin::ABin() : APlatformComponent()
+#include "Blueprint/UserWidget.h"
+
+ABin::ABin() : AClickablePlatformComponent()
 {
+	struct FConstructorStatics
+	{
+		ConstructorHelpers::FClassFinder<UFactoryInventoryScreen> Screen;
+		FConstructorStatics()
+			: Screen(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/Screen_GenericInventory'"))
+		{
+		}
+	};
+	static FConstructorStatics ConstructorStatics;
+
+	if (ConstructorStatics.Screen.Succeeded())
+	{
+		this->ScreenClass = ConstructorStatics.Screen.Class;
+	}
+
 	Content1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ContentDisp1"));
 	Content2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ContentDisp2"));
 	Content3 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ContentDisp3"));
@@ -77,4 +97,24 @@ void ABin::ShopTick(EGamePhase Phase)
 {
 	Super::ShopTick(Phase);
 	Refresh();
+}
+
+void ABin::OnClick_Implementation(FKey ButtonPressed)
+{
+	if (!this->ParentPlatform || !this->ParentPlatform->GetShop() || !this->LogicalBin || !this->ScreenClass)
+	{
+		return;
+	}
+
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	if (Controller)
+	{
+		UFactoryInventoryScreen *Screen = CreateWidget<UFactoryInventoryScreen>(GetWorld()->GetFirstPlayerController(), ScreenClass);
+
+		if (Screen)
+		{
+			Screen->SetInventory(LogicalBin);
+			Controller->GetHudManager()->SetScreen(Screen);
+		}
+	}
 }

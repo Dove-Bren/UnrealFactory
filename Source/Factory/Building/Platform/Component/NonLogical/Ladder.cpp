@@ -5,7 +5,7 @@
 #include "Factory/Building/Platform/Platform.h"
 #include "Factory/Building/Shop.h"
 
-ALadder::ALadder() : AClickableActor()
+ALadder::ALadder() : AClickablePlatformComponent()
 {
 	// Structure to hold one-time initialization
 	struct FConstructorStatics
@@ -52,10 +52,10 @@ ALadder::ALadder() : AClickableActor()
 	//Mesh->SetRelativeScale3D(FVector(2.f, 2.f, 2.f));
 }
 
-void ALadder::OnClick(FKey ButtonPressed)
+void ALadder::OnClick_Implementation(FKey ButtonPressed)
 {
 
-	if (!this->Platform || !this->Platform->GetShop())
+	if (!this->ParentPlatform || !this->ParentPlatform->GetShop())
 	{
 		return;
 	}
@@ -66,8 +66,8 @@ void ALadder::OnClick(FKey ButtonPressed)
 		// TODO show some UI and let them select up or down depending on what platform we're on
 		// For now, cycle
 		EGamePlatform DestPlatform = EGamePlatform::FACTORY;
-		const TMap<EGamePlatform, UPlatform*> & Platforms = Platform->GetShop()->GetPlatforms();
-		switch (Platform->GetType())
+		const TMap<EGamePlatform, UPlatform*> & Platforms = ParentPlatform->GetShop()->GetPlatforms();
+		switch (ParentPlatform->GetType())
 		{
 		case EGamePlatform::STORE:
 			DestPlatform = EGamePlatform::FACTORY;
@@ -81,6 +81,6 @@ void ALadder::OnClick(FKey ButtonPressed)
 			break;
 		}
 
-		Controller->GoToShop(Platform->GetShop(), DestPlatform, true);
+		Controller->GoToShop(ParentPlatform->GetShop(), DestPlatform, true);
 	}
 }

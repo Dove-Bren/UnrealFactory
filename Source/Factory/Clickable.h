@@ -4,39 +4,29 @@
 
 #include "EngineMinimal.h"
 
-#include "GameFramework/Actor.h"
-
 #include "Factory/GameEnums.h"
 
 #include "Clickable.generated.h"
 
-UCLASS(Blueprintable, Abstract)
-class AClickableActor : public AActor
+UINTERFACE()
+class UClickable : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class IClickable
 {
 	GENERATED_BODY()
 public:
 
-	AClickableActor(bool bHighlight, EStandardColors HighlightColorIn = EStandardColors::ORANGE);
-	AClickableActor() : AClickableActor(true) {};
-	
-	virtual ~AClickableActor() = default;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void OnClick(FKey ButtonPressed);
 
 protected:
 
-	bool bHighlight = true;
-	EStandardColors HighlightColor = EStandardColors::ORANGE;
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	bool ShouldHighlight();
 
-	virtual void OnClick(FKey ButtonPressed) {};
-
-private:
-
-	UFUNCTION()
-	void OnClickHandler(AActor *Actor, FKey ButtonPressed);
-
-	UFUNCTION()
-	void OnHoverStart(AActor *Actor);
-
-	UFUNCTION()
-	void OnHoverEnd(AActor *Actor);
-
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	EStandardColors GetHighlightColor();
 };

@@ -5,7 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/Actor.h"
 
-#include "Factory/Clickable.h"
+#include "Factory/ClickableActor.h"
 #include "Factory/DirectionFlagMap.h"
 #include "Factory/Character/FactoryPlayerController.h"
 
@@ -31,7 +31,7 @@ protected:
 	APlacingActor();
 	virtual ~APlacingActor() = default;
 
-	virtual void OnClick(FKey ButtonPressed) override;
+	virtual void OnClick_Implementation(FKey ButtonPressed) override;
 
 	// Main mesh component.
 	UPROPERTY(EditAnywhere)

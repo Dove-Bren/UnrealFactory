@@ -40,7 +40,7 @@ void UPlatform::BeginPlay()
 	Ladder = GetWorld()->SpawnActor<ALadder>(ALadder::StaticClass(), this->GetComponentTransform());
 	Ladder->SetActorRelativeLocation(FVector(-25.f, 0.f, 0.f));
 	Ladder->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
-	Ladder->SetPlatform(this);
+	Ladder->RegisterPlatform(this);
 
 	// Idk how loading and multiplayer works...
 	if (LogicalPlatform && !LogicalPlatform->IsFloorStatic())

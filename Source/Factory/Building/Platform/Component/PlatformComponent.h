@@ -20,15 +20,15 @@ class APlatformComponent : public AActor
 	GENERATED_BODY()
 private:
 
-	// Owning Platform
-	UPROPERTY(EditAnywhere)
-	UPlatform *ParentPlatform;
-
 protected:
 
 	// Base mesh component
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent *Mesh;
+
+	// Owning Platform
+	UPROPERTY(EditAnywhere)
+	UPlatform *ParentPlatform;
 
 public:
 

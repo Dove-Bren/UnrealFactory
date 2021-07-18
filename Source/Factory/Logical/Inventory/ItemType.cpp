@@ -174,21 +174,21 @@ UItemActionBP::UItemActionBP()
 
 }
 
-void UItemActionBP::Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item)
+void UItemActionBP::Perform(APlayerCharacter *Character, TScriptInterface<IInventoryBase> Inventory, int32 SlotIdx, UItem *Item)
 {
 	this->PerformBP(Character, Inventory, SlotIdx, Item);
 }
 
-void UItemActionPlace::Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item)
+void UItemActionPlace::Perform(APlayerCharacter *Character, TScriptInterface<IInventoryBase> Inventory, int32 SlotIdx, UItem *Item)
 {
 	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(Character->GetController());
 	if (Controller)
 	{
-		Controller->SetActiveMouseItem(UInventorySlotRef::MakeRef(Controller, Inventory, SlotIdx));
+		Controller->SetActiveMouseItem(UInventorySlotRef::MakeRefBP(Controller, Inventory, SlotIdx));
 	}
 }
 
-void UItemActionEquip::Perform(APlayerCharacter *Character, UInventory *Inventory, int32 SlotIdx, UItem *Item)
+void UItemActionEquip::Perform(APlayerCharacter *Character, TScriptInterface<IInventoryBase> Inventory, int32 SlotIdx, UItem *Item)
 {
 
 }

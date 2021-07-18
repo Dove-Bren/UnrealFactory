@@ -12,7 +12,7 @@ UInventory::~UInventory()
 
 bool UInventory::CanFit_Implementation(const UItem *Item)
 {
-	if (HeldItems.Num() < this->GetMaxSlots())
+	if (HeldItems.Num() < this->Execute_GetMaxSlots(this))
 	{
 		// If we haven't even filled out all the slots, we can definitely fit a new itemstack
 		return true;
@@ -52,7 +52,7 @@ UItem *UInventory::AddItem_Implementation(UItem *ItemIn)
 	if (ITEM_EXISTS(ItemIn))
 	{
 		// Add into new slot if a slot is available
-		if (HeldItems.Num() < this->GetMaxSlots())
+		if (HeldItems.Num() < this->Execute_GetMaxSlots(this))
 		{
 			HeldItems.Add(ItemIn);
 			ItemIn = nullptr;
@@ -161,7 +161,7 @@ UItem *UInventorySlotRef::RemoveItems(int32 Count)
 	{
 		const UItem *Ref = GetItem(); // For checking if stack was exhausted
 
-		Taken = Inventory->Execute_TakeItemSlot((UObject*)Inventory, SlotIdx, Count);
+		Taken = Inventory->Execute_TakeItemSlot(Inventory.GetObject(), SlotIdx, Count);
 
 		if (GetItem() != Ref) // Slot Item changed!
 		{

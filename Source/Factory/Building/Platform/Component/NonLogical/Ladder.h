@@ -7,7 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
 
-#include "Factory/Clickable.h"
+#include "Factory/Building/Platform/Component/ClickablePlatformComponent.h"
 #include "Factory/GameEnums.h"
 
 #include "Ladder.generated.h"
@@ -15,29 +15,30 @@
 typedef class UPlatform UPlatform;
 
 UCLASS(Blueprintable)
-class ALadder : public AClickableActor
+class ALadder : public AClickablePlatformComponent
 {
 	GENERATED_BODY()
 private:
 
-	// Main mesh component
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent *Mesh;
+	//// Main mesh component
+	//UPROPERTY(EditAnywhere)
+	//UStaticMeshComponent *Mesh;
 
 	// Encompassing collision capsule for better highlighting
 	UPROPERTY(EditAnywhere)
 	UCapsuleComponent *Capsule;
 
-	// Layer the ladder is on
-	UPROPERTY(VisibleAnywhere)
-	UPlatform *Platform;
+	//// Layer the ladder is on
+	//UPROPERTY(VisibleAnywhere)
+	//UPlatform *Platform;
 
 protected:
-	virtual void OnClick(FKey ButtonPressed) override;
+	virtual void OnClick_Implementation(FKey ButtonPressed) override;
 
 public:
 
 	ALadder();
+	virtual ~ALadder() = default;
 
-	void SetPlatform(UPlatform *PlatformParent) { this->Platform = PlatformParent; };
+	//void SetPlatform(UPlatform *PlatformParent) { this->Platform = PlatformParent; };
 };
