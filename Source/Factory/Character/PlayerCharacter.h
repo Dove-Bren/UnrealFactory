@@ -10,7 +10,7 @@
 #include "Components/SkyLightComponent.h"
 
 #include "Factory/GameEnums.h"
-#include "Factory/Logical/Inventory/Inventory.h"
+#include "Factory/Logical/Inventory/StableInventory.h"
 
 #include "PlayerCharacter.generated.h"
 
@@ -151,7 +151,7 @@ protected:
 
 	// The player's inventory TODO subclass/specialize
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
-	UInventory *Inventory;
+	UStableInventory *Inventory;
 
 private:
 

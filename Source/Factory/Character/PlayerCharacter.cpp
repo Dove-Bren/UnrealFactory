@@ -126,7 +126,7 @@ APlayerCharacter::APlayerCharacter()
 	Level = 1;
 	XP = 0;
 
-	this->Inventory = CreateDefaultSubobject<UInventory>(TEXT("PlayerInventory"));
+	this->Inventory = CreateDefaultSubobject<UStableInventory>(TEXT("PlayerInventory"));
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)

@@ -271,7 +271,13 @@ UItem *ULogicalBin::TakeItemSlot_Implementation(int32 SlotIdx, int32 Count)
 	if (Template)
 	{
 		Taken = Template->Clone();
-		this->ItemCount -= Template->GetCount();
+		if (Count > ItemCount)
+		{
+			Count = ItemCount;
+		}
+
+		Taken->SetCount(Count);
+		this->ItemCount -= Taken->GetCount();
 		if (ItemCount <= 0)
 		{
 			ItemType = nullptr;
