@@ -47,9 +47,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetScreen(UFactoryHUDWidget *Screen);
 
-	// Check whether a screen is currently up
+	// Check whether any screen is currently up
 	UFUNCTION(BlueprintCallable)
-	bool IsScreenPresent() { return !!CurrentScreen; };
+	bool HasScreen() { return !!CurrentScreen; }
+
+	UFUNCTION(BlueprintCallable)
+	bool IsScreenShown(UFactoryHUDWidget *Screen) { return Screen == this->CurrentScreen; }
 
 protected:
 

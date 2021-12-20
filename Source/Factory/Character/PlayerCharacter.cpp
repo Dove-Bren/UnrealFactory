@@ -118,7 +118,7 @@ APlayerCharacter::APlayerCharacter()
 	LightMine2->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepRelativeTransform);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-
+	MaxReach = 100 * 5;
 
 	// RPG element defaults
 	Health = MaxHealth = 100;

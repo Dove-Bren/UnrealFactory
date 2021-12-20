@@ -100,7 +100,7 @@ void UHUDManager::PauseGame()
 void UHUDManager::ToggleInventory()
 {
 	// If screen open, close it
-	if (this->IsScreenPresent())
+	if (this->HasScreen())
 	{
 		this->SetScreen(nullptr);
 	}

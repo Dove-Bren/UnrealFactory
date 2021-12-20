@@ -114,7 +114,7 @@ void ABin::OnClick_Implementation(FKey ButtonPressed)
 		if (Screen)
 		{
 			Screen->SetInventory(LogicalBin);
-			Controller->GetHudManager()->SetScreen(Screen);
+			Controller->OpenScreenAt(Screen, GetActorLocation());
 		}
 	}
 }

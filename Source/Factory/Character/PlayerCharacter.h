@@ -86,6 +86,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UInventory *GetInventory() { return Inventory; }
 
+	// Get the max reach of the character
+	UFUNCTION(BlueprintCallable)
+	float GetMaxReach() { return MaxReach; }
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
@@ -152,6 +156,10 @@ protected:
 	// The player's inventory TODO subclass/specialize
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
 	UStableInventory *Inventory;
+
+	// The max reach of the character
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly);
+	float MaxReach;
 
 private:
 

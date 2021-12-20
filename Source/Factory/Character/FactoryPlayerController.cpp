@@ -82,6 +82,35 @@ void AFactoryPlayerController::PlayerTick(float DeltaSeconds)
 		Trace(Start, End, false);
 	}
 
+	// If screen open and tied to a position, close if we've moved too far away
+	if (bAutoCloseScreenUsesLocation)
+	{
+		if (!GetHudManager()->IsScreenShown(AutoCloseScreen))
+		{
+			AutoCloseScreen = nullptr;
+			bAutoCloseScreenUsesLocation = false;
+		}
+		else if (FVector::Dist(PlayerCharacter->GetActorLocation(), AutoCloseScreenSourceLocation) > PlayerCharacter->GetMaxReach())
+		{
+			GetHudManager()->SetScreen(nullptr);
+			bAutoCloseScreenUsesLocation = false;
+
+			// Could do a better job of checking if screen was related to selected item.
+			// If I ever do a hotbar or something this will have to change.
+			// Since right now you can only select if you have an inventory screen open,
+			// assume it's okay to clear out the active item
+			this->ClearActiveItem();
+
+			AutoCloseScreen = nullptr;
+		}
+	}
+
+	/*
+UFactoryHUDWidget *AutoCloseScreen;
+	FVector AutoCloseScreenSourceLocation;
+	bool bAutoCloseScreenUsesLocation;
+*/
+
 	// Update placing logic if we're in placement mode
 	if (ActiveMouseItemActor && PlayerCharacter && PlayerCharacter->GetShop())
 	{
@@ -689,4 +718,18 @@ void AFactoryPlayerController::ActiveItemClicked()
 			ClearActiveItem();
 		}
 	}
+}
+
+void AFactoryPlayerController::OpenScreenAt(UFactoryHUDWidget *Screen, FVector WorldPos)
+{
+	this->OpenScreen(Screen); // sets AutoCloseScreen
+	AutoCloseScreenSourceLocation = WorldPos;
+	bAutoCloseScreenUsesLocation = true;
+}
+
+void AFactoryPlayerController::OpenScreen(UFactoryHUDWidget *Screen)
+{
+	AutoCloseScreen = Screen;
+	bAutoCloseScreenUsesLocation = false;
+	this->GetHudManager()->SetScreen(Screen);
 }

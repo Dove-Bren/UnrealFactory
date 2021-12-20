@@ -41,9 +41,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UInventorySlotRef *GetActiveMouseItem() const { return ActiveMouseItem; }
 
-	// Set the currently selected item
+	// Set the currently selected item.
 	UFUNCTION(BlueprintCallable)
 	void SetActiveMouseItem(UInventorySlotRef *ItemSlotRef);
+
+	// Open up the provided screen, working as if it's from
+	// a certain position in the world.
+	// The screen will automatically close if player moves too far away from
+	// the provided location.
+	UFUNCTION(BlueprintCallable)
+	void OpenScreenAt(UFactoryHUDWidget *Screen, FVector WorldPos);
+
+	// Open up the provided screen. Screen operates as if it's positionless
+	// and will never automatically close. Good for things like player
+	// inventory etc. where automatically closing based on world movement
+	// doesn't make sense.
+	UFUNCTION(BlueprintCallable)
+	void OpenScreen(UFactoryHUDWidget *Screen);
 
 protected:
 
@@ -87,6 +101,11 @@ private:
 
 	// Actor in world to match ActiveMouseItem
 	APlacingActor *ActiveMouseItemActor;
+
+	// Controls for auto-closing screens if we move too far away
+	UFactoryHUDWidget *AutoCloseScreen;
+	FVector AutoCloseScreenSourceLocation;
+	bool bAutoCloseScreenUsesLocation;
 
 	// Whether the active item in hand is over a valid location and can be used
 	UPROPERTY(VisibleAnywhere)
