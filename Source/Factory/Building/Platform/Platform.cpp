@@ -187,6 +187,9 @@ void UPlatform::ShopTick(EGamePhase Phase)
 {
 	for (APlatformComponent *Comp : this->PlatformComponents)
 	{
-		Comp->ShopTick(Phase);
+		if (Comp)
+		{
+			Comp->ShopTick(Phase);
+		}
 	}
 }

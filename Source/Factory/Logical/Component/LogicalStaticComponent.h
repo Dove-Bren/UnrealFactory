@@ -39,6 +39,7 @@ private:
 
 protected:
 
+	UPROPERTY(VisibleAnywhere)
 	UItemType *ItemType;
 
 public:
@@ -46,8 +47,13 @@ public:
 	ULogicalItemStaticComponent() : ULogicalStaticComponent() {};
 	virtual ~ULogicalItemStaticComponent() = default;
 
+	// Set the type of item this static component was made from.
+	// Used to pick the item back up and derive actions from.
+	UFUNCTION(BlueprintCallable)
 	void SetItemType(UItemType *NewItemType) { this->ItemType = NewItemType; }
 
+	// Get the item that this static component was made from.
+	UFUNCTION(BlueprintCallable)
 	UItemType *GetItemType() const { return this->ItemType; }
 
 	virtual UStaticMesh *GetStaticMesh() override { return ItemType ? ItemType->GetMesh() : nullptr; }

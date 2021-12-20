@@ -83,6 +83,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FVector GetWorldPosFromGrid(FGridPosition GridPos, bool bCentered = false);
 
+	// Remove a component from the platform by supplying the component directly.
+	UFUNCTION(BlueprintCallable)
+	void RemoveComponent(ULogicalPlatformComponent *Component);
+
+	// Remove the component at the given spot from the platform
+	UFUNCTION(BlueprintCallable)
+	void RemoveComponentAtWorldPos(float WorldX, float WorldY);
+
+	// Remove the component at the given spot from the platform
+	UFUNCTION(BlueprintCallable)
+	void RemoveComponentAt(FGridPosition GridPos);
+
 	// Transition to the provided state, including stopping any activities from the previous one
 	UFUNCTION(BlueprintCallable)
 	virtual void StartPhase(EGamePhase Phase);
