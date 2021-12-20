@@ -8,6 +8,7 @@
 
 #include "Factory/GameEnums.h"
 #include "Factory/UI/FactoryHUDWidget.h"
+#include "Factory/UI/FactoryHUDBase.h"
 
 #include "HudManager.generated.h"
 
@@ -34,6 +35,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PauseGame();
 
+	// Handle a request to toggle showing the inventory (or close current screen)
+	UFUNCTION(BlueprintCallable)
+	void ToggleInventory();
+
 	// Update the character the huds represent
 	UFUNCTION(BlueprintCallable)
 	void SetCharacter(APlayerCharacter *Character);
@@ -42,17 +47,21 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetScreen(UFactoryHUDWidget *Screen);
 
+	// Check whether a screen is currently up
+	UFUNCTION(BlueprintCallable)
+	bool IsScreenPresent() { return !!CurrentScreen; };
+
 protected:
 
 	APlayerCharacter *CurrentCharacter;
-	UFactoryHUDWidget *CurrentHud;
+	UFactoryHUDBase *CurrentHud;
 
 	UFactoryHUDWidget *CurrentScreen;
 
 private:
 
-	TSubclassOf<class UFactoryHUDWidget> MineHUD_Class;
-	TSubclassOf<class UFactoryHUDWidget> FactoryHUD_Class;
-	TSubclassOf<class UFactoryHUDWidget> StoreHUD_Class;
+	TSubclassOf<class UFactoryHUDBase> MineHUD_Class;
+	TSubclassOf<class UFactoryHUDBase> FactoryHUD_Class;
+	TSubclassOf<class UFactoryHUDBase> StoreHUD_Class;
 
 };

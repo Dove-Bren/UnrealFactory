@@ -8,9 +8,9 @@ UHUDManager::UHUDManager()
 {
 	struct FConstructorStatics
 	{
-		ConstructorHelpers::FClassFinder<UFactoryHUDWidget> MineHUD;
-		ConstructorHelpers::FClassFinder<UFactoryHUDWidget> FactoryHUD;
-		ConstructorHelpers::FClassFinder<UFactoryHUDWidget> StoreHUD;
+		ConstructorHelpers::FClassFinder<UFactoryHUDBase> MineHUD;
+		ConstructorHelpers::FClassFinder<UFactoryHUDBase> FactoryHUD;
+		ConstructorHelpers::FClassFinder<UFactoryHUDBase> StoreHUD;
 		FConstructorStatics()
 			: MineHUD(TEXT("WidgetBlueprint'/Game/Factory/UI/MineHUD'"))
 			, FactoryHUD(TEXT("WidgetBlueprint'/Game/Factory/UI/FactoryHUD'"))
@@ -58,7 +58,7 @@ void UHUDManager::SetGamePlatform(EGamePlatform Platform)
 		CurrentHud = nullptr;
 	}
 
-	TSubclassOf<class UFactoryHUDWidget> WidgetClass;
+	TSubclassOf<class UFactoryHUDBase> WidgetClass;
 	//bool bShowCursor = false;
 	switch (Platform)
 	{
@@ -74,7 +74,7 @@ void UHUDManager::SetGamePlatform(EGamePlatform Platform)
 		break;
 	}
 
-	CurrentHud = CreateWidget<UFactoryHUDWidget>(GetWorld()->GetFirstPlayerController(), WidgetClass);
+	CurrentHud = CreateWidget<UFactoryHUDBase>(GetWorld()->GetFirstPlayerController(), WidgetClass);
 
 	if (CurrentHud)
 	{
@@ -95,6 +95,28 @@ bool UHUDManager::IsGamePaused()
 void UHUDManager::PauseGame()
 {
 
+}
+
+void UHUDManager::ToggleInventory()
+{
+	// If screen open, close it
+	if (this->IsScreenPresent())
+	{
+		this->SetScreen(nullptr);
+	}
+	else
+	{
+		UFactoryHUDWidget *Screen = nullptr;
+		if (this->CurrentHud)
+		{
+			Screen = CurrentHud->GetInventoryOverlay();
+		}
+
+		if (Screen)
+		{
+			this->SetScreen(Screen);
+		}
+	}
 }
 
 void UHUDManager::SetScreen(UFactoryHUDWidget *Screen)

@@ -44,6 +44,7 @@ void AFactoryPlayerController::SetupInputComponent()
 	InputComponent->BindAction("Sprint", IE_Released, this, &AFactoryPlayerController::StopSprinting);
 	InputComponent->BindAction("AlwaysSprint", IE_Pressed, this, &AFactoryPlayerController::StopSprinting);
 	InputComponent->BindAxis("RotatePlacement", this, &AFactoryPlayerController::RotatePlacement);
+	InputComponent->BindAction("ToggleInventory", IE_Pressed, this->HUDManager, &UHUDManager::ToggleInventory);
 	
 }
 
