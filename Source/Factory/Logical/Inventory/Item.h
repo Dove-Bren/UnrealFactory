@@ -77,13 +77,16 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UItem *Split(int32 SplitCount = 1);
 
-	// Check whether the provided item could merge _with no leftovers_ into
+	// Check whether the provided item could merge _with no leftovers_* into
 	// this item stack.
 	// False indicates either the types don't match or adding the extra count
 	// would overflow the max stack size.
 	// In other words, a call to Merge would produce leftovers.
+	// * One can pass false as MergeCompletely to only check that this item
+	// has SOME room and could take SOME of the items -- which is useful for
+	// UI.
 	UFUNCTION(BlueprintCallable)
-	bool CanMerge(const UItem *OtherItem);
+	bool CanMerge(const UItem *OtherItem, bool MergeCompletely = true);
 
 	// Attempt to add another Item into this one respecting stack sizes.
 	// If item types do not match, this will do nothing.

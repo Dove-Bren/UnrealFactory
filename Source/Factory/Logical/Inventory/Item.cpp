@@ -67,7 +67,7 @@ UItem *UItem::Split(int32 SplitCount)
 	return NewItem;
 }
 
-bool UItem::CanMerge(const UItem *OtherItem)
+bool UItem::CanMerge(const UItem *OtherItem, bool MergeCompletely)
 {
 	bool Valid = true;
 
@@ -77,9 +77,16 @@ bool UItem::CanMerge(const UItem *OtherItem)
 		{
 			Valid = false;
 		}
-		else if (Count + OtherItem->GetCount() > GetMaxCount())
+		else if (
+				(!MergeCompletely && Count >= GetMaxCount())
+			||	(MergeCompletely && Count + OtherItem->GetCount() > GetMaxCount())
+			)
 		{
 			Valid = false;
+		}
+		else
+		{
+			printf("Total is %d of max %d\n", Count + OtherItem->GetCount(), GetMaxCount());
 		}
 	}
 

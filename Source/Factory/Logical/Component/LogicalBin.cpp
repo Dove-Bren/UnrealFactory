@@ -306,7 +306,7 @@ int32 ULogicalBin::AddItemCountSlot_Implementation(int32 SlotIdx, int32 Count)
 UItem *ULogicalBin::AddItemSlot_Implementation(int32 SlotIdx, UItem *ItemIn)
 {
 	// Basically treat as generic 'insert' since our slots are faked
-	return AddItem(ItemIn);
+	return Execute_AddItem(this, ItemIn);
 }
 
 UItem *ULogicalBin::GetItemSlot_Implementation(int32 SlotIdx)

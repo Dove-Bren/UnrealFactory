@@ -86,6 +86,11 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
 	UItem *GetItemSlot(int32 SlotIdx);
 
+	//// Check if a given slot is still valid. Expected to be called after a slot has been changed,
+	//// as some inventories don't like slots
+	//UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	//bool SlotIsValid(int32 SlotIdx);
+
 };
 
 // Convenient struct for referring to a specific slot in an inventory

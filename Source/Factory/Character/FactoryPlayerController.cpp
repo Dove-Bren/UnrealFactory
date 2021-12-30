@@ -713,7 +713,7 @@ void AFactoryPlayerController::ActiveItemClicked()
 			
 		}
 
-		if (!this->ActiveMouseItem->IsValid())
+		if (!this->ActiveMouseItem->IsValid() || !ITEM_EXISTS(ActiveMouseItem->GetItem()))
 		{
 			ClearActiveItem();
 		}

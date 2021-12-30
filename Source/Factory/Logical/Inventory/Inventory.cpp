@@ -122,7 +122,7 @@ UItem *UInventory::GetItemSlot_Implementation(int32 SlotIdx)
 UItem *UInventory::TakeItemSlot_Implementation(int32 SlotIdx, int32 Count)
 {
 	UItem *Item = nullptr;
-	if (SlotIdx < this->HeldItems.Num())
+	if (SlotIdx < this->HeldItems.Num() && Count)
 	{
 		Item = this->HeldItems[SlotIdx]->Split(Count);
 
@@ -166,7 +166,7 @@ UItem *UInventorySlotRef::RemoveItems(int32 Count)
 		if (GetItem() != Ref) // Slot Item changed!
 		{
 			// Assume we're invalid
-			this->SlotIdx = -1;
+			//this->SlotIdx = -1;
 		}
 	}
 	return Taken;

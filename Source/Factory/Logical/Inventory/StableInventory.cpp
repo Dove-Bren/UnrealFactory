@@ -56,6 +56,37 @@ UItem *UStableInventory::AddItem_Implementation(UItem *ItemIn)
 	}
 
 	return ItemIn; // Whatever didn't fit
+
+	//// First, attempt to merge (but track first empty if we find one)
+	//int EmptySlot = -1;
+	//for (int i = 0; i < this->Execute_GetMaxSlots(this); i++)
+	//{
+	//	UItem *InSlot = Slots[i];
+	//	if (!InSlot)
+	//	{
+	//		if (EmptySlot < 0)
+	//		{
+	//			EmptySlot = i;
+	//		}
+	//		continue;
+	//	}
+
+	//	ItemIn = InSlot->Merge(ItemIn);
+
+	//	if (!ITEM_EXISTS(ItemIn))
+	//	{
+	//		break;
+	//	}
+	//}
+
+	//// If remaining, add to an empty slot if we found one
+	//if (ITEM_EXISTS(ItemIn) && EmptySlot > 0)
+	//{
+	//	Slots[EmptySlot] = ItemIn->Clone();
+	//	ItemIn = nullptr;
+	//}
+
+	//return ItemIn; // Whatever didn't fit
 }
 
 bool UStableInventory::HasItem_Implementation(const UItem *Item)
@@ -118,7 +149,7 @@ UItem *UStableInventory::GetItemSlot_Implementation(int32 SlotIdx)
 UItem *UStableInventory::TakeItemSlot_Implementation(int32 SlotIdx, int32 Count)
 {
 	UItem *Item = nullptr;
-	if (SlotIdx < this->Slots.Num() && !!Slots[SlotIdx])
+	if (SlotIdx < this->Slots.Num() && !!Slots[SlotIdx] && Count)
 	{
 		Item = this->Slots[SlotIdx]->Split(Count);
 
