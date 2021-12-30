@@ -42,6 +42,10 @@ public:
 
 #define CHUNK_SIDE_LEN 16
 #define CHUNK_SIZE CHUNK_SIDE_LEN * CHUNK_SIDE_LEN
+
+static_assert(CHUNK_SIDE_LEN % 2 == 0, "Chunk side length MUST be a multiple of 2");
+static_assert(CHUNK_SIDE_LEN > 0, "Chunk side length MUST be > 0");
+
 template<class T>
 struct ElementChunk
 {
@@ -57,16 +61,27 @@ struct ElementChunk
 	T *SetFromWorld(int WorldX, int WorldY, T *Element);
 };
 
-#define TO_CHUNK_OFFSET(X) (X % CHUNK_SIDE_LEN)
-#define TO_CHUNK_BOUNDARY(X) (X - TO_CHUNK_OFFSET(X))
+// Negative numbers (and -16 to -1 instead of -15 to 0) make this calculation a little more complicated.
+#define TO_CHUNK_OFFSET(X) ((X) >= 0\
+	? ((X) % CHUNK_SIDE_LEN)\
+	: ((CHUNK_SIDE_LEN - (-(X) % CHUNK_SIDE_LEN)) % CHUNK_SIDE_LEN)\
+)
 
-static_assert(CHUNK_SIDE_LEN % 2 == 0, "Chunk side length MUST be a multiple of 2");
-static_assert(CHUNK_SIDE_LEN > 0, "Chunk side length MUST be > 0");
+#define TO_CHUNK_BOUNDARY(X) ((X) - TO_CHUNK_OFFSET(X))
 
-// Make Chunk##X and Chunk##Y hold the offsets within the chunk being referred
+static_assert(TO_CHUNK_OFFSET(CHUNK_SIDE_LEN * 3 + 5) == 5, "Internal logic error");
+static_assert(TO_CHUNK_BOUNDARY(CHUNK_SIDE_LEN * 3 + 5) == CHUNK_SIDE_LEN * 3, "Internal logic error");
+static_assert(TO_CHUNK_OFFSET(CHUNK_SIDE_LEN * 3 + 0) == 0, "Internal logic error");
+static_assert(TO_CHUNK_BOUNDARY(CHUNK_SIDE_LEN * 3 + 0) == CHUNK_SIDE_LEN * 3, "Internal logic error");
+static_assert(TO_CHUNK_OFFSET(CHUNK_SIDE_LEN * 0 - 1) == (CHUNK_SIDE_LEN-1), "Internal logic error");
+static_assert(TO_CHUNK_BOUNDARY(CHUNK_SIDE_LEN * 0 - 1) == -1 * CHUNK_SIDE_LEN, "Internal logic error");
+static_assert(TO_CHUNK_OFFSET(CHUNK_SIDE_LEN * -1) == 0, "Internal logic error");
+static_assert(TO_CHUNK_BOUNDARY(CHUNK_SIDE_LEN * -1) == CHUNK_SIDE_LEN * -1, "Internal logic error");
+
+// Make Chunk##X and Chunk##Y hold the base x and y of the chunk the XY position is in
 #define CHUNK_POS(X, Y) int Chunk##X = TO_CHUNK_BOUNDARY(X), Chunk##Y = TO_CHUNK_BOUNDARY(Y)
 
-// Make Chunk##X and Chunk##Y hold the offsets within the chunk being referred
+// Make Offset##X and Offset##Y hold the offsets within the chunk being referred
 #define OFFSET_POS(X, Y) int Offset##X = TO_CHUNK_OFFSET(X), Offset##Y = TO_CHUNK_OFFSET(Y)
 
 template<class T>
@@ -85,6 +100,7 @@ template<class T>
 T *ElementChunk<T>::GetFromWorld(int WorldX, int WorldY)
 {
 	OFFSET_POS(WorldX, WorldY);
+	//printf("Debug: In (%d, %d) -> (%d, %d)\n", WorldX, WorldY, OffsetWorldX, OffsetWorldY);
 	return GetFromOffset(OffsetWorldX, OffsetWorldY);
 }
 
@@ -131,6 +147,7 @@ template<class T>
 ElementChunk<T> *Layout2D<T>::GetChunk(int X, int Y)
 {
 	CHUNK_POS(X, Y);
+	//printf("Debug: In (%d, %d) -> (%d, %d)\n", X, Y, ChunkX, ChunkY);
 	ElementChunk<T> *Chunk = nullptr;
 	for (auto Iter = ElementChunks.begin(); Iter != ElementChunks.end(); Iter++)
 	{
@@ -194,7 +211,7 @@ T *Layout2D<T>::Insert(int X, int Y, T *Element, bool bReplace)
 		Existing = Chunk->GetFromWorld(X, Y);
 		if (bReplace || Existing == nullptr)
 		{
-			Chunk->SetFromOffset(X, Y, Element);
+			Chunk->SetFromWorld(X, Y, Element);
 		}
 	}
 

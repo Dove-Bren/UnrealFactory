@@ -84,10 +84,6 @@ bool UItem::CanMerge(const UItem *OtherItem, bool MergeCompletely)
 		{
 			Valid = false;
 		}
-		else
-		{
-			printf("Total is %d of max %d\n", Count + OtherItem->GetCount(), GetMaxCount());
-		}
 	}
 
 	return Valid;
