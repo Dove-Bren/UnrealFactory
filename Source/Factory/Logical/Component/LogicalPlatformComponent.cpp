@@ -164,7 +164,63 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 	*DefaultOptOut = nullptr;
 
 	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	APlayerCharacter *Character = Cast<APlayerCharacter>(Controller->GetCharacter());
+
+	// Use (first cause this is likely what we want to default to)
+	if (this->bUsable)
+	{
+		OptionsOut->Emplace(*FString::Printf(TEXT("Use")), [this, Controller, Player]() {
+			if (!this->ParentPlatform)
+			{
+				return;
+			}
+
+			this->OnUse(Player);
+
+			if (Controller)
+			{
+				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+			}
+		});
+	}
+
+	// Rotate
+	if (this->bRotatable)
+	{
+		OptionsOut->Emplace(*FString::Printf(TEXT("Rotate")), [this, Controller, Player]() {
+			if (!this->ParentPlatform)
+			{
+				return;
+			}
+
+			EDirection OldDirection = this->Direction;
+			this->Direction = RotateDirection(this->Direction);
+			this->ParentPlatform->RefreshAround(this->GetPosition());
+			this->OnRotation(OldDirection, this->Direction);
+
+			if (Controller)
+			{
+				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+			}
+		});
+	}
+
+	// Move
+	if (this->bMoveable)
+	{
+		OptionsOut->Emplace(*FString::Printf(TEXT("Move")), [this, Controller, Player]() {
+			if (!this->ParentPlatform)
+			{
+				return;
+			}
+
+			; // Set as placing again?
+
+			if (Controller)
+			{
+				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+			}
+		});
+	}
 
 	// Remove
 	if (this->bRemoveable)
@@ -179,7 +235,7 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 			NameString = FString::Printf(TEXT("Remove"));
 		}
 
-		OptionsOut->Emplace(*NameString, [this, Controller, Character]() {
+		OptionsOut->Emplace(*NameString, [this, Controller, Player]() {
 			if (!this->ParentPlatform)
 			{
 				return;
@@ -189,7 +245,7 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 			bool bCanRemove = true;
 			if (!!this->RemoveItemType)
 			{
-				if (nullptr != Character->GetInventory()->Execute_AddItem(Character->GetInventory(), UItem::MakeItemEx(Character, RemoveItemType)))
+				if (nullptr != Player->GetInventory()->Execute_AddItem(Player->GetInventory(), UItem::MakeItem(Player, RemoveItemType)))
 				{
 					bCanRemove = false;
 				}
@@ -219,4 +275,12 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 	}
 
 	return *DefaultOptOut != nullptr; // Same as checking if size of options is > 0
+}
+
+void ULogicalPlatformComponent::OnRotation(EDirection OldDirection, EDirection NewDirection)
+{
+	if (WorldActor)
+	{
+		WorldActor->SetActorRotation(GetRotationFromDirection(NewDirection));
+	}
 }

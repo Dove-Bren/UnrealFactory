@@ -12,6 +12,12 @@
 //	return Belt;
 //}
 
+ULogicalBelt::ULogicalBelt() : ULogicalPlatformComponent()
+{
+	fSpeedTicks = 20;
+	this->bMoveable = false;
+}
+
 APlatformComponent *ULogicalBelt::SpawnWorldComponentInternal(UPlatform *Platform)
 {
 	FVector SpawnLoc;
@@ -237,14 +243,6 @@ void ULogicalBelt::ClearItem()
 
 float ULogicalBelt::GetItemProgress(float PartialTicks)
 {
-	/*if (bTestSwitch)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}*/
 	return FMath::Min(1.0f, 
 		this->fItemProgress	+ (PartialTicks * GetProgressPerTick())
 	);

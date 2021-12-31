@@ -43,7 +43,7 @@ UItem *UStableInventory::AddItem_Implementation(UItem *ItemIn)
 		UItem *InSlot = Slots[i];
 		if (!InSlot)
 		{
-			Slots[i] = ItemIn;
+			Slots[i] = ItemIn->Clone();
 			ItemIn = nullptr; // Stored it all
 			break;
 		}

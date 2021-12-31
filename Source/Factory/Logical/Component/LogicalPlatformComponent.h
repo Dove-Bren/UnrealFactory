@@ -79,7 +79,7 @@ protected:
 
 	// What item to give back to the player if this component is removed.
 	UPROPERTY(EditAnywhere)
-	UItemType *RemoveItemType;
+	TSubclassOf<UItemType> RemoveItemType;
 
 	// What color to highlight this component if it's close enough to be interacted with.
 	UPROPERTY(EditAnywhere)
@@ -99,6 +99,8 @@ protected:
 	FLocalLayout & FixupLocalLayout(FLocalLayout & Existing);
 
 	APlatformComponent *GetWorldActor();
+
+	virtual void OnRotation(EDirection OldDirection, EDirection NewDirection);
 
 public:
 

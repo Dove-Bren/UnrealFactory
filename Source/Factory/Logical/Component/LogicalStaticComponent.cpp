@@ -24,5 +24,5 @@ APlatformComponent *ULogicalStaticComponent::SpawnWorldComponentInternal(UPlatfo
 void ULogicalItemStaticComponent::SetItemType(UItemType *NewItemType)
 {
 	this->ItemType = NewItemType;
-	this->RemoveItemType = NewItemType;
+	this->RemoveItemType = NewItemType->StaticClass();
 }
