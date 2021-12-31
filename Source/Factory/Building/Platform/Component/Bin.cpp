@@ -99,22 +99,49 @@ void ABin::ShopTick(EGamePhase Phase)
 	Refresh();
 }
 
-void ABin::OnClick_Implementation(FKey ButtonPressed)
+//void ABin::OnClick_Implementation(FKey ButtonPressed)
+//{
+//	if (!this->ParentPlatform || !this->ParentPlatform->GetShop() || !this->LogicalBin || !this->ScreenClass)
+//	{
+//		return;
+//	}
+//
+//	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+//	if (Controller)
+//	{
+//		UFactoryInventoryScreen *Screen = CreateWidget<UFactoryInventoryScreen>(GetWorld()->GetFirstPlayerController(), ScreenClass);
+//
+//		if (Screen)
+//		{
+//			Screen->SetInventory(LogicalBin);
+//			Controller->OpenScreenAt(Screen, GetActorLocation());
+//		}
+//	}
+//}
+
+bool ABin::GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut)
 {
-	if (!this->ParentPlatform || !this->ParentPlatform->GetShop() || !this->LogicalBin || !this->ScreenClass)
-	{
-		return;
-	}
-
-	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (Controller)
-	{
-		UFactoryInventoryScreen *Screen = CreateWidget<UFactoryInventoryScreen>(GetWorld()->GetFirstPlayerController(), ScreenClass);
-
-		if (Screen)
+	// Only have option to open
+	OptionsOut->Emplace(FName(*FString::Printf(TEXT("Open"))), [this]() {
+		if (!this->ParentPlatform || !this->ParentPlatform->GetShop() || !this->LogicalBin || !this->ScreenClass)
 		{
-			Screen->SetInventory(LogicalBin);
-			Controller->OpenScreenAt(Screen, GetActorLocation());
+			return;
 		}
-	}
+
+		AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(this->GetWorld(), 0));
+		if (Controller)
+		{
+			UFactoryInventoryScreen *Screen = CreateWidget<UFactoryInventoryScreen>(this->GetWorld()->GetFirstPlayerController(), ScreenClass);
+
+			if (Screen)
+			{
+				Screen->SetInventory(this->LogicalBin);
+				Controller->OpenScreenAt(Screen, this->GetActorLocation());
+			}
+		}
+	});
+
+	*DefaultOptOut = &((*OptionsOut)[0]);
+
+	return true;
 }

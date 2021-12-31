@@ -25,6 +25,8 @@ AFactoryPlayerController::AFactoryPlayerController()
 	DefaultClickTraceChannel = ECC_Pawn;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 
+	ClickEventKeys.Add(EKeys::RightMouseButton);
+
 	HUDManager = CreateDefaultSubobject<UHUDManager>(TEXT("HUDManager"));
 }
 

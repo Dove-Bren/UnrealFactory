@@ -22,7 +22,8 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	ULogicalStaticComponent *LogicalComponent;
 
-	virtual void OnClick_Implementation(FKey ButtonPressed) override;
+	//virtual void OnClick_Implementation(FKey ButtonPressed) override;
+	virtual bool GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut) override;
 
 public:
 	AStaticComponent() : AClickablePlatformComponent(true, EStandardColors::DARK_ORANGE) {}

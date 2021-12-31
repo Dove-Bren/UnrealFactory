@@ -4,6 +4,8 @@
 
 #include "Components/PrimitiveComponent.h"
 
+// TODO this needs some help, as it was copied for the platform component and then not kept in sync.
+
 AClickableActor::AClickableActor(bool bHighlight, EStandardColors HighlightColorIn) : bHighlight(bHighlight), HighlightColor(HighlightColorIn)
 {
 	OnClicked.AddDynamic(this, &AClickableActor::OnClickHandler);

@@ -1,5 +1,7 @@
 #include "Ladder.h"
 
+#include "Misc/EnumRange.h"
+
 #include "Factory/Character/FactoryPlayerController.h"
 #include "Factory/Character/PlayerCharacter.h"
 #include "Factory/Building/Platform/Platform.h"
@@ -52,35 +54,52 @@ ALadder::ALadder() : AClickablePlatformComponent()
 	//Mesh->SetRelativeScale3D(FVector(2.f, 2.f, 2.f));
 }
 
-void ALadder::OnClick_Implementation(FKey ButtonPressed)
+bool ALadder::GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut)
 {
-
 	if (!this->ParentPlatform || !this->ParentPlatform->GetShop())
 	{
-		return;
+		return false;
 	}
 
-	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	if (Controller)
+	// Figure out which we should go to by default
+	EGamePlatform DefaultNextPlatform = EGamePlatform::FACTORY;
+	switch (ParentPlatform->GetType())
 	{
-		// TODO show some UI and let them select up or down depending on what platform we're on
-		// For now, cycle
-		EGamePlatform DestPlatform = EGamePlatform::FACTORY;
-		const TMap<EGamePlatform, UPlatform*> & Platforms = ParentPlatform->GetShop()->GetPlatforms();
-		switch (ParentPlatform->GetType())
+	case EGamePlatform::STORE:
+		DefaultNextPlatform = EGamePlatform::FACTORY;
+		break;
+	case EGamePlatform::FACTORY:
+		DefaultNextPlatform = EGamePlatform::MINE;
+		break;
+	case EGamePlatform::MINE:
+	default:
+		DefaultNextPlatform = EGamePlatform::STORE;
+		break;
+	}
+
+	// Add all options -- noting which one is default
+	for (EGamePlatform PlatformType : TEnumRange<EGamePlatform>())
+	{
+		if (PlatformType == ParentPlatform->GetType())\
 		{
-		case EGamePlatform::STORE:
-			DestPlatform = EGamePlatform::FACTORY;
-			break;
-		case EGamePlatform::FACTORY:
-			DestPlatform = EGamePlatform::MINE;
-			break;
-		case EGamePlatform::MINE:
-		default:
-			DestPlatform = EGamePlatform::STORE;
-			break;
+			// Skip current platform
+			continue;
 		}
 
-		Controller->GoToShop(ParentPlatform->GetShop(), DestPlatform, true);
+		OptionsOut->Emplace(GetPlatformName(PlatformType), [this, PlatformType]() {
+
+			AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+			if (Controller)
+			{
+				Controller->GoToShop(ParentPlatform->GetShop(), PlatformType, true);
+			}
+		});
+
+		if (PlatformType == DefaultNextPlatform)
+		{
+			*DefaultOptOut = &OptionsOut->Last();
+		}
 	}
+
+	return true;
 }

@@ -2,6 +2,8 @@
 
 // Convenience subclass of IBlockable and PlatformComponent
 
+#include <functional>
+
 #include "EngineMinimal.h"
 
 #include "GameFramework/Actor.h"
@@ -11,6 +13,8 @@
 #include "Factory/Building/Platform/Component/PlatformComponent.h"
 
 #include "ClickablePlatformComponent.generated.h"
+
+typedef struct ClickOption ClickOption;
 
 UCLASS(Blueprintable, Abstract)
 class AClickablePlatformComponent : public APlatformComponent, public IClickable
@@ -23,15 +27,20 @@ public:
 	
 	virtual ~AClickablePlatformComponent() = default;
 
-	//virtual void OnClick_Implementation(FKey ButtonPressed) override {};
+	virtual void OnClick_Implementation(FKey ButtonPressed) override;
+
+	virtual void Tick(float DeltaSeconds) override;
 
 protected:
 
 	bool bHighlight = true;
 	EStandardColors HighlightColor = EStandardColors::ORANGE;
+	TSubclassOf<class UPopupMenuWidget> PopupWidgetClass;
 
-	virtual bool ShouldHighlight_Implementation() override { return bHighlight; };
-	virtual EStandardColors GetHighlightColor_Implementation() override { return HighlightColor; };
+	virtual bool ShouldHighlight_Implementation() override;
+	virtual EStandardColors GetHighlightColor_Implementation() override;
+
+	virtual bool GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut);
 
 private:
 
@@ -45,3 +54,10 @@ private:
 	void OnHoverEnd(AActor *Actor);
 
 };
+
+typedef struct ClickOption {
+	FName Name;
+	std::function<void()> OnClick;
+
+	ClickOption(FName Name, std::function<void()> OnClick) : Name(Name), OnClick(OnClick) {}
+} ClickOption;

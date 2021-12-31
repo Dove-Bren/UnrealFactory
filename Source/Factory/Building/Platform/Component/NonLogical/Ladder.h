@@ -33,7 +33,8 @@ private:
 	//UPlatform *Platform;
 
 protected:
-	virtual void OnClick_Implementation(FKey ButtonPressed) override;
+	//virtual void OnClick_Implementation(FKey ButtonPressed) override;
+	virtual bool GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut) override;
 
 public:
 
