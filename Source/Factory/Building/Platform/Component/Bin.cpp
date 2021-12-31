@@ -7,23 +7,8 @@
 
 #include "Blueprint/UserWidget.h"
 
-ABin::ABin() : AClickablePlatformComponent()
+ABin::ABin() : APlatformComponent()
 {
-	struct FConstructorStatics
-	{
-		ConstructorHelpers::FClassFinder<UFactoryInventoryScreen> Screen;
-		FConstructorStatics()
-			: Screen(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/Screen_GenericInventory'"))
-		{
-		}
-	};
-	static FConstructorStatics ConstructorStatics;
-
-	if (ConstructorStatics.Screen.Succeeded())
-	{
-		this->ScreenClass = ConstructorStatics.Screen.Class;
-	}
-
 	Content1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ContentDisp1"));
 	Content2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ContentDisp2"));
 	Content3 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ContentDisp3"));
@@ -119,29 +104,29 @@ void ABin::ShopTick(EGamePhase Phase)
 //	}
 //}
 
-bool ABin::GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut)
-{
-	// Only have option to open
-	OptionsOut->Emplace(FName(*FString::Printf(TEXT("Open"))), [this]() {
-		if (!this->ParentPlatform || !this->ParentPlatform->GetShop() || !this->LogicalBin || !this->ScreenClass)
-		{
-			return;
-		}
-
-		AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(this->GetWorld(), 0));
-		if (Controller)
-		{
-			UFactoryInventoryScreen *Screen = CreateWidget<UFactoryInventoryScreen>(this->GetWorld()->GetFirstPlayerController(), ScreenClass);
-
-			if (Screen)
-			{
-				Screen->SetInventory(this->LogicalBin);
-				Controller->OpenScreenAt(Screen, this->GetActorLocation());
-			}
-		}
-	});
-
-	*DefaultOptOut = &((*OptionsOut)[0]);
-
-	return true;
-}
+//bool ABin::GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut)
+//{
+//	// Only have option to open
+//	OptionsOut->Emplace(FName(*FString::Printf(TEXT("Open"))), [this]() {
+//		if (!this->ParentPlatform || !this->ParentPlatform->GetShop() || !this->LogicalBin || !this->ScreenClass)
+//		{
+//			return;
+//		}
+//
+//		AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(this->GetWorld(), 0));
+//		if (Controller)
+//		{
+//			UFactoryInventoryScreen *Screen = CreateWidget<UFactoryInventoryScreen>(this->GetWorld()->GetFirstPlayerController(), ScreenClass);
+//
+//			if (Screen)
+//			{
+//				Screen->SetInventory(this->LogicalBin);
+//				Controller->OpenScreenAt(Screen, this->GetActorLocation());
+//			}
+//		}
+//	});
+//
+//	*DefaultOptOut = &((*OptionsOut)[0]);
+//
+//	return true;
+//}

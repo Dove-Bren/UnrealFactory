@@ -6,7 +6,25 @@
 #include "Factory/Building/Platform/Platform.h"
 #include "Factory/Building/Platform/Component/Bin.h"
 #include "Factory/Character/FactoryPlayerController.h"
+#include "Factory/UI/FactoryInventoryScreen.h"
 
+ULogicalBin::ULogicalBin() : ULogicalPlatformComponent()
+{
+	struct FConstructorStatics
+	{
+		ConstructorHelpers::FClassFinder<UFactoryInventoryScreen> Screen;
+		FConstructorStatics()
+			: Screen(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/Screen_GenericInventory'"))
+		{
+		}
+	};
+	static FConstructorStatics ConstructorStatics;
+
+	if (ConstructorStatics.Screen.Succeeded())
+	{
+		this->InventoryScreenClass = ConstructorStatics.Screen.Class;
+	}
+}
 
 APlatformComponent *ULogicalBin::SpawnWorldComponentInternal(UPlatform *Platform)
 {
@@ -321,4 +339,39 @@ UItem *ULogicalBin::GetItemSlot_Implementation(int32 SlotIdx)
 	}
 
 	return Item;
+}
+
+bool ULogicalBin::ShouldHighlight(APlayerCharacter *Player, float Distance)
+{
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	return !Controller || !Controller->GetActiveMouseItem(); // Otherwise we always have at least 1 option
+}
+
+bool ULogicalBin::GetClickOptions(APlayerCharacter *Player, float Distance, FVector ActorLocation, ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut)
+{
+	// Only have option to open
+	OptionsOut->Emplace(FName(*FString::Printf(TEXT("Open"))), [this, ActorLocation]() {
+		if (!this->GetMenuWidgetClass())
+		{
+			return;
+		}
+
+		AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(this->GetWorld(), 0));
+		if (Controller)
+		{
+			UFactoryInventoryScreen *Screen = CreateWidget<UFactoryInventoryScreen>(Controller, InventoryScreenClass);
+
+			if (Screen)
+			{
+				Screen->SetInventory(this);
+				Controller->OpenScreenAt(Screen, ActorLocation);
+			}
+		}
+	});
+
+	Super::GetClickOptions(Player, Distance, ActorLocation, DefaultOptOut, OptionsOut);
+
+	*DefaultOptOut = &((*OptionsOut)[0]);
+
+	return true;
 }

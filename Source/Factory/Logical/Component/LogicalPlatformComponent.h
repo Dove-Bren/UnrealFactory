@@ -4,6 +4,8 @@
 // This is the base class, and includes placables as well as obstacles, etc.
 // Basically anything that interacts with other components should be a component.
 
+#include <functional>
+
 #include "CoreMinimal.h"
 
 #include "Factory/DirectionFlagMap.h"
@@ -13,9 +15,12 @@
 
 #include "LogicalPlatformComponent.generated.h"
 
+typedef struct ClickOption ClickOption;
+
 typedef class ULogicalPlatform ULogicalPlatform;
 typedef class APlayerCharacter APlayerCharacter;
 typedef class UItem UItem;
+typedef class UItemType UItemType;
 
 typedef class APlatformComponent APlatformComponent;
 typedef class UPlatform UPlatform;
@@ -27,20 +32,65 @@ class ULogicalPlatformComponent : public UObject
 private:
 
 	// Owning Platform
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleInstanceOnly)
 	ULogicalPlatform *ParentPlatform;
 
 	// World actor spawned for this component, if there is one.
 	// This can easily become null as the player moves around. Check before using!
+	UPROPERTY(VisibleInstanceOnly)
 	APlatformComponent *WorldActor;
 
 protected:
 
-	UPROPERTY(VisibleAnywhere)
+	// Current grid position of the component
+	UPROPERTY(VisibleInstanceOnly)
 	FGridPosition Position;
 
-	UPROPERTY(VisibleAnywhere)
+	// Current direction
+	UPROPERTY(VisibleInstanceOnly)
 	EDirection Direction = EDirection::NORTH;
+	
+	// Whether this component can be removed with a click action.
+	// Can be set in an archtype to set whether it's ever possible.
+	// May be used on instances at runtime to temporarily disable the remove option.
+	// If setting to true, consider setting up an item to recover as RemoveItemType.
+	UPROPERTY(EditAnywhere)
+	bool bRemoveable;
+
+	// Whether this component can be clicked and 'used'.
+	// If set, the component must also override the OnUse method to handle the
+	// interact attempt.
+	// Can be set in an archtype to set whether it's ever possible.
+	// May be used on instances at runtime to temporarily disable the remove option.
+	UPROPERTY(EditAnywhere)
+	bool bUsable;
+
+	// If set, this component should be 'moveable' through a click action.
+	// Can be set in an archtype to set whether it's ever possible.
+	// May be used on instances at runtime to temporarily disable the remove option.
+	UPROPERTY(EditAnywhere)
+	bool bMoveable;
+	
+	// If set, this component can be rotated without picking it back up first.
+	// Can be set in an archtype to set whether it's ever possible.
+	// May be used on instances at runtime to temporarily disable the remove option.
+	UPROPERTY(EditAnywhere)
+	bool bRotatable;
+
+	// What item to give back to the player if this component is removed.
+	UPROPERTY(EditAnywhere)
+	UItemType *RemoveItemType;
+
+	// What color to highlight this component if it's close enough to be interacted with.
+	UPROPERTY(EditAnywhere)
+	EStandardColors HighlightColor;
+
+	// What menu to use to show all available actions when this component is clicked.
+	TSubclassOf<class UPopupMenuWidget> PopupWidgetClass;
+
+	// What item to give back to the player if this component is removed.
+	UFUNCTION(BlueprintCallable)
+	virtual bool OnUse(APlayerCharacter *Player); // TODO consider making a BP event
 
 	static FActorSpawnParameters MakeSpawnParams() { FActorSpawnParameters Params; Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn; return Params; }
 	void MakeSpawnLocation(FVector &Location);
@@ -96,8 +146,10 @@ public:
 
 	virtual bool RefreshNearby(FLocalLayout NearbyLayout = { });
 
+	UFUNCTION(BlueprintCallable)
 	FGridPosition GetPosition() const { return Position; }
 
+	UFUNCTION(BlueprintCallable)
 	EDirection GetDirection() const { return Direction; }
 
 	APlatformComponent *SpawnWorldComponent(UPlatform *Platform);
@@ -106,6 +158,26 @@ public:
 
 	virtual void RefreshWorldActor();
 
+	UFUNCTION(BlueprintCallable)
 	ULogicalPlatform *GetParentPlatform() { return ParentPlatform; }
 
+	// Check whether an actor representing this component should highlight themselves
+	// if hovered with the mouse.
+	virtual bool ShouldHighlight(APlayerCharacter *Player, float Distance);
+
+	// Get what color the highlight should be
+	virtual EStandardColors GetHighlightColor(APlayerCharacter *Player, float Distance);
+
+	virtual bool GetClickOptions(APlayerCharacter *Player, float Distance, FVector ActorLocation, ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut);
+
+	virtual TSubclassOf<class UPopupMenuWidget> GetMenuWidgetClass() { return PopupWidgetClass; }
+
 };
+
+typedef struct ClickOption
+{
+	FName Name;
+	std::function<void()> OnClick;
+
+	ClickOption(FName Name, std::function<void()> OnClick) : Name(Name), OnClick(OnClick) {}
+} ClickOption;

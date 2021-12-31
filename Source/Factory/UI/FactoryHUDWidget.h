@@ -6,10 +6,14 @@
 
 #include "Blueprint/UserWidget.h"
 
-#include "Factory/Character/PlayerCharacter.h"
-#include "Factory/Building/Shop.h"
+//#include "Factory/Character/PlayerCharacter.h"
+//#include "Factory/Building/Shop.h"
 
 #include "FactoryHUDWidget.generated.h"
+
+typedef class APlayerCharacter APlayerCharacter;
+
+typedef class AShop AShop;
 
 UCLASS()
 class UFactoryHUDWidget : public UUserWidget
@@ -29,7 +33,7 @@ public:
 	// Get the shop associated with the current character, if any.
 	// Just a wrapper for Character->GetShop().
 	UFUNCTION(BlueprintCallable)
-	AShop *GetCurrentShop() { return Character ? Character->GetShop() : nullptr; }
+	AShop *GetCurrentShop();
 
 protected:
 

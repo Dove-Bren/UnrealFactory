@@ -44,6 +44,7 @@ UItem *UStableInventory::AddItem_Implementation(UItem *ItemIn)
 		if (!InSlot)
 		{
 			Slots[i] = ItemIn;
+			ItemIn = nullptr; // Stored it all
 			break;
 		}
 

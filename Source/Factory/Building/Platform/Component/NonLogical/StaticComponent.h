@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 
-#include "Factory/Building/Platform/Component/ClickablePlatformComponent.h"
+#include "Factory/Building/Platform/Component/PlatformComponent.h"
 #include "Factory/Logical/Component/LogicalStaticComponent.h"
 
 #include "StaticComponent.generated.h"
 
 UCLASS(Blueprintable)
-class AStaticComponent : public AClickablePlatformComponent
+class AStaticComponent : public APlatformComponent
 {
 	GENERATED_BODY()
 
@@ -22,15 +22,14 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	ULogicalStaticComponent *LogicalComponent;
 
-	//virtual void OnClick_Implementation(FKey ButtonPressed) override;
-	virtual bool GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut) override;
-
 public:
-	AStaticComponent() : AClickablePlatformComponent(true, EStandardColors::DARK_ORANGE) {}
+	AStaticComponent() : APlatformComponent() {}
 	virtual ~AStaticComponent() = default;
 
-	void SetLogicalComponent(ULogicalStaticComponent *Component) { this->LogicalComponent = Component; RefreshMesh(); }
-	ULogicalStaticComponent *GetLogicalComponent() const { return this->LogicalComponent; }
+	void SetLogicalStaticComponent(ULogicalStaticComponent *Component) { this->LogicalComponent = Component; RefreshMesh(); }
+	ULogicalStaticComponent *GetLogicalStaticComponent() const { return this->LogicalComponent; }
+
+	virtual ULogicalPlatformComponent *GetLogicalComponent() override { return GetLogicalStaticComponent(); }
 
 	void RefreshMesh();
 

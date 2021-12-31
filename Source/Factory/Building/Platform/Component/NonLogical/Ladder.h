@@ -7,7 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/Actor.h"
 
-#include "Factory/Building/Platform/Component/ClickablePlatformComponent.h"
+#include "Factory/Building/Platform/Component/PlatformComponent.h"
 #include "Factory/GameEnums.h"
 
 #include "Ladder.generated.h"
@@ -15,7 +15,7 @@
 typedef class UPlatform UPlatform;
 
 UCLASS(Blueprintable)
-class ALadder : public AClickablePlatformComponent
+class ALadder : public APlatformComponent
 {
 	GENERATED_BODY()
 private:
@@ -32,9 +32,11 @@ private:
 	//UPROPERTY(VisibleAnywhere)
 	//UPlatform *Platform;
 
+	TSubclassOf<class UPopupMenuWidget> MenuWidgetClass;
+
 protected:
-	//virtual void OnClick_Implementation(FKey ButtonPressed) override;
 	virtual bool GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut) override;
+	virtual TSubclassOf<class UPopupMenuWidget> GetMenuWidgetClass() override { return MenuWidgetClass; }
 
 public:
 

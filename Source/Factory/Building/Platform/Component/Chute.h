@@ -29,4 +29,6 @@ public:
 
 	virtual void Refresh() override;
 
+	virtual ULogicalPlatformComponent *GetLogicalComponent() override { return GetLogicalChute(); }
+
 };

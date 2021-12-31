@@ -7,16 +7,18 @@
 #include "Factory/Building/Platform/Platform.h"
 #include "Factory/Building/Shop.h"
 
-ALadder::ALadder() : AClickablePlatformComponent()
+ALadder::ALadder() : APlatformComponent()
 {
 	// Structure to hold one-time initialization
 	struct FConstructorStatics
 	{
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> LadderMesh;
 		ConstructorHelpers::FObjectFinderOptional<UStaticMesh> HoleMesh;
+		ConstructorHelpers::FClassFinder<UPopupMenuWidget> PopupWidget;
 		FConstructorStatics()
 			: LadderMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/ladder.ladder"))
 			, HoleMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/ladder_hole.ladder_hole"))
+			, PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/PopupMenu/PopupSelectionMenu'"))
 		{
 		}
 	};
@@ -50,7 +52,10 @@ ALadder::ALadder() : AClickablePlatformComponent()
 	Capsule->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Capsule->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 
-	
+	if (ConstructorStatics.PopupWidget.Succeeded())
+	{
+		this->MenuWidgetClass = ConstructorStatics.PopupWidget.Class;
+	}
 	//Mesh->SetRelativeScale3D(FVector(2.f, 2.f, 2.f));
 }
 

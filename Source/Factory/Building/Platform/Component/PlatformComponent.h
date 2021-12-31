@@ -9,27 +9,19 @@
 #include "Components/StaticMeshComponent.h"
 
 #include "Factory/GameEnums.h"
+#include "Factory/Clickable.h"
 
 #include "PlatformComponent.generated.h"
 
 typedef class UPlatform UPlatform;
 
-UCLASS()
-class APlatformComponent : public AActor
+typedef class ULogicalPlatformComponent ULogicalPlatformComponent;
+typedef struct ClickOption ClickOption;
+
+UCLASS(Blueprintable, Abstract)
+class APlatformComponent : public AActor, public IClickable
 {
 	GENERATED_BODY()
-private:
-
-protected:
-
-	// Base mesh component
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent *Mesh;
-
-	// Owning Platform
-	UPROPERTY(EditAnywhere)
-	UPlatform *ParentPlatform;
-
 public:
 
 	APlatformComponent();
@@ -43,7 +35,7 @@ public:
 
 	// Detatch the component from the platform
 	UFUNCTION(BlueprintCallable)
-	virtual void RemoveFromPlatform(UPlatform *Platform);
+	virtual void RemoveFromPlatform();
 
 	// Transition this component to the provided daily phase
 	UFUNCTION(BlueprintCallable)
@@ -58,5 +50,40 @@ public:
 	virtual void ShopTick(EGamePhase Phase);
 
 	virtual void Refresh() {}
+
+	virtual void OnClick_Implementation(FKey ButtonPressed) override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	UPlatform *GetPlatformRef() { return ParentPlatform; }
+
+protected:
+
+	// Base mesh component
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent *Mesh;
+
+	// Owning Platform
+	UPROPERTY(EditAnywhere)
+	UPlatform *ParentPlatform;
+
+	virtual ULogicalPlatformComponent *GetLogicalComponent() { return nullptr; }
+
+	virtual bool GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut);
+	virtual TSubclassOf<class UPopupMenuWidget> GetMenuWidgetClass();
+
+	virtual bool ShouldHighlight_Implementation() override;
+	virtual EStandardColors GetHighlightColor_Implementation() override;
+
+private:
+
+	UFUNCTION()
+	void OnClickHandler(AActor *Actor, FKey ButtonPressed);
+
+	UFUNCTION()
+	void OnHoverStart(AActor *Actor);
+
+	UFUNCTION()
+	void OnHoverEnd(AActor *Actor);
 
 };

@@ -1,12 +1,33 @@
 #include "LogicalPlatformComponent.h"
 
+#include "Factory/Character/FactoryPlayerController.h"
 #include "Factory/Logical/LogicalPlatform.h"
+//#include "Factory/UI/Popup/SelectionPopup.h"
 
 #include "Factory/Building/Platform/Component/PlatformComponent.h"
 
 ULogicalPlatformComponent::ULogicalPlatformComponent()
 {
-	;
+	struct FConstructorStatics
+	{
+		ConstructorHelpers::FClassFinder<UPopupMenuWidget> PopupWidget;
+		FConstructorStatics()
+			: PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/PopupMenu/PopupSelectionMenu'"))
+		{
+		}
+	};
+	static FConstructorStatics ConstructorStatics;
+
+	if (ConstructorStatics.PopupWidget.Succeeded())
+	{
+		this->PopupWidgetClass = ConstructorStatics.PopupWidget.Class;
+	}
+
+	bRemoveable = true;
+	//bool bUsable;
+	//bool bMoveable;
+	bRotatable = true;
+	HighlightColor = EStandardColors::ORANGE;
 }
 
 void ULogicalPlatformComponent::RegisterPlatform(ULogicalPlatform * Platform, FGridPosition GridPosition)
@@ -116,4 +137,86 @@ APlatformComponent *ULogicalPlatformComponent::SpawnWorldComponent(UPlatform *Pl
 	APlatformComponent *Actor = this->SpawnWorldComponentInternal(Platform);
 	this->WorldActor = Actor;
 	return Actor;
+}
+
+bool ULogicalPlatformComponent::OnUse(APlayerCharacter *Player)
+{
+	return false;
+}
+
+bool ULogicalPlatformComponent::ShouldHighlight(APlayerCharacter *Player, float Distance)
+{
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	return (bUsable || bMoveable || bRotatable || bRemoveable)
+		&& (!Controller || !Controller->GetActiveMouseItem())
+		;
+}
+
+EStandardColors ULogicalPlatformComponent::GetHighlightColor(APlayerCharacter *Player, float Distance)
+{
+	return (!Player || Player->GetMaxReach() >= Distance)
+		? HighlightColor
+		: EStandardColors::DARK_GRAY;
+}
+
+bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float Distance, FVector ActorLocation, ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut)
+{
+	*DefaultOptOut = nullptr;
+
+	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	APlayerCharacter *Character = Cast<APlayerCharacter>(Controller->GetCharacter());
+
+	// Remove
+	if (this->bRemoveable)
+	{
+		FString NameString;
+		if (!!this->RemoveItemType)
+		{
+			NameString = FString::Printf(TEXT("Pickup"));
+		}
+		else
+		{
+			NameString = FString::Printf(TEXT("Remove"));
+		}
+
+		OptionsOut->Emplace(*NameString, [this, Controller, Character]() {
+			if (!this->ParentPlatform)
+			{
+				return;
+			}
+
+			// If return item is present, add to inventory
+			bool bCanRemove = true;
+			if (!!this->RemoveItemType)
+			{
+				if (nullptr != Character->GetInventory()->Execute_AddItem(Character->GetInventory(), UItem::MakeItemEx(Character, RemoveItemType)))
+				{
+					bCanRemove = false;
+				}
+			}
+
+			// Remove from platform if still okay
+			if (bCanRemove)
+			{
+				this->GetParentPlatform()->RemoveComponent(this);
+				if (WorldActor)
+				{
+					WorldActor->RemoveFromPlatform();
+					WorldActor->GetWorld()->DestroyActor(WorldActor);
+				}
+			}
+			
+			if (Controller)
+			{
+				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+			}
+		});
+	}
+
+	if (OptionsOut->Num() > 0)
+	{
+		*DefaultOptOut = &((*OptionsOut)[0]);
+	}
+
+	return *DefaultOptOut != nullptr; // Same as checking if size of options is > 0
 }

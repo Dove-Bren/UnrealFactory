@@ -20,11 +20,11 @@ private:
 protected:
 
 	// Item type in the bin. Can be null.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	UItemType *ItemType;
 
 	// Current number of items in the bin.
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly)
 	int32 ItemCount;
 
 	// Max number of stacks this bin can hold.
@@ -36,12 +36,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMesh *BinMesh;
 
-	ULogicalBin() : ULogicalPlatformComponent() {};
+	TSubclassOf<class UFactoryInventoryScreen> InventoryScreenClass;
+
+	ULogicalBin();
 
 	UItem *DisplaySingleItemCache;
 	TArray<UItem *>DisplayMultiItemCache;
 
 	virtual void RefreshDisplayItem();
+
+	virtual bool GetClickOptions(APlayerCharacter *Player, float Distance, FVector ActorLocation, ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut) override;
 
 public:
 
@@ -73,6 +77,8 @@ public:
 
 	UFUNCTION()
 	float GetFullness() { if (!ItemType) return 0; return (float)GetItemCount() / (float)GetMaxItemCount(); }
+
+	virtual bool ShouldHighlight(APlayerCharacter *Player, float Distance) override;
 
 	// IItemHandler
 public:

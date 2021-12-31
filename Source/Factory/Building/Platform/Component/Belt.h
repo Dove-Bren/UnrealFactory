@@ -41,4 +41,6 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual ULogicalPlatformComponent *GetLogicalComponent() override { return GetLogicalBelt(); }
+
 };
