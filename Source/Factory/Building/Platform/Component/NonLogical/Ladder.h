@@ -38,6 +38,8 @@ protected:
 	virtual bool GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut) override;
 	virtual TSubclassOf<class UPopupMenuWidget> GetMenuWidgetClass() override { return MenuWidgetClass; }
 
+	virtual bool ShouldHighlight_Implementation() override { return true; }
+
 public:
 
 	ALadder();

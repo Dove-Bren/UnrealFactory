@@ -15,7 +15,6 @@
 ULogicalBelt::ULogicalBelt() : ULogicalPlatformComponent()
 {
 	fSpeedTicks = 20;
-	this->bMoveable = false;
 }
 
 APlatformComponent *ULogicalBelt::SpawnWorldComponentInternal(UPlatform *Platform)

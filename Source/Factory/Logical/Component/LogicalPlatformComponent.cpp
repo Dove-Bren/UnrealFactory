@@ -147,7 +147,7 @@ bool ULogicalPlatformComponent::OnUse(APlayerCharacter *Player)
 bool ULogicalPlatformComponent::ShouldHighlight(APlayerCharacter *Player, float Distance)
 {
 	AFactoryPlayerController *Controller = Cast<AFactoryPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	return (bUsable || bMoveable || bRotatable || bRemoveable)
+	return (bUsable /*|| bMoveable*/ || bRotatable || bRemoveable)
 		&& (!Controller || !Controller->GetActiveMouseItem())
 		;
 }
@@ -204,23 +204,23 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 		});
 	}
 
-	// Move
-	if (this->bMoveable)
-	{
-		OptionsOut->Emplace(*FString::Printf(TEXT("Move")), [this, Controller, Player]() {
-			if (!this->ParentPlatform)
-			{
-				return;
-			}
+	//// Move
+	//if (this->bMoveable)
+	//{
+	//	OptionsOut->Emplace(*FString::Printf(TEXT("Move")), [this, Controller, Player]() {
+	//		if (!this->ParentPlatform)
+	//		{
+	//			return;
+	//		}
 
-			; // Set as placing again?
+	//		; // Set as placing again?
 
-			if (Controller)
-			{
-				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
-			}
-		});
-	}
+	//		if (Controller)
+	//		{
+	//			Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+	//		}
+	//	});
+	//}
 
 	// Remove
 	if (this->bRemoveable)

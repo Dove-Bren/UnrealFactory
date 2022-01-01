@@ -98,7 +98,7 @@ EStandardColors APlatformComponent::GetHighlightColor_Implementation()
 		return LogicalComponent->GetHighlightColor(Character, Distance);
 	}
 
-	return EStandardColors::BLUE;
+	return EStandardColors::ORANGE;
 }
 
 bool APlatformComponent::GetClickOptions(ClickOption **DefaultOptOut, TArray<ClickOption> *OptionsOut)

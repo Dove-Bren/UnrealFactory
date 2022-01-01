@@ -65,11 +65,11 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bUsable;
 
-	// If set, this component should be 'moveable' through a click action.
-	// Can be set in an archtype to set whether it's ever possible.
-	// May be used on instances at runtime to temporarily disable the remove option.
-	UPROPERTY(EditAnywhere)
-	bool bMoveable;
+	//// If set, this component should be 'moveable' through a click action.
+	//// Can be set in an archtype to set whether it's ever possible.
+	//// May be used on instances at runtime to temporarily disable the remove option.
+	//UPROPERTY(EditAnywhere)
+	//bool bMoveable;
 	
 	// If set, this component can be rotated without picking it back up first.
 	// Can be set in an archtype to set whether it's ever possible.

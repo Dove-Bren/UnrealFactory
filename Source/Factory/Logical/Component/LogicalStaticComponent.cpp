@@ -7,7 +7,6 @@
 ULogicalStaticComponent::ULogicalStaticComponent()
 {
 	this->bRemoveable = true;
-	this->bMoveable = true;
 	this->bRotatable = true;
 }
 
