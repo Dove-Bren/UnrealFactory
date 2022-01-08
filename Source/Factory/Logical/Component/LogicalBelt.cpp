@@ -3,6 +3,7 @@
 #include "Factory/GameEnums.h"
 #include "Factory/Building/Platform/Platform.h"
 #include "Factory/Building/Platform/Component/Belt.h"
+#include "Factory/Character/ItemActor.h"
 #include "Factory/Logical/Component/LogicalBin.h"
 
 ///*static*/ ULogicalBelt *ULogicalBelt::MakeBelt(EDirection Direction)
@@ -36,9 +37,15 @@ void ULogicalBelt::RegisterPlatform(ULogicalPlatform *Platform, FGridPosition Gr
 
 void ULogicalBelt::RemoveFromPlatform(ULogicalPlatform *Platform)
 {
-	Super::RemoveFromPlatform(Platform);
+	if (ITEM_EXISTS(this->Item))
+	{
+		FVector Loc;
+		MakeSpawnLocation(Loc);
+		AItemActor::SpawnItemActor(Platform->GetWorld(), this->Item, Loc);
+		this->Item = nullptr;
+	}
 
-	;
+	Super::RemoveFromPlatform(Platform);
 }
 
 bool ULogicalBelt::IsActiveDuring(EGamePhase Phase)

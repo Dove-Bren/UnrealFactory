@@ -17,6 +17,7 @@ public:
 
 	UFactorySingletons();
 
+	UFUNCTION(BlueprintCallable)
 	static UFactorySingletons *GetInstance(const UObject *WorldContextObject);
 
 	UItemTypeRegistry *GetItemRegistry() { return ItemRegistry; }

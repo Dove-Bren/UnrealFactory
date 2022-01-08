@@ -255,6 +255,7 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 			if (bCanRemove)
 			{
 				this->GetParentPlatform()->RemoveComponent(this);
+				this->RemoveFromPlatform(GetParentPlatform()); // Before fetching parent platform
 				if (WorldActor)
 				{
 					WorldActor->RemoveFromPlatform();

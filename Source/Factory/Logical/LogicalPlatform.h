@@ -85,15 +85,15 @@ public:
 
 	// Remove a component from the platform by supplying the component directly.
 	UFUNCTION(BlueprintCallable)
-	void RemoveComponent(ULogicalPlatformComponent *Component);
+	void RemoveComponent(ULogicalPlatformComponent *Component, bool bRefreshAround = true);
 
 	// Remove the component at the given spot from the platform
 	UFUNCTION(BlueprintCallable)
-	void RemoveComponentAtWorldPos(float WorldX, float WorldY);
+	void RemoveComponentAtWorldPos(float WorldX, float WorldY, bool bRefreshAround = true);
 
 	// Remove the component at the given spot from the platform
 	UFUNCTION(BlueprintCallable)
-	void RemoveComponentAt(FGridPosition GridPos);
+	void RemoveComponentAt(FGridPosition GridPos, bool bRefreshAround = true);
 
 	// Transition to the provided state, including stopping any activities from the previous one
 	UFUNCTION(BlueprintCallable)

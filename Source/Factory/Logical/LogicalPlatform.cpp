@@ -121,19 +121,23 @@ FLocalLayout ULogicalPlatform::GetComponentAt(float WorldX, float WorldY)
 
 }
 
-void ULogicalPlatform::RemoveComponent(ULogicalPlatformComponent *Component)
+void ULogicalPlatform::RemoveComponent(ULogicalPlatformComponent *Component, bool bRefreshAround)
 {
-	this->RemoveComponentAt(Component->GetPosition());
+	this->RemoveComponentAt(Component->GetPosition(), bRefreshAround);
 }
 
-void ULogicalPlatform::RemoveComponentAtWorldPos(float WorldX, float WorldY)
+void ULogicalPlatform::RemoveComponentAtWorldPos(float WorldX, float WorldY, bool bRefreshAround)
 {
-	this->RemoveComponentAt(MakeLocal(WorldX, WorldY));
+	this->RemoveComponentAt(MakeLocal(WorldX, WorldY), bRefreshAround);
 }
 
-void ULogicalPlatform::RemoveComponentAt(FGridPosition GridPos)
+void ULogicalPlatform::RemoveComponentAt(FGridPosition GridPos, bool bRefreshAround)
 {
 	Grid->Remove(GridPos.X, GridPos.Y);
+	if (bRefreshAround)
+	{
+		RefreshAround(GridPos);
+	}
 }
 
 void ULogicalPlatform::StartPhase(EGamePhase Phase)
