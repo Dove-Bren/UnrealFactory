@@ -3,8 +3,6 @@
 #include "Factory/GameEnums.h"
 #include "Factory/Building/Platform/Platform.h"
 #include "Factory/Building/Platform/Component/Merger.h"
-#include "Factory/Logical/Component/LogicalBin.h"
-#include "Factory/Logical/Component/LogicalBelt.h"
 
 ULogicalMerger::ULogicalMerger() : ULogicalPlatformComponent()
 {
@@ -74,7 +72,7 @@ void ULogicalMerger::PullFromProducers()
 
 			if (Handler != nullptr)
 			{
-				SetItem(IItemHandler::AttemptTake(Handler, NextIncomeDirection, nullptr), NextIncomeDirection);
+				SetItem(IItemHandler::AttemptTake(Handler, OppositeDirection(NextIncomeDirection), nullptr), NextIncomeDirection);
 			}
 
 			if (ITEM_EXISTS(this->Item))
@@ -145,13 +143,18 @@ bool ULogicalMerger::RefreshNearby(FLocalLayout NearbyLayout)
 
 	// Repeat but looking for receivers
 	EDirection LookDirection = GetDirection();
+	IItemHandler** Handlers[] = {
+		&CachedRightProducer,
+		&CachedRearProducer,
+		&CachedLeftProducer,
+	};
 	for (int i = 0; i < 3; i++)
 	{
 		LookDirection = RotateDirection(LookDirection);
 		Comp = NearbyLayout.GetDirection(LookDirection);
 		if (!Comp)
 		{
-			CachedRearProducer = nullptr;
+			*(Handlers[i]) = nullptr;
 		}
 		else
 		{
@@ -159,11 +162,11 @@ bool ULogicalMerger::RefreshNearby(FLocalLayout NearbyLayout)
 
 			if (Handler && Comp->GetOutgoingConnectionPorts().Get(OppositeDirection(LookDirection)))
 			{
-				CachedRearProducer = Handler;
+				*(Handlers[i]) = Handler;
 			}
 			else
 			{
-				CachedRearProducer = nullptr;
+				*(Handlers[i]) = nullptr;
 			}
 		}
 	}
@@ -177,9 +180,10 @@ bool ULogicalMerger::RefreshNearby(FLocalLayout NearbyLayout)
 
 bool ULogicalMerger::CanAccept_Implementation(EDirection DirectionIn, const UItem *ItemIn)
 {
-	return DirectionIn != this->Direction
+	return false; // Only move items in shop tick
+	/*return DirectionIn != this->Direction
 		&& DirectionIn == NextIncomeDirection
-		&& (!ITEM_EXISTS(this->Item));
+		&& (!ITEM_EXISTS(this->Item));*/
 }
 
 UItem *ULogicalMerger::InsertItem_Implementation(EDirection DirectionIn, UItem *ItemIn)
@@ -211,7 +215,8 @@ void ULogicalMerger::PeekItems_Implementation(TArray<UItem*> &ItemArray)
 
 bool ULogicalMerger::CanTake_Implementation(EDirection DirectionIn, const UItem *ItemDemandOpt)
 {
-	bool Success = true;
+	return false; // Only accept items in shop tick
+	/*bool Success = true;
 
 	if (DirectionIn != Direction)
 	{
@@ -229,7 +234,7 @@ bool ULogicalMerger::CanTake_Implementation(EDirection DirectionIn, const UItem 
 		}
 	}
 
-	return Success;
+	return Success;*/
 }
 
 UItem *ULogicalMerger::TakeItem_Implementation(EDirection DirectionIn, const UItem *ItemDemandOpt)
@@ -280,5 +285,5 @@ void ULogicalMerger::SetItem(UItem *NewItem, EDirection FromDirection)
 void ULogicalMerger::ClearItem()
 {
 	this->Item = nullptr;
-	this->NextIncomeDirection = EDirection::MAX;
+	//this->NextIncomeDirection = EDirection::MAX;
 }

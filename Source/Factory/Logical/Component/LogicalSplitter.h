@@ -1,6 +1,6 @@
 #pragma once
 
-// Conveyor belt merger
+// Splitter
 
 #include "CoreMinimal.h"
 
@@ -8,14 +8,14 @@
 #include "LogicalPlatformComponent.h"
 #include "Factory/Logical/Inventory/ItemHandler.h"
 
-#include "LogicalMerger.generated.h"
+#include "LogicalSplitter.generated.h"
 
 UCLASS(Blueprintable, Abstract)
-class ULogicalMerger : public ULogicalPlatformComponent, public IItemHandler
+class ULogicalSplitter : public ULogicalPlatformComponent, public IItemHandler
 {
 	GENERATED_BODY()
 private:
-	void PullFromProducers();
+	void PushToReceivers();
 
 protected:
 
@@ -24,23 +24,23 @@ protected:
 
 	int32 LastIncomeTick = 0;
 
-	// Next input direction. Used for round-robin behavior.
+	// Next output direction. Used for round robin behavior.
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite)
-	EDirection NextIncomeDirection; 
+	EDirection NextOutputDirection;
 
-	IItemHandler *CachedReceiver;
+	IItemHandler *CachedForwardReceiver;
+	IItemHandler *CachedRightReceiver;
+	IItemHandler *CachedLeftReceiver;
 	IItemHandler *CachedRearProducer;
-	IItemHandler *CachedLeftProducer;
-	IItemHandler *CachedRightProducer;
 
-	ULogicalMerger();
+	ULogicalSplitter();
 
 	void SetItem(UItem *NewItem, EDirection FromDirection = EDirection::MAX);
 	void ClearItem();
 
 public:
 
-	// Change the merger input direction. This forces a refresh of nearby tiles.
+	// Change the belt direction. This forces a refresh of nearby tiles.
 	UFUNCTION(BlueprintCallable)
 	void SetDirection(EDirection NewDirection) { Direction = NewDirection; RefreshConnections(); }
 
@@ -54,17 +54,17 @@ public:
 
 	virtual bool RefreshNearby(FLocalLayout NearbyLayout) override;
 
-	virtual FDirectionFlagMap GetDefaultIncomingConnectionPorts() override { return FDirectionFlagMap(false, true, true, true); } // all but east
-	virtual FDirectionFlagMap GetDefaultOutgoingConnectionPorts() override { return FDirectionFlagMap(true, false, false, false); } // only east
+	virtual FDirectionFlagMap GetDefaultIncomingConnectionPorts() override { return FDirectionFlagMap(false, false, true, false); } // only west
+	virtual FDirectionFlagMap GetDefaultOutgoingConnectionPorts() override { return FDirectionFlagMap(true, true, false, true); } // all but west
 
-	// Return what merger is pointing towards.
-	IItemHandler *GetReceivingHandler() { return CachedReceiver; }
+	// Return what belt is pointing towards.
+	IItemHandler *GetForwardReceivingHandler() { return CachedForwardReceiver; }
+	IItemHandler *GetRightReceivingHandler() { return CachedRightReceiver; }
+	IItemHandler *GetLeftReceivingHandler() { return CachedLeftReceiver; }
 	IItemHandler *GetRearProducerHandler() { return CachedRearProducer; }
-	IItemHandler *GetLeftProducerHandler() { return CachedLeftProducer; }
-	IItemHandler *GetRightProducerHandler() { return CachedRightProducer; }
 
 	virtual UItem *GetItem() { return Item; }
-	virtual EDirection GetNextInputDirection() { return NextIncomeDirection; }
+	virtual EDirection GetNextOutputDirection() { return NextOutputDirection; }
 
 	// IItemHandler
 public:
