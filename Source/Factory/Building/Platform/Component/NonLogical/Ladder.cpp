@@ -18,7 +18,7 @@ ALadder::ALadder() : APlatformComponent()
 		FConstructorStatics()
 			: LadderMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/ladder.ladder"))
 			, HoleMesh(TEXT("/Game/Factory/Meshes/Environment/Interior/ladder_hole.ladder_hole"))
-			, PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/PopupMenu/PopupSelectionMenu'"))
+			, PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/PopupMenu/PopupSelectionMenu'"))
 		{
 		}
 	};

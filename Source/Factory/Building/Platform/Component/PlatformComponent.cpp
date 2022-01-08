@@ -150,7 +150,8 @@ void APlatformComponent::OnClick_Implementation(FKey ButtonPressed)
 
 			if (ButtonPressed == EKeys::RightMouseButton)
 			{
-				// Perform default
+				// Perform default & dismiss any popup that max be up
+				Controller->GetHudManager()->SetPopup(nullptr);
 				Default->OnClick();
 			}
 			else
@@ -183,7 +184,8 @@ void APlatformComponent::OnClick_Implementation(FKey ButtonPressed)
 						}
 
 						Screen->SetOptions(MenuOptions, MenuDefault);
-						Controller->OpenScreenAt(Screen, this->GetActorLocation());
+						Controller->GetHudManager()->SetPopup(Screen);
+						//Controller->OpenScreenAt(Screen, this->GetActorLocation());
 					}
 				}
 			}

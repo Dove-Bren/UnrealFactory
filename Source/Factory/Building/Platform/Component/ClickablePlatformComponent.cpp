@@ -13,7 +13,7 @@
 //	{
 //		ConstructorHelpers::FClassFinder<UPopupMenuWidget> PopupWidget;
 //		FConstructorStatics()
-//			: PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/PopupMenu/PopupSelectionMenu'"))
+//			: PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/PopupMenu/PopupSelectionMenu'"))
 //		{
 //		}
 //	};

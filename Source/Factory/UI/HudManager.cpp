@@ -50,6 +50,7 @@ UHUDManager::~UHUDManager()
 void UHUDManager::SetGamePlatform(EGamePlatform Platform)
 {
 	SetScreen(nullptr);
+	SetPopup(nullptr);
 
 	// TODO transition?
 	if (CurrentHud)
@@ -139,9 +140,30 @@ void UHUDManager::SetScreen(UFactoryHUDWidget *Screen)
 	}
 }
 
+void UHUDManager::SetPopup(UFactoryHUDWidget *Screen)
+{
+	if (CurrentPopup)
+	{
+		CurrentPopup->RemoveFromViewport();
+		CurrentPopup = nullptr;
+	}
+
+	// Popups require a character
+	if (CurrentCharacter)
+	{
+		CurrentPopup = Screen;
+		if (CurrentPopup)
+		{
+			CurrentPopup->SetCharacter(CurrentCharacter);
+			CurrentPopup->AddToViewport(0);
+		}
+	}
+}
+
 void UHUDManager::SetCharacter(APlayerCharacter *Character)
 {
 	CurrentCharacter = Character;
 	if (CurrentHud) CurrentHud->SetCharacter(Character);
 	if (CurrentScreen) CurrentScreen->SetCharacter(Character);
+	if (CurrentPopup) SetPopup(nullptr); // Just close a popup if character changes. Maybe should for screens too?
 }

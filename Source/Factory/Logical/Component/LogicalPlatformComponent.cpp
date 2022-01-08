@@ -12,7 +12,7 @@ ULogicalPlatformComponent::ULogicalPlatformComponent()
 	{
 		ConstructorHelpers::FClassFinder<UPopupMenuWidget> PopupWidget;
 		FConstructorStatics()
-			: PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/Screens/PopupMenu/PopupSelectionMenu'"))
+			: PopupWidget(TEXT("WidgetBlueprint'/Game/Factory/UI/PopupMenu/PopupSelectionMenu'"))
 		{
 		}
 	};
@@ -178,7 +178,7 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 
 			if (Controller)
 			{
-				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+				Controller->GetHudManager()->SetPopup(nullptr); // Close popup on click
 			}
 		});
 	}
@@ -199,7 +199,7 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 
 			if (Controller)
 			{
-				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+				Controller->GetHudManager()->SetPopup(nullptr); // Close popup on click
 			}
 		});
 	}
@@ -217,7 +217,7 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 
 	//		if (Controller)
 	//		{
-	//			Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+	//			Controller->GetHudManager()->SetPopup(nullptr); // Close popup on click
 	//		}
 	//	});
 	//}
@@ -264,7 +264,7 @@ bool ULogicalPlatformComponent::GetClickOptions(APlayerCharacter *Player, float 
 			
 			if (Controller)
 			{
-				Controller->GetHudManager()->SetScreen(nullptr); // Close screen on click
+				Controller->GetHudManager()->SetPopup(nullptr); // Close popup on click
 			}
 		});
 	}

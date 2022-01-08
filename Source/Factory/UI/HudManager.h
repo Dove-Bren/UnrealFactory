@@ -43,7 +43,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetCharacter(APlayerCharacter *Character);
 
-	// Update what popup (if any -- can be null) to display.
+	// Update what screen overlay (if any -- can be null) to display.
 	UFUNCTION(BlueprintCallable)
 	void SetScreen(UFactoryHUDWidget *Screen);
 
@@ -54,12 +54,23 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsScreenShown(UFactoryHUDWidget *Screen) { return Screen == this->CurrentScreen; }
 
+	// Update what popup (if any -- can be null) to display.
+	UFUNCTION(BlueprintCallable)
+	void SetPopup(UFactoryHUDWidget *Screen);
+
+	// Check whether any popup is currently on screen
+	UFUNCTION(BlueprintCallable)
+	bool HasPopup() { return !!CurrentPopup; }
+
+
+
 protected:
 
 	APlayerCharacter *CurrentCharacter;
 	UFactoryHUDBase *CurrentHud;
 
 	UFactoryHUDWidget *CurrentScreen;
+	UFactoryHUDWidget *CurrentPopup;
 
 private:
 

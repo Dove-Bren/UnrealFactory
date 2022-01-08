@@ -488,6 +488,9 @@ void AFactoryPlayerController::MoveForward(float Value)
 			// get forward vector
 			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 			ControlledCharacter->AddMovementInput(Direction, Value);
+
+			// Close popups if there are any
+			GetHudManager()->SetPopup(nullptr);
 		}
 	}
 }
@@ -513,6 +516,9 @@ void AFactoryPlayerController::MoveRight(float Value)
 			const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 			// add movement in that direction
 			ControlledCharacter->AddMovementInput(Direction, Value);
+
+			// Close popups if there are any
+			GetHudManager()->SetPopup(nullptr);
 		}
 	}
 }
@@ -523,6 +529,9 @@ void AFactoryPlayerController::Jump()
 	if (ControlledCharacter && ControlledCharacter->CanJump())
 	{
 		ControlledCharacter->Jump();
+
+		// Close popups if there are any
+		GetHudManager()->SetPopup(nullptr);
 	}
 }
 
